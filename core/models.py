@@ -9,7 +9,7 @@ from django.utils.text import slugify
 #from django.core import validators
 #from django.core.validators import MinValueValidator, MaxValueValidator
 
-class Kategorien(models.Model):
+class Kategorie(models.Model):
     gruppe = models.CharField(max_length=1, blank=True)             #Untergruppe A, B, C, D, E um die Ansicht übersichtlicher gestalten zu können
     zeile = models.PositiveSmallIntegerField(default=0)             # entspricht der Aufgabengruppe (1 bis 35)
     name = models.CharField(max_length=20)
@@ -32,8 +32,8 @@ class Kategorien(models.Model):
         verbose_name = 'Kategorie'
         verbose_name_plural = 'Kategorien'
 
-class Fragen(models.Model):
-    kategorie = models.ForeignKey(Kategorien, on_delete=models.CASCADE, related_name="Fragen")
+class Frage(models.Model):
+    kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, related_name="Fragen")
     typA = models.PositiveSmallIntegerField(default=0)
     typB = models.PositiveSmallIntegerField(default=0)
     anz = models.PositiveSmallIntegerField(default=10, verbose_name="Anzahl Aufgaben")      #Aufgaben die am Stück gerechnet werden müssen
@@ -58,51 +58,6 @@ class Fragen(models.Model):
         verbose_name = 'Frage'
         verbose_name_plural = 'Fragen'
 
-class Schulen(models.Model):
-    name = models.CharField(max_length=30)
-    schulform = models.CharField(max_length=20)  # , NULL=True)
-
-    nummer = models.IntegerField(default=0, verbose_name='Schulnummer')
-
-    ort = models.CharField(max_length=30,  verbose_name="Schulort")
-    plz = models.CharField(max_length=5,  verbose_name="PLZ des Schulortes")
-
-    Land = models.CharField(max_length=20, default="Hessen", verbose_name='Bundesland')
-    Staat = models.CharField(max_length=2, default="DE", verbose_name='Land', editable=False)
-
-    def __str__(self):
-        return f"({self.name}, {self.plz} {self.ort})"
-
-    class Meta:
-        verbose_name = 'Schule'
-        verbose_name_plural = 'Schulen'
-
-class Lehrer(models.Model):
-    anrede = models.CharField(max_length=5)
-    nachname = models.CharField(max_length=20)
-    vorname = models.CharField(max_length=20)
-    schule = models.ForeignKey(Schulen, null=True, on_delete=models.SET_NULL ,related_name="Lehrer")
-    sprache = models.CharField(max_length=2, default="de", editable=False)
-
-    def __str__(self):
-        return f"({self.anrede} {self.nachname})"
-
-    class Meta:
-        verbose_name = 'Lehrer'
-        verbose_name_plural = 'Lehrer'
-
-class Gruppen(models.Model):
-    name = models.CharField(max_length=10)
-    lehrer = models.ForeignKey(Lehrer, on_delete=models.CASCADE ,related_name="Gruppe")
-    schule = models.ForeignKey(Schulen, on_delete=models.CASCADE ,related_name="Gruppe")
-
-    def __str__(self):
-        return f"({self.name}, {self.lehrer}, {self.schule})"
-
-    class Meta:
-        verbose_name = 'Gruppe'
-        verbose_name_plural = 'Gruppen'
-
 class Schueler(models.Model):
     nachname = models.CharField(max_length=20)
     vorname = models.CharField(max_length=20)
@@ -111,11 +66,6 @@ class Schueler(models.Model):
     kurs = models.CharField(max_length=1, default="E")
     kurs_i = models.BooleanField(default=False, verbose_name="Förderkind", editable=False)
     kurs_E = models.BooleanField(default=True, verbose_name="E-Kurs", editable=False)
-
-    schule = models.ForeignKey(Schulen, null=True, on_delete=models.SET_NULL , related_name="Schüler")
-    lehrer = models.ForeignKey(Lehrer,  null=True, on_delete=models.SET_NULL , related_name="Schüler")
-    gruppe = models.ForeignKey(Gruppen, null=True, on_delete=models.SET_NULL , related_name="Schüler")
-    sprache = models.CharField(max_length=20, default="de", editable=False)
 
     # werden beim Erstellen eingestellt
     datum_start = models.DateField(auto_now_add=True, verbose_name="Startdatum", editable=False, )
@@ -135,7 +85,7 @@ class Schueler(models.Model):
 
 class Daten(models.Model):
     schueler = models.ForeignKey(Schueler, on_delete=models.CASCADE, related_name="Daten")
-    kategorie = models.ForeignKey(Kategorien, on_delete=models.CASCADE, verbose_name="Kategorie", related_name="Daten")
+    kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, verbose_name="Kategorie", related_name="Daten")
     typ = models.CharField(max_length=5, blank=True )
     halbjahr = models.PositiveSmallIntegerField(default=0)
 
