@@ -1,0 +1,26 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<h1>Aufgaben zu {{ category.name }}</h1>
+{% if messages %}
+<p>
+    Letzte Antwort:<br>
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+</p>
+{% endif %}
+<h3>Aufgabe</h3>
+<p>{{ text }}</p>
+<form action="{% url 'challenge' category.id %}" method="post">
+    {% csrf_token %}
+    <fieldset>
+        {{ form.result.label_tag }}
+        {{ form.result }}
+        <input class="button-primary" type="submit" value="Prüfen">
+    </fieldset>
+</form>
+<p><a href="{% url 'index' %}">Startseite</a></p>
+{% endblock %}
