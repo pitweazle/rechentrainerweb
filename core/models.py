@@ -4,13 +4,21 @@ from django.db import models
 from django import forms
 from django.db.models import IntegerField
 from django.utils.text import slugify
+from django.core.exceptions import ValidationError
 
 #from django.contrib.postgres.fields import ArrayField
 #from django.core import validators
-#from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+def validate_letter(value):
+    if value < "A" or value >"E":
+        raise ValidationError(
+            ("Nur A, B, C, D oder E ist erlaubt"),
+            params={"value": value}
+        )
 
 class Kategorie(models.Model):
-    gruppe = models.CharField(max_length=1, blank=True)             #Untergruppe A, B, C, D, E um die Ansicht übersichtlicher gestalten zu können
+    gruppe = models.CharField(max_length=1, blank=True, validators=[validate_letter])             #Untergruppe A, B, C, D, E um die Ansicht übersichtlicher gestalten zu können
     zeile = models.PositiveSmallIntegerField(default=0)             # entspricht der Aufgabengruppe (1 bis 35)
     name = models.CharField(max_length=20)
 
@@ -21,12 +29,12 @@ class Kategorie(models.Model):
 
     eof = models.PositiveSmallIntegerField(default=25, verbose_name="Eingaben ohne Fehler")  # Aufgaben die an einem Stück richtig beantwortet werden müssen damit der Fehlerzähler zurückgesetzt wird
 
-    def __str__(self):
-        return f"({self.name})"
-
     def save(self, *args, **kwargs):
         self.slug=slugify(self.name)
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"({self.zeile} ({self.gruppe}) {self.name})"
 
     class Meta:
         verbose_name = 'Kategorie'
@@ -38,21 +46,21 @@ class Frage(models.Model):
     typB = models.PositiveSmallIntegerField(default=0)
     anz = models.PositiveSmallIntegerField(default=10, verbose_name="Anzahl Aufgaben")      #Aufgaben die am Stück gerechnet werden müssen
 
-    text = models.CharField(max_length=40)
-    aufgabe = models.CharField(max_length=20)
-    protokolltext = models.CharField(max_length=20)
+    text = models.CharField(blank=True, max_length=40)
+    aufgabe = models.CharField(blank=True,max_length=20)
+    protokolltext = models.CharField(blank=True,max_length=20)
 
-    anmerkung = models.CharField(max_length=20)
+    anmerkung = models.CharField(blank=True,max_length=20)
     grafik = models.IntegerField(default=0)  # gehört eine Grafik zur Aufgabe?
 
-    hilfe1 = models.CharField(max_length=25)
-    hilfe2 = models.CharField(max_length=25)
+    hilfe1 = models.CharField(blank=True,max_length=25)
+    hilfe2 = models.CharField(blank=True,max_length=25)
 
     ergebnis = models.DecimalField(max_digits=15, decimal_places=5, default=0)
-    loesung = models.CharField(max_length=100)
+    loesung = models.CharField(blank=True,max_length=100)
 
     def __str__(self):
-        return f"({self.text})"
+        return f"({self.text} {self.aufgabe})"
 
     class Meta:
         verbose_name = 'Frage'
@@ -112,7 +120,7 @@ class Daten(models.Model):
         verbose_name_plural = 'Daten'
 
     def __str__(self):
-        return f"({self.aufgabe}={self.eingabe}?)"
+        return f"({self.start} {self.schueler} {Kategorie})"
 
 
 
