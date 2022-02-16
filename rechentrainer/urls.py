@@ -21,6 +21,8 @@ from core import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('category/<int:category_id>/', views.challenge, name='challenge'),
+    path("modul/<auswahl>/", views.modul),
+
+    path('category/<int:category_id>/', views.aufgabe, name='zurueck'),
     path('admin/', admin.site.urls),
 ]

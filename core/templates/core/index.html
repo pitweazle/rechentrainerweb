@@ -1,12 +1,12 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<h1>Rechentrainer im Web - Demo</h1>
-<h3>Bitte such dir eine Kategorie aus:</h3>
+<h1>Der Rechentrainer</h1>
+<h3>Bitte suche dir eine Kategorie aus:</h3>
 
-{% for category in categories %}
-<a class="button" href="{% url 'challenge' category.id %}" {% if not category.questions.count %}disabled{% endif %}>
-    {{ category.name }}
+{% for modul in module %}
+<a class="button" href="{% url 'zurueck' modul.id %}" {% if not modul.fragen.count %}disabled{% endif %}>
+    {{ modul.name }}
 </a>
 <br>
 {% empty %}

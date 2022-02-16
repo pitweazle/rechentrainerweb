@@ -8,7 +8,8 @@ from django.utils import timezone
 
 from .forms import ChallengeForm
 from .models import Category, Result, Question
-
+from .models import Kategorie, Frage, Daten
+from django.http import HttpResponse, HttpResponseNotFound
 
 NOTES = [5, 10, 20, 50, 100]
 
@@ -28,15 +29,60 @@ def make_task():
 def check_result(given, right):
     return abs(given - right) < decimal.Decimal('0.001')
 
-
 def get_fake_user():
     return User.objects.all().first()
 
-
-# Create your views here.
-
+def modul(request, auswahl):
+    testtext=None
+    if auswahl=="eins":
+        testtext=="Das funktioniert!"
+    else:
+        testtext=="Das funktioniert auch!"
+    #return HttpResponse(auswahl)
+    return HttpResponse(testtext)
 
 def index(req):
+    Result.objects.filter(tries=0).delete()
+    kategorien = Kategorie.objects.all().order_by('id')
+    return render(req, 'core/index.html', {'module': kategorien})
+
+def aufgabe(req, category_id):
+    category = get_object_or_404(Category, pk=category_id)
+    if req.method == 'POST':
+        form = ChallengeForm(req.POST)
+        result = Result.objects.get(pk=req.session.get('result_id'))
+        result.tries += 1
+        result.save()
+        if form.is_valid():
+            if check_result(form.cleaned_data['result'], result.value):
+                result.end = timezone.now()
+                result.save()
+                min, sec = divmod(result.duration, 60)
+                msg = f'Zeit: {int(min)}min {int(sec)}s'
+                messages.info(req, f'Richtig! Versuche: {result.tries}, {msg}')
+                return redirect('challenge', category_id)
+        messages.info(req, 'Leider falsch.')
+        text = result.text
+    else:
+        question = Question.objects.filter(
+            category=category
+        ).order_by('?').first()
+        # 2 Zufallszahlen erzeugen und Ergebnis ausrechnen
+        low, high, result = make_task()
+        text = question.text.format(low=low, high=high)
+        result = Result.objects.create(
+            user=get_fake_user(), value=result, category=category,
+            text=text
+        )
+        req.session['result_id'] = result.id
+        form = ChallengeForm()
+    context = dict(category=category, text=text, form=form)
+    return render(req, 'core/aufgabe.html', context)
+
+
+
+
+def indexalt(req):
     Result.objects.filter(tries=0).delete()
     categories = Category.objects.all().order_by('id')
     return render(req, 'core/index.html', {'categories': categories})
@@ -74,3 +120,4 @@ def challenge(req, category_id):
         form = ChallengeForm()
     context = dict(category=category, text=text, form=form)
     return render(req, 'core/challenge.html', context)
+

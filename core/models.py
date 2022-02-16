@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 
 #from django.contrib.postgres.fields import ArrayField
-#from django.core import validators
+from django.core import validators
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 def validate_letter(value):
@@ -41,10 +41,9 @@ class Kategorie(models.Model):
         verbose_name_plural = 'Kategorien'
 
 class Frage(models.Model):
-    kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, related_name="Fragen")
+    kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, related_name="fragen")
     typA = models.PositiveSmallIntegerField(default=0)
     typB = models.PositiveSmallIntegerField(default=0)
-    anz = models.PositiveSmallIntegerField(default=10, verbose_name="Anzahl Aufgaben")      #Aufgaben die am Stück gerechnet werden müssen
 
     text = models.CharField(blank=True, max_length=40)
     aufgabe = models.CharField(blank=True,max_length=20)
@@ -66,6 +65,52 @@ class Frage(models.Model):
         verbose_name = 'Frage'
         verbose_name_plural = 'Fragen'
 
+class Schulen(models.Model):
+    name = models.CharField(max_length=30)
+    schulform = models.CharField(max_length=20)  # , NULL=True)
+
+    nummer = models.IntegerField(default=0, verbose_name='Schulnummer')
+
+    ort = models.CharField(max_length=30,  verbose_name="Schulort")
+    plz = models.CharField(max_length=5,  verbose_name="PLZ des Schulortes")
+
+    Land = models.CharField(max_length=20, default="Hessen", verbose_name='Bundesland')
+    Staat = models.CharField(max_length=2, default="DE", verbose_name='Land', editable=False)
+
+    def __str__(self):
+        return f"({self.name}, {self.plz} {self.ort})"
+
+    class Meta:
+        verbose_name = 'Schule'
+        verbose_name_plural = 'Schulen'
+
+class Lehrer(models.Model):
+    anrede = models.CharField(max_length=5)
+    nachname = models.CharField(max_length=20)
+    vorname = models.CharField(blank=True, max_length=20)
+    kuerzel = models.CharField(blank=True, max_length=5, verbose_name="Kürzel")
+    schule = models.ForeignKey(Schulen, null=True, on_delete=models.SET_NULL ,related_name="lehrer")
+    sprache = models.CharField(max_length=2, default="de", editable=False)
+
+    def __str__(self):
+        return f"({self.anrede} {self.nachname})"
+
+    class Meta:
+        verbose_name = 'Lehrer'
+        verbose_name_plural = 'Lehrer'
+
+class Gruppen(models.Model):
+    name = models.CharField(max_length=10)
+    lehrer = models.ForeignKey(Lehrer, on_delete=models.CASCADE ,related_name="gruppe")
+    schule = models.ForeignKey(Schulen, on_delete=models.CASCADE ,related_name="gruppe")
+
+    def __str__(self):
+        return f"({self.name}, {self.lehrer}, {self.schule})"
+
+    class Meta:
+        verbose_name = 'Gruppe'
+        verbose_name_plural = 'Gruppen'
+
 class Schueler(models.Model):
     nachname = models.CharField(max_length=20)
     vorname = models.CharField(max_length=20)
@@ -81,9 +126,6 @@ class Schueler(models.Model):
     halbjahr = models.PositiveSmallIntegerField(default=0, editable=False)
     voreinst = models.IntegerField(default=1)                               #hier könnte, mithilf von Primzahlen, Voreinstellungen gesetzt und abgefragt werden
 
-    zaehler_EoF = models.PositiveSmallIntegerField(default=0,  editable=False)  # je nach Einstellung LoeOF in Aufgaben wird der Fehlerzähler gelöscht
-    zaehler_Fehler = models.PositiveSmallIntegerField(default=0,  editable=False)  # und hier wird dann, für jede Kategorie, der Zähler auf Null gesetzt
-
     def __str__(self):
         return f"({self.vorname} {self.nachname}, {self.klasse})"
 
@@ -92,8 +134,8 @@ class Schueler(models.Model):
         verbose_name_plural = 'Schüler'
 
 class Daten(models.Model):
-    schueler = models.ForeignKey(Schueler, on_delete=models.CASCADE, related_name="Daten")
-    kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, verbose_name="Kategorie", related_name="Daten")
+    schueler = models.ForeignKey(Schueler, on_delete=models.CASCADE, related_name="daten")
+    kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, verbose_name="Kategorie", related_name="daten")
     typ = models.CharField(max_length=5, blank=True )
     halbjahr = models.PositiveSmallIntegerField(default=0)
 
@@ -121,11 +163,6 @@ class Daten(models.Model):
 
     def __str__(self):
         return f"({self.start} {self.schueler} {Kategorie})"
-
-
-
-
-
 
 
 class Category(models.Model):
