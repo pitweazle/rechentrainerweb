@@ -1,7 +1,7 @@
-{% extends 'core/base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
-<h1>Aufgaben zu {{ category.name }}</h1>
+<h2>{{ category.name }}:</h2>
 {% if messages %}
 <p>
     Letzte Antwort:<br>
@@ -12,9 +12,8 @@
     </ul>
 </p>
 {% endif %}
-<h3>Aufgabe</h3>
-<p>{{ text }}</p>
-<form action="{% url 'challenge' category.id %}" method="post">
+<h3>{{text}} {{aufgabe}}</h3>
+<form action="{% url 'modul' category.id %}" method="post">
     {% csrf_token %}
     <fieldset>
         {{ form.result.label_tag }}
@@ -23,4 +22,6 @@
     </fieldset>
 </form>
 <p><a href="{% url 'index' %}">Startseite</a></p>
+<p><a href="{% url 'protokoll' %}">Protokoll</a></p>
+
 {% endblock %}

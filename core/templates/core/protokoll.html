@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Protokoll:</h1>
+
+<ul>
+    {% for modul in module %}
+        <a
+            class="button" href="{% url 'antwort' modul.id %}" >
+            {{ modul.start|date:"d.m.y H:m"}}, {{ modul.text}}  {{modul.result}}
+        </a>
+
+        <br>
+        {% empty %}
+        <strong>Leider keine Kategorien vorhanden.</strong>
+    {% endfor %}
+</ul>
+
+<p><a href="{% url 'index' %}">Startseite</a></p>
+
+{% endblock %}
+

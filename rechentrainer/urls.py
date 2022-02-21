@@ -21,8 +21,9 @@ from core import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path("modul/<auswahl>/", views.modul),
-
-    path('category/<int:category_id>/', views.aufgabe, name='zurueck'),
+    path('modul/<int:modul_id>/', views.aufgabe, name='modul'),
+    path('protokoll', views.protokoll, name='protokoll'),
+    path('protokoll/<int:antwort_id>/',views.antwort, name='antwort'),
+    #path('category/<int:category_id>/', views.aufgabe, name='back'),
     path('admin/', admin.site.urls),
 ]

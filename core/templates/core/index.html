@@ -1,16 +1,23 @@
-{% extends 'core/base.html' %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css_files %}
+   <link rel="stylesheet" href="{% static 'core/aufgaben.css' %}">
+{% endblock %}
 
 {% block content %}
 <h1>Der Rechentrainer</h1>
 <h3>Bitte suche dir eine Kategorie aus:</h3>
 
-{% for modul in module %}
-<a class="button" href="{% url 'zurueck' modul.id %}" {% if not modul.fragen.count %}disabled{% endif %}>
-    {{ modul.name }}
-</a>
-<br>
-{% empty %}
-<strong>Leider keine Kategorien vorhanden.</strong>
-{% endfor %}
+<ul>
+    {% for modul in module %}
+        <a  class="button" href="{% url 'modul' modul.id %}" {% if not modul.fragen.count %}disabled{% endif %}>
+        {{ modul.name }}
+        <br>
+        </a>
+    {% endfor %}
+</ul>
+
+<p><a href="{% url 'protokoll' %}">Protokoll</a></p>
 
 {% endblock %}
