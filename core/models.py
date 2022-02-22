@@ -120,7 +120,7 @@ class Schueler(models.Model):
         verbose_name_plural = 'Schüler'
 
 class Daten(models.Model):
-    schueler = models.ForeignKey(Schueler, on_delete=models.CASCADE, related_name="daten")
+    user = models.ForeignKey(Schueler, on_delete=models.CASCADE, related_name="daten")
     kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, verbose_name="Kategorie", related_name="daten")
     typ = models.CharField(max_length=5, blank=True )
     halbjahr = models.PositiveSmallIntegerField(default=0)
@@ -129,6 +129,7 @@ class Daten(models.Model):
     aufgabe = models.CharField(max_length=20, blank=True)
     protokolltext = models.CharField(max_length=20, blank=True)
 
+ 
     eingabe = models.CharField(max_length=20, blank=True, verbose_name="Eingabe")
 
     loesung = models.CharField(max_length=20, blank=True, verbose_name="Lösung")
@@ -154,27 +155,14 @@ class Daten(models.Model):
         return f"({self.start} {self.schueler} {Kategorie})"
 
 
-class Category(models.Model):
-    name = models.CharField('Name', max_length=100)
-    description = models.TextField('Beschreibung', blank=True)
-    hint = models.TextField('Hinweis', blank=True)
-    slug=models.SlugField(default="", null=False)
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        self.slug=slugify(self.name)
-        super().save(*args, **kwargs)
-
 class Result(models.Model):
     user = models.ForeignKey(User, verbose_name='Benutzer',
                              related_name='results', on_delete=models.CASCADE)
     value = models.DecimalField('Wert', max_digits=10, decimal_places=2)
-#    category = models.ForeignKey(
- #       Kategorie, verbose_name='Kategorie', related_name='results',
-  #      on_delete=models.CASCADE
-   # )
+    #category = models.ForeignKey(
+     #   Kategorie, verbose_name='Kategorie', related_name='results',
+      #  on_delete=models.CASCADE
+    #)
     text = models.TextField('Text')
     result_unit = models.CharField('Einheit Ergebnis', max_length=20,
                                    blank=True)
@@ -190,14 +178,3 @@ class Result(models.Model):
         if not self.end:
             return 0
         return (self.end - self.start).total_seconds()
-
-class Question(models.Model):
-    category = models.ForeignKey(
-        Category, verbose_name='Kategorie', related_name='questions',
-        on_delete=models.CASCADE
-    )
-    text = models.TextField('Text')
-
-    def __str__(self):
-        return self.text[:100]
-

@@ -9,7 +9,7 @@ from django.utils import timezone
 from datetime import datetime
 
 from .forms import ChallengeForm, AufgabeForm
-from .models import Category, Result, Question
+from .models import Result 
 from .models import Kategorie, Frage, Daten
 from django.http import HttpResponse, HttpResponseNotFound
 
