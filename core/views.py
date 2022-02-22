@@ -51,7 +51,7 @@ def antwort(req, antwort_id):
 
 
 def aufgabe(req, modul_id):
-    category = get_object_or_404(Kategorie, pk=modul_id)
+    module = get_object_or_404(Kategorie, pk=modul_id)
     if req.method == 'POST':
         form = AufgabeForm(req.POST)
         result = Result.objects.get(pk=req.session.get('result_id'))
@@ -69,21 +69,21 @@ def aufgabe(req, modul_id):
         messages.info(req, 'Leider falsch.')
         text = result.text
     else:
-        question = Frage.objects.filter(
-            #category=category
+        frage = Frage.objects.filter(
+            kategorie=module
         ).order_by('?').first()
 
         # 2 Zufallszahlen erzeugen und Ergebnis ausrechnen
         low, high, result = make_task()
 
-        text = question.text.format(low=low, high=high)
+        text = frage.text.format(low=low, high=high)
         result = Result.objects.create(
             user=get_fake_user(), value=result,
             text=text
         )
         req.session['result_id'] = result.id
         form = AufgabeForm()
-    context = dict(category=category, text=text, aufgabe=aufgabe, form=form)
+    context = dict(category=module, text=text, aufgabe=aufgabe, form=form)
     return render(req, 'core/aufgabe.html', context)
 
 def challenge(req, category_id):

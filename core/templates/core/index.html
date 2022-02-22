@@ -1,23 +1,19 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}   
 {% load static %}
 
 {% block css_files %}
-   <link rel="stylesheet" href="{% static 'core/aufgaben.css' %}">
+<link rel="stylesheet" href="{% static 'core/aufgaben.css' %}">
 {% endblock %}
 
+
 {% block content %}
-<h1>Der Rechentrainer</h1>
-<h3>Bitte suche dir eine Kategorie aus:</h3>
+    {% include "includes/header.html" %}
+
+<h2> Wähle aus: </h2>
 
 <ul>
     {% for modul in module %}
-        <a  class="button" href="{% url 'modul' modul.id %}" {% if not modul.fragen.count %}disabled{% endif %}>
-        {{ modul.name }}
-        <br>
-        </a>
+        <li><a  class="button" href="{% url 'modul' modul.id %}" {% if not modul.fragen.count %}disabled{% endif %}>{{ modul.name }}</a></li>
     {% endfor %}
 </ul>
-
-<p><a href="{% url 'protokoll' %}">Protokoll</a></p>
-
 {% endblock %}

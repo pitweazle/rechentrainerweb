@@ -1,0 +1,13 @@
+{% load static %}
+
+{% block css_files %}
+<link rel="stylesheet" href="{% static 'core/includes/header.css' %}">
+{% endblock %}
+
+<header>
+    <nav>
+        <a href="{% url 'index' %}">Startseite</a>
+        <a href="{% url 'protokoll' %}">Protokoll</a>
+    </nav>
+    {% block title %}<h1>Der Rechentrainer</h1>{% endblock %}
+</header>

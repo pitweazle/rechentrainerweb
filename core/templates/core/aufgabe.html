@@ -1,6 +1,12 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block css_files %}
+<link rel="stylesheet" href="{% static 'core/aufgabe.css' %}">
+{% endblock %}
 
 {% block content %}
+{% include "includes/header.html" %}
 <h2>{{ category.name }}:</h2>
 {% if messages %}
 <p>

@@ -1,13 +1,23 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block css_files %}
+<link rel="stylesheet" href="{% static 'core/protokoll.css' %}">
+{% endblock %}
+
+
 {% block content %}
-<h1>Protokoll:</h1>
+{% include "includes/header.html" %}
+
+
+<h2>Protokoll:</h2>
 
 <ul>
     {% for modul in module %}
-        <a
+        <li><a
             class="button" href="{% url 'antwort' modul.id %}" >
             {{ modul.start|date:"d.m.y H:m"}}, {{ modul.text}}  {{modul.result}}
-        </a>
+        </a></li>
 
         <br>
         {% empty %}
@@ -15,7 +25,7 @@
     {% endfor %}
 </ul>
 
-<p><a href="{% url 'index' %}">Startseite</a></p>
+
 
 {% endblock %}
 
