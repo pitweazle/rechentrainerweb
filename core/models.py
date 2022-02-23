@@ -1,3 +1,4 @@
+from sched import scheduler
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -120,23 +121,28 @@ class Schueler(models.Model):
         verbose_name_plural = 'Schüler'
 
 class Daten(models.Model):
-    user = models.ForeignKey(Schueler, on_delete=models.CASCADE, related_name="daten")
-    kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, verbose_name="Kategorie", related_name="daten")
+    user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='daten', on_delete=models.CASCADE)
+
+    #kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, verbose_name="Kategorie", related_name="daten")
+    kategorie = models.CharField(max_length=20, blank=True, verbose_name="Kategorie")
+
     typ = models.CharField(max_length=5, blank=True )
     halbjahr = models.PositiveSmallIntegerField(default=0)
 
     text = models.TextField(blank=True)
-    aufgabe = models.CharField(max_length=20, blank=True)
-    protokolltext = models.CharField(max_length=20, blank=True)
 
- 
+    value = models.DecimalField('Wert', max_digits=10, decimal_places=2)
     eingabe = models.CharField(max_length=20, blank=True, verbose_name="Eingabe")
 
     loesung = models.CharField(max_length=20, blank=True, verbose_name="Lösung")
 
-    start = models.DateTimeField('Start', auto_now_add=True)
-    ende = models.DateTimeField('Ende', blank=True, null=True, default=None)
+    #start = models.DateTimeField('Start', auto_now_add=True)
+    #ende = models.DateTimeField('Ende', blank=True, null=True, default=None)
     bearbeitungszeit=models.DateTimeField(blank=True, null=True, default=None)
+
+    tries = models.PositiveSmallIntegerField('Versuche', default=0)
+    start = models.DateTimeField('Start', auto_now_add=True)
+    end = models.DateTimeField('Ende', blank=True, null=True, default=None)
 
     richtig = models.PositiveSmallIntegerField(default=0)
     zusatz = models.DecimalField(max_digits=5, decimal_places=2, default=0)
@@ -152,26 +158,7 @@ class Daten(models.Model):
         verbose_name_plural = 'Daten'
 
     def __str__(self):
-        return f"({self.start} {self.schueler} {Kategorie})"
-
-
-class Result(models.Model):
-    user = models.ForeignKey(User, verbose_name='Benutzer',
-                             related_name='results', on_delete=models.CASCADE)
-    value = models.DecimalField('Wert', max_digits=10, decimal_places=2)
-    #category = models.ForeignKey(
-     #   Kategorie, verbose_name='Kategorie', related_name='results',
-      #  on_delete=models.CASCADE
-    #)
-    text = models.TextField('Text')
-    result_unit = models.CharField('Einheit Ergebnis', max_length=20,
-                                   blank=True)
-    tries = models.PositiveSmallIntegerField('Versuche', default=0)
-    start = models.DateTimeField('Start', auto_now_add=True)
-    end = models.DateTimeField('Ende', blank=True, null=True, default=None)
-
-    def __str__(self):
-        return (f"{self.user}, Aufgabe: {self.text}, Eingabe: {self.value:.2f}")
+        return f"({self.start} {self.user} {self.kategorie})"
 
     @property
     def duration(self):

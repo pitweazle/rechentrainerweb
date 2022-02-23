@@ -22,12 +22,9 @@
 <form action="{% url 'modul' category.id %}" method="post">
     {% csrf_token %}
     <fieldset>
-        {{ form.result.label_tag }}
-        {{ form.result }}
+        {{ form.eingabe.label_tag }}
+        {{ form.eingabe }}
         <input class="button-primary" type="submit" value="Prüfen">
     </fieldset>
 </form>
-<p><a href="{% url 'index' %}">Startseite</a></p>
-<p><a href="{% url 'protokoll' %}">Protokoll</a></p>
-
 {% endblock %}

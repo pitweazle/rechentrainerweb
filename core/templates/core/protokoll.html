@@ -5,7 +5,6 @@
 <link rel="stylesheet" href="{% static 'core/protokoll.css' %}">
 {% endblock %}
 
-
 {% block content %}
 {% include "includes/header.html" %}
 
@@ -16,7 +15,7 @@
     {% for modul in module %}
         <li><a
             class="button" href="{% url 'antwort' modul.id %}" >
-            {{ modul.start|date:"d.m.y H:m"}}, {{ modul.text}}  {{modul.result}}
+            {{ modul.start|date:"d.m.y H:m"}}, {{modul.user}} {{modul.kategorie}}, {{ modul.text}} = {{modul.result}}
         </a></li>
 
         <br>
