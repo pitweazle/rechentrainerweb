@@ -123,8 +123,8 @@ class Schueler(models.Model):
 class Daten(models.Model):
     user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='daten', on_delete=models.CASCADE)
 
-    #kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, verbose_name="Kategorie", related_name="daten")
     kategorie = models.CharField(max_length=20, blank=True, verbose_name="Kategorie")
+    #kategorie = models.ForeignKey(Kategorie, verbose_name='Kategorie', related_name='daten', on_delete=models.CASCADE)
 
     typ = models.CharField(max_length=5, blank=True )
     halbjahr = models.PositiveSmallIntegerField(default=0)
@@ -136,8 +136,6 @@ class Daten(models.Model):
 
     loesung = models.CharField(max_length=20, blank=True, verbose_name="Lösung")
 
-    #start = models.DateTimeField('Start', auto_now_add=True)
-    #ende = models.DateTimeField('Ende', blank=True, null=True, default=None)
     bearbeitungszeit=models.DateTimeField(blank=True, null=True, default=None)
 
     tries = models.PositiveSmallIntegerField('Versuche', default=0)
@@ -165,3 +163,5 @@ class Daten(models.Model):
         if not self.end:
             return 0
         return (self.end - self.start).total_seconds()
+
+
