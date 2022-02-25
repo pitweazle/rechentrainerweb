@@ -13,10 +13,9 @@
 
 <ul>
     {% for modul in module %}
-        <li><a
-            class="button" href="{% url 'antwort' modul.id %}" >
-            {{ modul.start|date:"d.m.y H:m"}}, {{modul.user}} {{modul.kategorie}}, {{ modul.text}} = {{modul.result}}
-        </a></li>
+        <li>
+            <a>{{ modul.start|date:"d.m.y H:m"}}, {{modul.user}} {{modul.kategorie}}, {{ modul.text}} Eingabe: {{modul.value}}</a>
+        </li>
 
         <br>
         {% empty %}
