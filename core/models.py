@@ -108,9 +108,6 @@ class Schueler(models.Model):
         else:
             self.kurs_E=False
 
-        #self.klasse=int(self.klasse)
-        #self.jahrgang=(self.klasse)
-
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -122,41 +119,37 @@ class Schueler(models.Model):
 
 class Daten(models.Model):
     user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='daten', on_delete=models.CASCADE)
-
-    kategorie = models.CharField(max_length=20, blank=True, verbose_name="Kategorie")
-    #kategorie = models.ForeignKey(Kategorie, verbose_name='Kategorie', related_name='daten', on_delete=models.CASCADE)
-
-    typ = models.CharField(max_length=5, blank=True )
     halbjahr = models.PositiveSmallIntegerField(default=0)
+
+    kategorie = models.ForeignKey(Kategorie, verbose_name='Kategorie', related_name='daten', on_delete=models.CASCADE)
+    typ = models.CharField(max_length=5, blank=True )
 
     text = models.TextField(blank=True)
 
     value = models.DecimalField('Wert', max_digits=10, decimal_places=2)
     eingabe = models.CharField(max_length=20, blank=True, verbose_name="Eingabe")
-
     loesung = models.CharField(max_length=20, blank=True, verbose_name="Lösung")
 
-    bearbeitungszeit=models.DateTimeField(blank=True, null=True, default=None)
-
     tries = models.PositiveSmallIntegerField('Versuche', default=0)
-    start = models.DateTimeField('Start', auto_now_add=True)
-    end = models.DateTimeField('Ende', blank=True, null=True, default=None)
+    richtig=models.BooleanField(default=False)
 
-    richtig = models.PositiveSmallIntegerField(default=0)
-    zusatz = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    falsch = models.PositiveSmallIntegerField(default=0)
-
+    zaehler_richtig = models.PositiveSmallIntegerField(default=0)
+    zaehler_zusatz = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     zaehler_falsch = models.PositiveSmallIntegerField(default=0)
 
     abbrechen = models.PositiveSmallIntegerField(default=0)
-    hilfe = models.PositiveSmallIntegerField(default=0)
+    hilfe = models.PositiveSmallIntegerField(default=0)   
+
+    start = models.DateTimeField('Start', auto_now_add=True)
+    end = models.DateTimeField('Ende', blank=True, null=True, default=None)
+    bearbeitungszeit=models.DateTimeField(blank=True, null=True, default=None)
 
     class Meta:
         verbose_name = 'Daten'
         verbose_name_plural = 'Daten'
 
     def __str__(self):
-        return f"({self.start} {self.user} {self.kategorie})"
+        return f"({self.start} {self.user} {self.kategorie} {self.text}={self.value}?)"
 
     @property
     def duration(self):

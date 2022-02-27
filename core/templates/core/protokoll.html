@@ -13,11 +13,7 @@
 
 <ul>
     {% for modul in module %}
-        <li>
-            <a>{{ modul.start|date:"d.m.y H:m"}}, {{modul.user}} {{modul.kategorie}}, {{ modul.text}} Eingabe: {{modul.value}}</a>
-        </li>
-
-        <br>
+        <li>{{modul.kategorie}}: {{ modul.text}} ({{modul.value}}), Eingabe: {{modul.eingabe}} ({{modul.richtig}})</li>
         {% empty %}
         <strong>Leider keine Kategorien vorhanden.</strong>
     {% endfor %}

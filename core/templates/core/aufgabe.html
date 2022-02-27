@@ -7,15 +7,14 @@
 
 {% block content %}
 {% include "includes/header.html" %}
+<ul>
 <h2>{{ category.name }}:</h2>
 {% if messages %}
 <p>
     Letzte Antwort:<br>
-    <ul>
         {% for message in messages %}
         <li>{{ message }}</li>
         {% endfor %}
-    </ul>
 </p>
 {% endif %}
 <h3>{{text}} {{aufgabe}}</h3>
@@ -27,4 +26,5 @@
         <input class="button-primary" type="submit" value="Prüfen">
     </fieldset>
 </form>
+</ul>
 {% endblock %}

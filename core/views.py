@@ -57,16 +57,20 @@ def aufgabe(req, modul_id):
         daten = Daten.objects.get(pk=req.session.get('eingabe_id'))
         #antwort = Daten.objects.get(pk=req.session.get('antwort_id'))
         daten.tries += 1
-        daten.save()
         if form.is_valid():
             if check_daten(form.cleaned_data['eingabe'], daten.value):
+                daten.eingabe=form.cleaned_data['eingabe']
+                daten.richtig=True
                 daten.end = timezone.now()
                 daten.save()
                 min, sec = divmod(daten.duration, 60)
                 msg = f'Zeit: {int(min)}min {int(sec)}s'
                 messages.info(req, f'Richtig! Versuche: {daten.tries}, {msg}')
                 return redirect('modul', modul_id)
+
         messages.info(req, 'Leider falsch.')
+        daten.eingabe=form.cleaned_data['eingabe']
+        daten.save()
         text = daten.text
     else:
         frage = Frage.objects.filter(
