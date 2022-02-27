@@ -13,7 +13,7 @@
 
 <ul>
     {% for modul in module %}
-        <li>{{modul.kategorie}}: {{ modul.text}} ({{modul.value}}), Eingabe: {{modul.eingabe}} ({{modul.richtig}})</li>
+        <li>{{modul.kategorie}}: {{ modul.text}} ({{modul.value}}), Eingabe: {{modul.eingabe}} ({{modul.richtig}}/{{modul.tries}}) {{modul.bearbeitungszeit}}sec</li>
         {% empty %}
         <strong>Leider keine Kategorien vorhanden.</strong>
     {% endfor %}

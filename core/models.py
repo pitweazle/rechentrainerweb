@@ -141,8 +141,8 @@ class Daten(models.Model):
     hilfe = models.PositiveSmallIntegerField(default=0)   
 
     start = models.DateTimeField('Start', auto_now_add=True)
-    end = models.DateTimeField('Ende', blank=True, null=True, default=None)
-    bearbeitungszeit=models.DateTimeField(blank=True, null=True, default=None)
+    #end = models.DateTimeField('Ende', blank=True, null=True, default=None)
+    bearbeitungszeit=models.FloatField(default=0)
 
     class Meta:
         verbose_name = 'Daten'
@@ -151,10 +151,10 @@ class Daten(models.Model):
     def __str__(self):
         return f"({self.start} {self.user} {self.kategorie} {self.text}={self.value}?)"
 
-    @property
-    def duration(self):
-        if not self.end:
-            return 0
-        return (self.end - self.start).total_seconds()
+    #@property
+    #def duration(self):
+    #    if not self.end:
+    #        return 0
+    #    return (self.end - self.start).total_seconds()
 
 
