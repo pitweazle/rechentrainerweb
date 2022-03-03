@@ -53,14 +53,18 @@ class Frage(models.Model):
     aufgabe = models.CharField(blank=True,max_length=20)
     protokolltext = models.CharField(blank=True,max_length=40)
 
+    ergebnis = models.DecimalField(max_digits=15, decimal_places=5, blank=True)
+    loesung = models.CharField(blank=True,max_length=100)
+
     anmerkung = models.CharField(blank=True,max_length=50)
-    grafik = models.IntegerField(default=0)  # gehört eine Grafik zur Aufgabe?
 
     hilfe1 = models.CharField(blank=True,max_length=50)
     hilfe2 = models.CharField(blank=True,max_length=50)
 
-    ergebnis = models.DecimalField(max_digits=15, decimal_places=5, default=0)
-    loesung = models.CharField(blank=True,max_length=100)
+    grafik = models.IntegerField(default=0)  # gehört eine Grafik zur Aufgabe?
+    #auswertung = models.CharField(blank=True,max_length=5)
+
+
 
     def __str__(self):
         return f"({self.text} {self.aufgabe})"
@@ -88,8 +92,8 @@ class Schueler(models.Model):
 
     kurs= models.CharField(max_length=1, choices=wahl_kurs.choices, default=wahl_kurs.E_KURS,)
 
-    kurs_i = models.BooleanField(default=False, verbose_name="Förderkind", editable=False)
-    kurs_E = models.BooleanField(default=True, verbose_name="E-Kurs", editable=False)
+    #kurs_i = models.BooleanField(default=False, verbose_name="Förderkind", editable=False)
+    #kurs_E = models.BooleanField(default=True, verbose_name="E-Kurs", editable=False)
 
     # werden beim Erstellen eingestellt
     datum_start = models.DateField(auto_now_add=True, verbose_name="Startdatum", editable=False, )
@@ -97,6 +101,7 @@ class Schueler(models.Model):
     halbjahr = models.PositiveSmallIntegerField(default=0, editable=False)
     voreinst = models.IntegerField(default=1, editable=False)                               #hier könnte, mithilf von Primzahlen, Voreinstellungen gesetzt und abgefragt werden
 
+    """
     def save(self, *args, **kwargs):
         if self.kurs == "i":
             self.kurs_i=True
@@ -109,6 +114,7 @@ class Schueler(models.Model):
             self.kurs_E=False
 
         super().save(*args, **kwargs)
+    """
 
     def __str__(self):
         return f"({self.vorname} {self.nachname}, {self.klasse})"
@@ -117,18 +123,19 @@ class Schueler(models.Model):
         verbose_name = 'Schüler'
         verbose_name_plural = 'Schüler'
 
-class Daten(models.Model):
-    user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='daten', on_delete=models.CASCADE)
+class Protokoll(models.Model):
+    user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='protokoll', on_delete=models.CASCADE)
     halbjahr = models.PositiveSmallIntegerField(default=0)
 
-    kategorie = models.ForeignKey(Kategorie, verbose_name='Kategorie', related_name='daten', on_delete=models.CASCADE)
+    kategorie = models.ForeignKey(Kategorie, verbose_name='Kategorie', related_name='protokoll', on_delete=models.CASCADE)
     typ = models.CharField(max_length=5, blank=True )
 
     text = models.TextField(blank=True)
 
     value = models.DecimalField('Wert', max_digits=10, decimal_places=2)
-    eingabe = models.CharField(max_length=20, blank=True, verbose_name="Eingabe")
     loesung = models.CharField(max_length=20, blank=True, verbose_name="Lösung")
+
+    eingabe = models.CharField(max_length=20, blank=True, verbose_name="Eingabe")
 
     tries = models.PositiveSmallIntegerField('Versuche', default=0)
     richtig=models.BooleanField(default=False)

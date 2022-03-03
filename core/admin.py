@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import  Kategorie, Frage, Schueler, Daten
+from .models import  Kategorie, Frage, Schueler, Protokoll
 
 # Register your models here.
 
@@ -11,5 +11,5 @@ admin.site.register(Frage)
 
 admin.site.register(Schueler)
 
-admin.site.register(Daten)
+admin.site.register(Protokoll)
 

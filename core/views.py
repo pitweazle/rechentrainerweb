@@ -9,13 +9,52 @@ from django.utils import timezone
 from datetime import datetime
 
 from .forms import AufgabeFormZahl, AufgabeFormStr
-from .models import Kategorie, Frage, Daten
+from .models import Kategorie, Frage, Protokoll
 from .models import Schueler
 from django.http import HttpResponse, HttpResponseNotFound
 
-NOTES = [5, 10, 20, 50, 100]
+
+
+def ergaenzen():
+    NOTES = [5, 10, 20, 50, 100]
+    low = random.uniform(0.1, 99.0)
+    low = decimal.Decimal(round(low, 2))
+    start = 0
+    while True:
+        if NOTES[start] > low:
+            break
+        start += 1
+    high = decimal.Decimal(random.choice(NOTES[start:]))
+    result=high-low
+    return low, high, result
+
+def addition():
+    low = random.uniform(0.1, 99.0)
+    low = decimal.Decimal(round(low, 2))
+    #low = round(low, 2)
+    high = decimal.Decimal(round(low, 2))
+    #high = (random.choice(NOTES[start:]))
+    result=high+low
+    return low, high, result
+
+def subtraktion():
+    zahl1 = random.uniform(0.1, 99.0)
+    zahl1 = decimal.Decimal(round(zahl1, 2))
+    #low = round(low, 2)
+    zahl2 = random.uniform(0.1, 99.0)
+    zahl2 = decimal.Decimal(round(zahl1, 2))
+    #high = (random.choice(NOTES[start:]))
+    result=zahl2
+    return zahl1+zahl2, zahl1, result
+
+AUFGABEN = {
+    "ergaenzen": ergaenzen,
+    "addition": addition,
+    "subtraktion": subtraktion,
+}
+
 def make_zahl(modul_id):
-    print(modul_id)
+    NOTES = [5, 10, 20, 50, 100]
     low = random.uniform(0.1, 99.0)
     low = decimal.Decimal(round(low, 2))
     #low = round(low, 2)
@@ -33,6 +72,7 @@ def make_zahl(modul_id):
     return low, high, result
 
 def make_str():
+    NOTES = [5, 10, 20, 50, 100]
     low = random.uniform(0.1, 99.0)
     low = round(low, 2)
     low_str=str(low)
@@ -43,8 +83,8 @@ def make_str():
         start += 1
     high = (random.choice(NOTES[start:]))
     high_str=str(high)
-    return str(low), str(high), high - low
-
+    result_str=str(high-low)
+    return low_str, high_str, result_str
 
 def check_str(given, right):
     print(given + right)
@@ -59,16 +99,16 @@ def get_fake_user():
     return Schueler.objects.all().first()
 
 def index(req):
-    Daten.objects.filter(tries=0).delete()
+#    Protokoll.objects.filter(tries=0).delete()
     modul = Kategorie.objects.all().order_by('id')
     return render(req, 'core/index.html', {'module': modul})
 
 def protokoll(req):
-    daten = Daten.objects.all().order_by('id').reverse()
-    return render(req, 'core/protokoll.html', {'module': daten})
+    protokoll = Protokoll.objects.all().order_by('id').reverse()
+    return render(req, 'core/protokoll.html', {'module': protokoll})
 
 def antwort(req, antwort_id):
-    antwort=Daten.objects.all()[antwort_id]
+    antwort=Protokoll.objects.all()[antwort_id]
     return render(req, 'core/antwort.html', {'module': antwort})
 
     #return HttpResponse(antwort)
@@ -76,49 +116,37 @@ def antwort(req, antwort_id):
 
 def aufgabe(req, modul_id):
     modul = get_object_or_404(Kategorie, pk=modul_id)
-    zahl=True
     if req.method == 'POST':
-        daten = Daten.objects.get(pk=req.session.get('eingabe_id'))
-        daten.tries += 1
-        if zahl:
-            form = AufgabeFormZahl(req.POST)
-            right=daten.value
-        else:
-            form = AufgabeFormStr(req.POST)
-            right=daten.loesung
+        protokoll = Protokoll.objects.get(pk=req.session.get('eingabe_id'))
+        protokoll.tries += 1
+        form = AufgabeFormZahl(req.POST)
+        right=protokoll.value
         if form.is_valid():
             if check_str(form.cleaned_data['eingabe'], right):
-                daten.eingabe=form.cleaned_data['eingabe']
-                daten.richtig=True
-                #daten.end = timezone.now()
-                daten.bearbeitungszeit=(timezone.now() - daten.start).total_seconds()
-                daten.save()
-                min, sec = divmod(daten.bearbeitungszeit, 60)
+                protokoll.eingabe=form.cleaned_data['eingabe']
+                protokoll.richtig=True
+                #protokoll.end = timezone.now()
+                protokoll.bearbeitungszeit=(timezone.now() - protokoll.start).total_seconds()
+                protokoll.save()
+                min, sec = divmod(protokoll.bearbeitungszeit, 60)
                 msg = f'Zeit: {int(min)}min {int(sec)}s'
-                messages.info(req, f'Richtig! Versuche: {daten.tries}, {msg}')
+                messages.info(req, f'Richtig! Versuche: {protokoll.tries}, {msg}')
                 return redirect('modul', modul_id)
         messages.info(req, 'Leider falsch.')
-        daten.eingabe=form.cleaned_data['eingabe']
-        daten.save()
-        text = daten.text
+        protokoll.eingabe=form.cleaned_data['eingabe']
+        protokoll.save()
+        text = protokoll.text
     else:
         frage = Frage.objects.filter(
             kategorie=modul
         ).order_by('?').first()
-        if zahl:
-            form = AufgabeFormZahl()
-            # 2 Zufallszahlen erzeugen und Ergebnis ausrechnen
-            low, high, result = make_zahl(modul_id)
-        else:
-            form = AufgabeFormStr()
-            low, high, result = make_str()
-
+        form = AufgabeFormZahl()
+        low, high, result = make_zahl(modul_id)
         text = frage.text.format(low=low, high=high)
-        daten = Daten.objects.create(
-            user=get_fake_user(), value=result, loesung=str(result), kategorie=modul,
-            text=text
-        )
-        req.session['eingabe_id'] = daten.id
 
+        protokoll = Protokoll.objects.create(
+            user=get_fake_user(), kategorie=modul, text=text, value=result, loesung=str(result)         
+        )
+        req.session['eingabe_id'] = protokoll.id
     context = dict(category=modul, text=text, aufgabe=aufgabe, form=form)
     return render(req, 'core/aufgabe.html', context)
