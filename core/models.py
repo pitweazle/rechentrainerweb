@@ -22,7 +22,6 @@ class wahl_gruppe(models.TextChoices):
 class Kategorie(models.Model):
     gruppe = models.CharField(max_length=1, choices=wahl_gruppe.choices, default=wahl_gruppe.A)
 
-    #gruppe = models.CharField(max_length=1, blank=True, validators=[validate_letter])             #Untergruppe A, B, C, D, E um die Ansicht übersichtlicher gestalten zu können
     zeile = models.PositiveSmallIntegerField(default=0)             # entspricht der Aufgabengruppe (1 bis 35)
     name = models.CharField(max_length=20)
 
@@ -50,10 +49,9 @@ class Frage(models.Model):
     typB = models.PositiveSmallIntegerField(default=0)
 
     text = models.TextField(blank=True)
-    aufgabe = models.CharField(blank=True,max_length=20)
-    protokolltext = models.CharField(blank=True,max_length=40)
+    aufgabe = models.CharField(blank=True,max_length=80)
+    protokolltext = models.CharField(blank=True,max_length=80)
 
-    ergebnis = models.DecimalField(max_digits=15, decimal_places=5, blank=True)
     loesung = models.CharField(blank=True,max_length=100)
 
     anmerkung = models.CharField(blank=True,max_length=50)
@@ -63,8 +61,6 @@ class Frage(models.Model):
 
     grafik = models.IntegerField(default=0)  # gehört eine Grafik zur Aufgabe?
     #auswertung = models.CharField(blank=True,max_length=5)
-
-
 
     def __str__(self):
         return f"({self.text} {self.aufgabe})"
@@ -92,29 +88,11 @@ class Schueler(models.Model):
 
     kurs= models.CharField(max_length=1, choices=wahl_kurs.choices, default=wahl_kurs.E_KURS,)
 
-    #kurs_i = models.BooleanField(default=False, verbose_name="Förderkind", editable=False)
-    #kurs_E = models.BooleanField(default=True, verbose_name="E-Kurs", editable=False)
-
     # werden beim Erstellen eingestellt
     datum_start = models.DateField(auto_now_add=True, verbose_name="Startdatum", editable=False, )
     stufe = models.PositiveSmallIntegerField(default=0, editable=False)
     halbjahr = models.PositiveSmallIntegerField(default=0, editable=False)
     voreinst = models.IntegerField(default=1, editable=False)                               #hier könnte, mithilf von Primzahlen, Voreinstellungen gesetzt und abgefragt werden
-
-    """
-    def save(self, *args, **kwargs):
-        if self.kurs == "i":
-            self.kurs_i=True
-        else:
-            self.kurs_i=False
-
-        if self.kurs in ("Y", "E", "R", "A", "B"):
-            self.kurs_E=True
-        else:
-            self.kurs_E=False
-
-        super().save(*args, **kwargs)
-    """
 
     def __str__(self):
         return f"({self.vorname} {self.nachname}, {self.klasse})"
@@ -132,36 +110,34 @@ class Protokoll(models.Model):
 
     text = models.TextField(blank=True)
 
-    value = models.DecimalField('Wert', max_digits=10, decimal_places=2)
+    value = models.DecimalField('Wert', max_digits=20, decimal_places=7)
     loesung = models.CharField(max_length=20, blank=True, verbose_name="Lösung")
 
     eingabe = models.CharField(max_length=20, blank=True, verbose_name="Eingabe")
+    falsch_eingabe = models.TextField(blank=True, verbose_name="Falscheingabe")
 
     tries = models.PositiveSmallIntegerField('Versuche', default=0)
-    richtig=models.BooleanField(default=False)
-
-    zaehler_richtig = models.PositiveSmallIntegerField(default=0)
-    zaehler_zusatz = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    zaehler_falsch = models.PositiveSmallIntegerField(default=0)
-
-    abbrechen = models.PositiveSmallIntegerField(default=0)
-    hilfe = models.PositiveSmallIntegerField(default=0)   
+    wertung = models.CharField(max_length=5, blank=True, verbose_name="Wertung")
+    hilfe = models.PositiveSmallIntegerField(default=0)
 
     start = models.DateTimeField('Start', auto_now_add=True)
-    #end = models.DateTimeField('Ende', blank=True, null=True, default=None)
     bearbeitungszeit=models.FloatField(default=0)
 
     class Meta:
-        verbose_name = 'Daten'
-        verbose_name_plural = 'Daten'
+        verbose_name = 'Protokoll'
+        verbose_name_plural = 'Protokoll'
 
     def __str__(self):
         return f"({self.start} {self.user} {self.kategorie} {self.text}={self.value}?)"
 
-    #@property
-    #def duration(self):
-    #    if not self.end:
-    #        return 0
-    #    return (self.end - self.start).total_seconds()
+class Zaehler(models.Model):
+    user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='zaehler', on_delete=models.CASCADE)    
+    kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, related_name="zaehler")
+    falsch = models.PositiveSmallIntegerField(default=0)    
+    loesung = models.PositiveSmallIntegerField(default=0)    
+    abbrechen = models.PositiveSmallIntegerField(default=0)    
+    hilfe = models.PositiveSmallIntegerField(default=0) 
 
-
+    class Meta:
+        verbose_name = 'Zähler'
+        verbose_name_plural = 'Zähler'   
