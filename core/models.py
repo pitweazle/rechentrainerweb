@@ -108,6 +108,8 @@ class Protokoll(models.Model):
     kategorie = models.ForeignKey(Kategorie, verbose_name='Kategorie', related_name='protokoll', on_delete=models.CASCADE)
     typ = models.CharField(max_length=5, blank=True )
 
+    aufgnr = models.PositiveSmallIntegerField('Aufgabe Nr.', default=0)
+
     text = models.TextField(blank=True)
 
     value = models.DecimalField('Wert', max_digits=20, decimal_places=7)
@@ -137,6 +139,8 @@ class Zaehler(models.Model):
     loesung = models.PositiveSmallIntegerField(default=0)    
     abbrechen = models.PositiveSmallIntegerField(default=0)    
     hilfe = models.PositiveSmallIntegerField(default=0) 
+    stufe_next = models.PositiveSmallIntegerField(default=0)        #wenn größer null dann wird nach 10 richtigen Eingaben die Stufe entsprechend hochgesetzt    
+    stufe_zaehl = models.PositiveSmallIntegerField(default=0)       #und hier wird gezählt
 
     class Meta:
         verbose_name = 'Zähler'

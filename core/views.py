@@ -31,26 +31,29 @@ def addieren(jg, stufe):
         zahl1=random.randint(5, 45)
         zahl2=random.randint(5, 45)
     else:
-        rund1=int(random.uniform(1, 5))
-        zahl1 = random.randint(5, 125)
+        rund1 = random.randint(0,2)
+        zahl1 = random.randint(5, 225)
         zahl1=zahl1/10**rund1
-        rund2=int(random.uniform(1, 5))
-        zahl2 = random.randint(5, 125)
+        rund2 = random.randint(0,2)
+        zahl2 = random.randint(5, 225)
         zahl2=zahl2/10**rund2
     return zahl1, zahl2, zahl1+zahl2
 
 def subtrahieren(jg, stufe):
     if jg==5:
-        zahl1=random.randint(1, 99)
-        zahl2=random.randint(1, 49)
+        zahl2=random.randint(1, 99)
+        result=random.randint(1, 49)
+        zahl1=result+zahl2
     else:
-        rund1=int(random.uniform(1, 5))
-        zahl1 = random.randint(1, 99)
-        zahl1=zahl1/10**rund1
-        rund2=int(random.uniform(1, 5))
+        rund1 = random.randint(0,2)
         zahl2 = random.randint(1, 99)
-        zahl2=zahl2/10**rund2
-    return zahl1+zahl2, zahl1, zahl2
+        zahl2=zahl2/10**rund1
+        rund2 = random.randint(0,2)
+        result = random.randint(1, 99)
+        result=result/10**rund2
+        zahl1=zahl2+result
+        zahl1=round(zahl1,(max(rund1, rund2)))
+    return zahl1, zahl2, result
 
 AUFGABEN = {
     1: ergaenzen,
@@ -58,8 +61,8 @@ AUFGABEN = {
     3: subtrahieren,
 }
 
-def aufgabenstellung(modul_id):
-    return AUFGABEN[modul_id](6, 3)
+def aufgabenstellung(modul_id, jg):
+    return AUFGABEN[modul_id](jg, 3)
 
 def kontrolle(given, right):
     return given == right 
@@ -68,7 +71,7 @@ def kontrolle_zahll(given, right):
     return abs(given - right) < decimal.Decimal('0.001')
 
 def get_fake_user():
-    return Schueler.objects.all().first()
+    return Schueler.objects.all().order_by('?').first()
 
 def aufgabe(req, modul_id):
     modul = get_object_or_404(Kategorie, pk=modul_id)
@@ -94,15 +97,19 @@ def aufgabe(req, modul_id):
         frage = Frage.objects.filter(
             kategorie=modul
         ).order_by('?').first()
+        
         form = AufgabeFormZahl()
-        zahl1, zahl2, result =aufgabenstellung(modul_id) 
+        user=get_fake_user()
+        zahl1, zahl2, result =aufgabenstellung(modul_id, user.jahrgang) 
         text = frage.aufgabe.format(zahl1=zahl1, zahl2=zahl2)
         protokoll = Protokoll.objects.create(
-            user=get_fake_user(), kategorie=modul, text=text, value=result, loesung=str(result)         
+            user=user, kategorie=modul, text=text, value=result, loesung=str(result)         
         )
         req.session['eingabe_id'] = protokoll.id
     context = dict(category=modul, text=text, aufgabe=aufgabe, form=form)
     return render(req, 'core/aufgabe.html', context)
+
+
 
 def index(req):
 #    Protokoll.objects.filter(tries=0).delete()
@@ -110,6 +117,7 @@ def index(req):
     return render(req, 'core/index.html', {'module': modul})
 
 def protokoll(req):
+    print(req)
     protokoll = Protokoll.objects.all().order_by('id').reverse()
     return render(req, 'core/protokoll.html', {'module': protokoll})
 
