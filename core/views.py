@@ -9,7 +9,7 @@ from django.utils import timezone
 from datetime import datetime
 
 from .forms import AufgabeFormZahl, AufgabeFormStr
-from .models import Kategorie, Frage, Protokoll
+from .models import Kategorie, Frage, Protokoll, Zaehler
 from .models import Schueler
 from django.http import HttpResponse, HttpResponseNotFound
 
@@ -105,6 +105,12 @@ def aufgabe(req, modul_id):
         protokoll = Protokoll.objects.create(
             user=user, kategorie=modul, text=text, value=result, loesung=str(result)         
         )
+
+        zaehler, created = Zaehler.objects.get_or_create(
+            user=user,
+            kategorie=modul,
+        )   
+       
         req.session['eingabe_id'] = protokoll.id
     context = dict(category=modul, text=text, aufgabe=aufgabe, form=form)
     return render(req, 'core/aufgabe.html', context)

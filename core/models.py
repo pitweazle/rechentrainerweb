@@ -135,12 +135,18 @@ class Protokoll(models.Model):
 class Zaehler(models.Model):
     user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='zaehler', on_delete=models.CASCADE)    
     kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, related_name="zaehler")
+    aufgnr = models.PositiveSmallIntegerField(default=0)    
+
     falsch = models.PositiveSmallIntegerField(default=0)    
     loesung = models.PositiveSmallIntegerField(default=0)    
     abbrechen = models.PositiveSmallIntegerField(default=0)    
     hilfe = models.PositiveSmallIntegerField(default=0) 
+
     stufe_next = models.PositiveSmallIntegerField(default=0)        #wenn größer null dann wird nach 10 richtigen Eingaben die Stufe entsprechend hochgesetzt    
     stufe_zaehl = models.PositiveSmallIntegerField(default=0)       #und hier wird gezählt
+
+    def __str__(self):
+        return f"({self.user}, {self.kategorie}, {self.aufgnr})"
 
     class Meta:
         verbose_name = 'Zähler'
