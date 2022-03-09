@@ -17,6 +17,7 @@
         {% endfor %}
 </p>
 {% endif %}
+<h3>Aufg. Nr. {{aufgnr}}.</h3> 
 <h3>{{text}} {{aufgabe}}</h3>
 <form action="{% url 'modul' category.id %}" method="post">
     {% csrf_token %}

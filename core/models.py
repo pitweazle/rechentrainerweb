@@ -103,22 +103,25 @@ class Schueler(models.Model):
 
 class Protokoll(models.Model):
     user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='protokoll', on_delete=models.CASCADE)
+    #gewertet werden nur die Aufgaben des jeweiligen Schuljabjahres, im Januar, Juni und August, kann der user aber auch schon festlegen, dass die Aufgaben für das nächste Schulhalbjahr gelten:
     halbjahr = models.PositiveSmallIntegerField(default=0)
 
     kategorie = models.ForeignKey(Kategorie, verbose_name='Kategorie', related_name='protokoll', on_delete=models.CASCADE)
     typ = models.CharField(max_length=5, blank=True )
 
-    aufgnr = models.PositiveSmallIntegerField('Aufgabe Nr.', default=0)
-
+    #der Aufgabentext:
     text = models.TextField(blank=True)
 
+    #hier speichere ich die Lösung, wahlweise als zahl, u.U. auch (mehrere) Lösungen als String:
     value = models.DecimalField('Wert', max_digits=20, decimal_places=7)
     loesung = models.CharField(max_length=20, blank=True, verbose_name="Lösung")
 
+    #die Eingabe des users:
     eingabe = models.CharField(max_length=20, blank=True, verbose_name="Eingabe")
     falsch_eingabe = models.TextField(blank=True, verbose_name="Falscheingabe")
 
     tries = models.PositiveSmallIntegerField('Versuche', default=0)
+    #Eintrag richtig, falsch, Extrapunkte, Lösung anzeigen, Abbruch:
     wertung = models.CharField(max_length=5, blank=True, verbose_name="Wertung")
     hilfe = models.PositiveSmallIntegerField(default=0)
 
@@ -135,7 +138,11 @@ class Protokoll(models.Model):
 class Zaehler(models.Model):
     user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='zaehler', on_delete=models.CASCADE)    
     kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, related_name="zaehler")
-    aufgnr = models.PositiveSmallIntegerField(default=0)    
+    aufgnr = models.PositiveSmallIntegerField(default=0)  
+
+    richtig = models.PositiveSmallIntegerField(default=0)    
+    Extrapunkte = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    richtig_of = models.PositiveSmallIntegerField(default=0)    
 
     falsch = models.PositiveSmallIntegerField(default=0)    
     loesung = models.PositiveSmallIntegerField(default=0)    

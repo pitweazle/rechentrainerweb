@@ -8,18 +8,15 @@
 {% block content %}
 {% include "includes/header.html" %}
 
-
 <h2>Protokoll:</h2>
 
 <ul>
-    {% for modul in module %}
-        <li>{{modul.start|date:"d.m.y H:i"}} {{modul.user}} {{modul.kategorie}} ({{ modul.aufgnr}}): {{ modul.text|truncatewords:"20"}} ({{modul.value|floatformat:"-3"}}), Eingabe: {{modul.eingabe}} ({{modul.richtig}}/{{modul.tries}}) {{modul.bearbeitungszeit}}sec</li>
+    {% for zeile in protokoll %}
+        <li><a class="button" href="{% url 'details' zeile.id %}">{{zeile.start|date:"d.m.y H:i"}} {{zeile.user}} {{zeile.kategorie}} ({{ zeile.aufgnr}}): {{ zeile.text|truncatewords:"20"}} ({{zeile.value|floatformat:"-3"}}), Eingabe: {{zeile.eingabe}} ({{zeile.richtig}}/{{zeile.tries}}) {{zeile.bearbeitungszeit|floatformat:"0"}}sec</li>
         {% empty %}
         <strong>Leider keine Kategorien vorhanden.</strong>
     {% endfor %}
 </ul>
-
-
 
 {% endblock %}
 
