@@ -27,8 +27,8 @@ class Kategorie(models.Model):
 
     slug=models.SlugField(default="", null=False)
 
-    start_Jg = models.PositiveSmallIntegerField(default=5, verbose_name="Start in Jahrgang")
-    start_SW = models.PositiveSmallIntegerField(default=1, verbose_name="Start in Schulwoche")
+    start_jg = models.PositiveSmallIntegerField(default=5, verbose_name="Start in Jahrgang")
+    start_sw = models.PositiveSmallIntegerField(default=1, verbose_name="Start in Schulwoche")
 
     eof = models.PositiveSmallIntegerField(default=25, verbose_name="Eingaben ohne Fehler")  # Aufgaben die an einem Stück richtig beantwortet werden müssen damit der Fehlerzähler zurückgesetzt wird
 
@@ -42,6 +42,19 @@ class Kategorie(models.Model):
     class Meta:
         verbose_name = 'Kategorie'
         verbose_name_plural = 'Kategorien'
+
+class Auswahl(models.Model):
+    kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE)
+    text = models.CharField(max_length=80, verbose_name="Text")
+    bis_stufe = models.IntegerField(default=0, verbose_name="bis Stufe:")
+    bis_jg = models.IntegerField(default=0, verbose_name="bis Jahrgang:")
+
+    def __str__(self):
+        return f"({self.kategorie}, {self.text}, ab Stufe: {self.bis_stufe}, bis Jg: {self.bis_jg})" 
+
+    class Meta:
+        verbose_name = 'Auswahl'
+        verbose_name_plural = 'Auswahl'
 
 class Frage(models.Model):
     kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, related_name="fragen")
