@@ -8,11 +8,20 @@
 {% block content %}
 {% include "includes/header.html" %}
 
+{% if messages %}
+<p>
+    Letzte Antwort:<br>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+</p>
+{% endif %}
+
 <h2> Wähle aus: </h2>
 
 <ul>
     {% for modul in module %}
-        <li><a  class="button" href="{% url 'modul' modul.id %}" {% if not modul.fragen.count %}disabled{% endif %}>
+        <li><a  class="button" href="{% url 'aufgabe' modul.id %}" {% if not modul.fragen.count %}disabled{% endif %}>
             {{ modul.name }}</a></li>
     {% endfor %}
 </ul>

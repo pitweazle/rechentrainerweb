@@ -135,7 +135,7 @@ class Protokoll(models.Model):
 
     tries = models.PositiveSmallIntegerField('Versuche', default=0)
     #Eintrag richtig, falsch, Extrapunkte, Lösung anzeigen, Abbruch:
-    wertung = models.CharField(max_length=5, blank=True, verbose_name="Wertung")
+    wertung = models.CharField(max_length=10, blank=True, verbose_name="Wertung")
     hilfe = models.PositiveSmallIntegerField(default=0)
 
     start = models.DateTimeField('Start', auto_now_add=True)

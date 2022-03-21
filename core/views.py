@@ -1,5 +1,6 @@
 import decimal
 import random
+from token import NOTEQUAL
 
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -9,8 +10,10 @@ from django.utils import timezone
 from datetime import datetime
 
 from .forms import AufgabeFormZahl, AufgabeFormStr
+from .forms import AuswahlForm
 from .models import Kategorie, Frage, Protokoll, Zaehler
 from .models import Schueler
+from .models import Auswahl
 from django.http import HttpResponse, HttpResponseNotFound
 
 def ergaenzen():
@@ -80,6 +83,7 @@ def aufgabe(req, modul_id):
     if req.method == 'POST':
         protokoll = Protokoll.objects.get(pk=req.session.get('eingabe_id'))
         protokoll.tries += 1
+
         zaehler=Zaehler.objects.get(pk=req.session.get('zaehler_id'))
         form = AufgabeFormZahl(req.POST)
         right=protokoll.value
@@ -87,7 +91,7 @@ def aufgabe(req, modul_id):
             if kontrolle(form.cleaned_data['eingabe'], right):
                 protokoll.eingabe=form.cleaned_data['eingabe']
                 protokoll.bearbeitungszeit=(timezone.now() - protokoll.start).total_seconds()
-                protokoll.wertung="r"
+                protokoll.wertung="richtig"
                 protokoll.save()
                 zaehler.aufgnr +=1
                 zaehler.richtig +=1
@@ -96,7 +100,12 @@ def aufgabe(req, modul_id):
                 min, sec = divmod(protokoll.bearbeitungszeit, 60)
                 msg = f'Zeit: {int(min)}min {int(sec)}s'
                 messages.info(req, f'Richtig! Versuche: {protokoll.tries}, {msg}')
-                return redirect('modul', modul_id)
+                if zaehler.aufgnr>=3:
+                    zaehler.aufgnr=1
+                    zaehler.save()
+                    return redirect('index')
+                else:
+                    return redirect('aufgabe', modul_id)
         messages.info(req, 'Leider falsch.')
         protokoll.eingabe=form.cleaned_data['eingabe']
         protokoll.wertung="f"
@@ -105,6 +114,8 @@ def aufgabe(req, modul_id):
         zaehler.richtig_of =0
         zaehler.save()
         text = protokoll.text
+        if protokoll.tries>=3:
+            return redirect('index')
     else:
         frage = Frage.objects.filter(
             kategorie=modul
@@ -116,7 +127,7 @@ def aufgabe(req, modul_id):
         protokoll = Protokoll.objects.create(
             user=user, kategorie=modul, text=text, value=result, loesung=str(result)         
         )
-        req.session['eingabe_id'] = protokoll.id        
+        req.session['eingabe_id'] = protokoll.id    
         zaehler, created = Zaehler.objects.get_or_create(
             user=user,
             kategorie=modul,            
@@ -135,7 +146,31 @@ def protokoll(req):
     return render(req, 'core/protokoll.html', {'protokoll': protokoll})
 
 def details(req, zeile_id):
-    #protokoll=Protokoll.objects.filter(zeile_id)
     protokoll = get_object_or_404(Protokoll, pk=zeile_id)
     zaehler = Zaehler.objects.get(user=protokoll.user, kategorie=protokoll.kategorie)
     return render(req, 'core/details.html', {'protokoll': protokoll, 'zaehler': zaehler})
+
+#def auswahl(req, kategorie_id):
+def auswahl(req):
+    if req.method=='POST':
+        filled_form=AuswahlForm(req.POST)
+        if filled_form.is_valid():
+            note="OK! Du willst %s rechnen" %(filled_form.cleaned_data['auswahl'])
+            return HttpResponse(note)
+            new_form=AuswahlForm()
+            return render(req, 'core/auswahl.html', {'auswahl':new_form, 'note':note})
+    else:
+        form=AuswahlForm()
+        return render(req, 'core/auswahl.html', {'auswahl':form})
+
+    # kategorie = get_object_or_404(Kategorie, pk=kategorie_id)
+    # if (kategorie.auswahl_set.all().count())>0:
+    #     user=get_fake_user()
+    #     return render(req, 'core/auswahl.html', {'kategorie': kategorie})
+    # else:
+    #     return HttpResponse("keine Optionen")
+
+def wahl(request, kategorie_id):
+    return HttpResponse(kategorie_id)
+    #kategorie = get_object_or_404(Kategorie, pk=kategorie_id)
+    #selected_choice = kategorie.auswahl_set.get(pk=request.POST['wahl'])
