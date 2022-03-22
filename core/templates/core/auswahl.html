@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block css_files %}
+<link rel="stylesheet" href="{% static 'core/aufgabe.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include "includes/header.html" %}
+
+<h2> {{ note }} </h2>
+
+<form action="{% url 'auswahl' %}" method='POST'>
+    {% csrf_token %}
+    {{ auswahl }}
+    <h3><input type="submit" value="weiter"></h3>
+
+{% comment %} <form action="{% url 'wahl' kategorie.id %}" method="post">
+    {% csrf_token %}
+    <h2>{{ kategorie.name }}</h2>
+<ul>
+    <fieldset>
+        <legend><h3>wähle aus:</h3></legend>
+        {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+        {% for auswahl in kategorie.auswahl_set.all %}
+            <input type="checkbox" name="auswahl" id="auswahl" value="{{ auswahl.id }}">
+            <label>{{ auswahl.text }}</label><br>
+        {% endfor %}
+    </fieldset>
+    <h3><input type="submit" value="weiter"></h3>
+    </form>
+</ul> {% endcomment %}
+{% endblock %}
