@@ -2,13 +2,13 @@
 {% load static %}
 
 {% block css_files %}
-<link rel="stylesheet" href="{% static 'core/aufgabe.css' %}">
+<link rel="stylesheet" href="{% static 'core/aufgaben.css' %}">
 {% endblock %}
 
 {% block content %}
 {% include "includes/header.html" %}
 <ul>
-<h2>{{ category.name }}:</h2>
+<h2>{{ kategorie.name }}:</h2>
 {% if messages %}
 <p>
     Letzte Antwort:<br>
@@ -19,7 +19,7 @@
 {% endif %}
 <h3>Aufg. Nr. {{aufgnr}}/10</h3> 
 <h3>{{text}} {{aufgabe}}</h3>
-<form action="{% url 'aufgabe' category.id %}" method="post">
+<form action="{% url 'aufgabe' kategorie.slug %}" method="post">
     {% csrf_token %}
     <fieldset>
         {{ form.eingabe.label_tag }}

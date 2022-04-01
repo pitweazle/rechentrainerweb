@@ -1,6 +1,5 @@
 from django.contrib import admin
 from .models import  Kategorie, Auswahl, Frage, Schueler, Protokoll, Zaehler
-from pizza.models import Pizza, Size
 
 # Register your models here.
 
@@ -26,7 +25,4 @@ admin.site.register(Schueler)
 
 admin.site.register(Protokoll)
 admin.site.register(Zaehler)
-
-admin.site.register(Pizza)
-admin.site.register(Size)
 

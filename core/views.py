@@ -11,12 +11,14 @@ from datetime import datetime
 
 from .forms import AufgabeFormZahl, AufgabeFormStr
 from .forms import AuswahlForm
+
 from .models import Kategorie, Frage, Protokoll, Zaehler
 from .models import Schueler
 from .models import Auswahl
+
 from django.http import HttpResponse, HttpResponseNotFound
 
-def ergaenzen():
+def ergaenzen(jg, stufe):
     NOTES = [5, 10, 20, 50, 100]
     low = random.uniform(0.1, 99.0)
     low = decimal.Decimal(round(low, 2))
@@ -77,13 +79,27 @@ def get_fake_user():
     #return Schueler.objects.all().order_by('?').first()
     return Schueler.objects.all().first()
 
+def index(req):
+    Protokoll.objects.filter(tries=0).delete()
+    modul = Kategorie.objects.all().order_by('id')
+    return render(req, 'core/index.html', {'module': modul})
 
-def aufgabe(req, modul_id):
-    modul = get_object_or_404(Kategorie, pk=modul_id)
+def protokoll(req):
+    protokoll = Protokoll.objects.all().order_by('id').reverse()
+    return render(req, 'core/protokoll.html', {'protokoll': protokoll})
+
+def details(req, zeile_id):
+    protokoll = get_object_or_404(Protokoll, pk=zeile_id)
+    zaehler = Zaehler.objects.get(user=protokoll.user, kategorie=protokoll.kategorie)
+    return render(req, 'core/details.html', {'protokoll': protokoll, 'zaehler': zaehler})
+
+def aufgabe(req, slug):
+    modul = get_object_or_404(Kategorie, slug=slug)
+    user=get_fake_user()    
+    zaehler = get_object_or_404(Zaehler, kategorie=modul, user=user)
     if req.method == 'POST':
         protokoll = Protokoll.objects.get(pk=req.session.get('eingabe_id'))
         protokoll.tries += 1
-
         zaehler=Zaehler.objects.get(pk=req.session.get('zaehler_id'))
         form = AufgabeFormZahl(req.POST)
         right=protokoll.value
@@ -97,16 +113,18 @@ def aufgabe(req, modul_id):
                 zaehler.richtig +=1
                 zaehler.richtig_of +=1
                 zaehler.save()
-                min, sec = divmod(protokoll.bearbeitungszeit, 60)
-                msg = f'Zeit: {int(min)}min {int(sec)}s'
+                #min, sec = divmod(protokoll.bearbeitungszeit, 60)
+                #msg = f'Zeit: {int(min)}min {int(sec)}s'
+                msg=f'richtig: {zaehler.richtig}, falsch: {zaehler.falsch}'
                 messages.info(req, f'Richtig! Versuche: {protokoll.tries}, {msg}')
-                if zaehler.aufgnr>=3:
+                if zaehler.aufgnr>=10:
                     zaehler.aufgnr=1
                     zaehler.save()
                     return redirect('index')
                 else:
-                    return redirect('aufgabe', modul_id)
-        messages.info(req, 'Leider falsch.')
+                    return redirect('aufgabe', slug)
+        msg=f'richtig: {zaehler.richtig}, falsch: {zaehler.falsch}'
+        messages.info(req, f'Leider falsch! Versuche: {protokoll.tries}, {msg}')        
         protokoll.eingabe=form.cleaned_data['eingabe']
         protokoll.wertung="f"
         protokoll.save()
@@ -122,7 +140,7 @@ def aufgabe(req, modul_id):
         ).order_by('?').first()
         form = AufgabeFormZahl()
         user=get_fake_user()
-        zahl1, zahl2, result =aufgabenstellung(modul_id, user.jahrgang) 
+        zahl1, zahl2, result =aufgabenstellung(modul.id, user.jahrgang) 
         text = frage.aufgabe.format(zahl1=zahl1, zahl2=zahl2)
         protokoll = Protokoll.objects.create(
             user=user, kategorie=modul, text=text, value=result, loesung=str(result)         
@@ -133,44 +151,21 @@ def aufgabe(req, modul_id):
             kategorie=modul,            
         )
         req.session['zaehler_id'] = zaehler.id       
-    context = dict(category=modul, aufgnr=zaehler.aufgnr, text=text, aufgabe=aufgabe, form=form)
+    context = dict(kategorie=modul, aufgnr=zaehler.aufgnr, text=text, aufgabe=aufgabe, form=form)
     return render(req, 'core/aufgabe.html', context)
 
-def index(req):
-    Protokoll.objects.filter(tries=0).delete()
-    modul = Kategorie.objects.all().order_by('id')
-    return render(req, 'core/index.html', {'module': modul})
-
-def protokoll(req):
-    protokoll = Protokoll.objects.all().order_by('id').reverse()
-    return render(req, 'core/protokoll.html', {'protokoll': protokoll})
-
-def details(req, zeile_id):
-    protokoll = get_object_or_404(Protokoll, pk=zeile_id)
-    zaehler = Zaehler.objects.get(user=protokoll.user, kategorie=protokoll.kategorie)
-    return render(req, 'core/details.html', {'protokoll': protokoll, 'zaehler': zaehler})
-
-#def auswahl(req, kategorie_id):
-def auswahl(req):
-    if req.method=='POST':
-        filled_form=AuswahlForm(req.POST)
-        if filled_form.is_valid():
-            note="OK! Du willst %s rechnen" %(filled_form.cleaned_data['auswahl'])
-            return HttpResponse(note)
-            new_form=AuswahlForm()
-            return render(req, 'core/auswahl.html', {'auswahl':new_form, 'note':note})
+def auswahl(req, kategorie_id):
+    kategorie = get_object_or_404(Kategorie, pk=kategorie_id)
+    form = AuswahlForm(kategorie=kategorie)
+    if kategorie.auswahl_set.all().count()>0:
+        user=get_fake_user()
+        return render(req, 'core/auswahl.html', {'kategorie': kategorie, 'auswahl_form':form})
     else:
-        form=AuswahlForm()
-        return render(req, 'core/auswahl.html', {'auswahl':form})
+        return HttpResponse("keine Optionen")
 
-    # kategorie = get_object_or_404(Kategorie, pk=kategorie_id)
-    # if (kategorie.auswahl_set.all().count())>0:
-    #     user=get_fake_user()
-    #     return render(req, 'core/auswahl.html', {'kategorie': kategorie})
-    # else:
-    #     return HttpResponse("keine Optionen")
-
-def wahl(request, kategorie_id):
-    return HttpResponse(kategorie_id)
-    #kategorie = get_object_or_404(Kategorie, pk=kategorie_id)
-    #selected_choice = kategorie.auswahl_set.get(pk=request.POST['wahl'])
+def wahl(req, kategorie_id):
+    kategorie = get_object_or_404(Kategorie, pk=kategorie_id)
+    form = AuswahlForm(req.POST, kategorie=kategorie)
+    if form.is_valid():
+        return HttpResponse(form.cleaned_data['optionen'])
+    

@@ -37,7 +37,7 @@ class Kategorie(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return self.slug
 
     class Meta:
         verbose_name = 'Kategorie'
@@ -50,7 +50,7 @@ class Auswahl(models.Model):
     bis_jg = models.IntegerField(default=0, verbose_name="bis Jahrgang:")
 
     def __str__(self):
-        return f"({self.kategorie}, {self.text}, ab Stufe: {self.bis_stufe}, bis Jg: {self.bis_jg})" 
+        return self.text 
 
     class Meta:
         verbose_name = 'Auswahl'
@@ -151,6 +151,8 @@ class Protokoll(models.Model):
 class Zaehler(models.Model):
     user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='zaehler', on_delete=models.CASCADE)    
     kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, related_name="zaehler")
+    optionen=models.CharField(max_length=100, blank=True, verbose_name="Optionen")
+
     aufgnr = models.PositiveSmallIntegerField(default=0)  
 
     richtig = models.PositiveSmallIntegerField(default=0)    
