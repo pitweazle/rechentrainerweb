@@ -85,68 +85,6 @@ def get_fake_user():
     #return Schueler.objects.all().order_by('?').first()
     return Schueler.objects.all().first()
 
-<<<<<<< HEAD
-=======
-
-def aufgabe(req, modul_id):
-    modul = get_object_or_404(Kategorie, pk=modul_id)
-    if req.method == 'POST':
-        protokoll = Protokoll.objects.get(pk=req.session.get('eingabe_id'))
-        protokoll.tries += 1
-
-        zaehler=Zaehler.objects.get(pk=req.session.get('zaehler_id'))
-        form = AufgabeFormZahl(req.POST)
-        right=protokoll.value
-        if form.is_valid():
-            if kontrolle(form.cleaned_data['eingabe'], right):
-                protokoll.eingabe=form.cleaned_data['eingabe']
-                protokoll.bearbeitungszeit=(timezone.now() - protokoll.start).total_seconds()
-                protokoll.wertung="richtig"
-                protokoll.save()
-                zaehler.aufgnr +=1
-                zaehler.richtig +=1
-                zaehler.richtig_of +=1
-                zaehler.save()
-                min, sec = divmod(protokoll.bearbeitungszeit, 60)
-                msg = f'Zeit: {int(min)}min {int(sec)}s'
-                messages.info(req, f'Richtig! Versuche: {protokoll.tries}, {msg}')
-                if zaehler.aufgnr>=3:
-                    zaehler.aufgnr=1
-                    zaehler.save()
-                    return redirect('index')
-                else:
-                    return redirect('aufgabe', modul_id)
-        messages.info(req, 'Leider falsch.')
-        protokoll.eingabe=form.cleaned_data['eingabe']
-        protokoll.wertung="f"
-        protokoll.save()
-        zaehler.falsch +=1
-        zaehler.richtig_of =0
-        zaehler.save()
-        text = protokoll.text
-        if protokoll.tries>=3:
-            return redirect('index')
-    else:
-        frage = Frage.objects.filter(
-            kategorie=modul
-        ).order_by('?').first()
-        form = AufgabeFormZahl()
-        user=get_fake_user()
-        zahl1, zahl2, result =aufgabenstellung(modul_id, user.jahrgang) 
-        text = frage.aufgabe.format(zahl1=zahl1, zahl2=zahl2)
-        protokoll = Protokoll.objects.create(
-            user=user, kategorie=modul, text=text, value=result, loesung=str(result)         
-        )
-        req.session['eingabe_id'] = protokoll.id    
-        zaehler, created = Zaehler.objects.get_or_create(
-            user=user,
-            kategorie=modul,            
-        )
-        req.session['zaehler_id'] = zaehler.id       
-    context = dict(category=modul, aufgnr=zaehler.aufgnr, text=text, aufgabe=aufgabe, form=form)
-    return render(req, 'core/aufgabe.html', context)
-
->>>>>>> 077ad612518978bb87d7db2e0d84a1163ef49987
 def index(req):
     Protokoll.objects.filter(tries=0).delete()
     modul = Kategorie.objects.all().order_by('id')
@@ -161,7 +99,6 @@ def details(req, zeile_id):
     zaehler = Zaehler.objects.get(user=protokoll.user, kategorie=protokoll.kategorie)
     return render(req, 'core/details.html', {'protokoll': protokoll, 'zaehler': zaehler})
 
-<<<<<<< HEAD
 def aufgabe(req, slug):
     modul = get_object_or_404(Kategorie, slug=slug)
     user=get_fake_user()    
@@ -238,29 +175,3 @@ def wahl(req, kategorie_id):
     if form.is_valid():
         return HttpResponse(form.cleaned_data['optionen'])
     
-=======
-#def auswahl(req, kategorie_id):
-def auswahl(req):
-    if req.method=='POST':
-        filled_form=AuswahlForm(req.POST)
-        if filled_form.is_valid():
-            note="OK! Du willst %s rechnen" %(filled_form.cleaned_data['auswahl'])
-            return HttpResponse(note)
-            new_form=AuswahlForm()
-            return render(req, 'core/auswahl.html', {'auswahl':new_form, 'note':note})
-    else:
-        form=AuswahlForm()
-        return render(req, 'core/auswahl.html', {'auswahl':form})
-
-    # kategorie = get_object_or_404(Kategorie, pk=kategorie_id)
-    # if (kategorie.auswahl_set.all().count())>0:
-    #     user=get_fake_user()
-    #     return render(req, 'core/auswahl.html', {'kategorie': kategorie})
-    # else:
-    #     return HttpResponse("keine Optionen")
-
-def wahl(request, kategorie_id):
-    return HttpResponse(kategorie_id)
-    #kategorie = get_object_or_404(Kategorie, pk=kategorie_id)
-    #selected_choice = kategorie.auswahl_set.get(pk=request.POST['wahl'])
->>>>>>> 077ad612518978bb87d7db2e0d84a1163ef49987

@@ -19,11 +19,7 @@
 {% endif %}
 <h3>Aufg. Nr. {{aufgnr}}/10</h3> 
 <h3>{{text}} {{aufgabe}}</h3>
-<<<<<<< HEAD
 <form action="{% url 'aufgabe' kategorie.slug %}" method="post">
-=======
-<form action="{% url 'aufgabe' category.id %}" method="post">
->>>>>>> 077ad612518978bb87d7db2e0d84a1163ef49987
     {% csrf_token %}
     <fieldset>
         {{ form.eingabe.label_tag }}
