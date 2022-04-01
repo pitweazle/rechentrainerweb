@@ -21,7 +21,11 @@
 
 <ul>
     {% for modul in module %}
+<<<<<<< HEAD
         <li><a  class="button" href="{% url 'aufgabe' modul.slug %}" {% if not modul.fragen.count %}disabled{% endif %}>
+=======
+        <li><a  class="button" href="{% url 'aufgabe' modul.id %}" {% if not modul.fragen.count %}disabled{% endif %}>
+>>>>>>> 077ad612518978bb87d7db2e0d84a1163ef49987
             {{ modul.name }}</a></li>
     {% endfor %}
 </ul>
