@@ -22,7 +22,7 @@ class wahl_gruppe(models.TextChoices):
 class Kategorie(models.Model):
     gruppe = models.CharField(max_length=1, choices=wahl_gruppe.choices, default=wahl_gruppe.A)
 
-    zeile = models.PositiveSmallIntegerField(default=0)             # entspricht der Aufgabengruppe (1 bis 35)
+    zeile = models.PositiveSmallIntegerField(default=0, unique=True)             # entspricht der Aufgabengruppe (1 bis 35)
     name = models.CharField(max_length=20)
 
     slug=models.SlugField(default="", null=False)
@@ -96,10 +96,16 @@ class wahl_kurs(models.TextChoices):
 class Schueler(models.Model):
     nachname = models.CharField(max_length=20)
     vorname = models.CharField(max_length=20)
+    
+    
     klasse = models.CharField(max_length=10)
     jahrgang = models.PositiveSmallIntegerField(validators=[MinValueValidator(5), MaxValueValidator(10)])
 
     kurs= models.CharField(max_length=1, choices=wahl_kurs.choices, default=wahl_kurs.E_KURS,)
+
+    #rating_kurs=models.BooleanField(default=True)
+    #rating_schule=models.BooleanField(default=True)
+    #rating_gesamt=models.BooleanField(default=True)
 
     # werden beim Erstellen eingestellt
     datum_start = models.DateField(auto_now_add=True, verbose_name="Startdatum", editable=False, )
@@ -120,7 +126,8 @@ class Protokoll(models.Model):
     halbjahr = models.PositiveSmallIntegerField(default=0)
 
     kategorie = models.ForeignKey(Kategorie, verbose_name='Kategorie', related_name='protokoll', on_delete=models.CASCADE)
-    typ = models.CharField(max_length=5, blank=True )
+    #frage = models.ForeignKey(Frage, verbose_name='Frage', related_name='protokoll', on_delete=models.CASCADE)
+    #typ = models.CharField(max_length=5, blank=True )
 
     #der Aufgabentext:
     text = models.TextField(blank=True)
@@ -151,7 +158,10 @@ class Protokoll(models.Model):
 class Zaehler(models.Model):
     user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='zaehler', on_delete=models.CASCADE)    
     kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, related_name="zaehler")
+    
     optionen=models.CharField(max_length=100, blank=True, verbose_name="Optionen")
+    typ_anf = models.SmallIntegerField(default=0)    
+    typ_end = models.SmallIntegerField(default=0)    
 
     aufgnr = models.PositiveSmallIntegerField(default=0)  
 

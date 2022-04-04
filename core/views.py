@@ -11,18 +11,21 @@ from datetime import datetime
 
 from .forms import AufgabeFormZahl, AufgabeFormStr
 from .forms import AuswahlForm
-<<<<<<< HEAD
 
 from .models import Kategorie, Frage, Protokoll, Zaehler
 from .models import Schueler
 from .models import Auswahl
 
-=======
-from .models import Kategorie, Frage, Protokoll, Zaehler
-from .models import Schueler
-from .models import Auswahl
->>>>>>> 077ad612518978bb87d7db2e0d84a1163ef49987
 from django.http import HttpResponse, HttpResponseNotFound
+
+def ergaenzen_init(jg, stufe, optionen):
+    return HttpResponse(optionen)
+
+def addieren_init(jg, stufe, optionen):
+    return HttpResponse(optionen)
+
+def subtrahieren_init(jg, stufe, optionen):
+    return HttpResponse(optionen)
 
 def ergaenzen(jg, stufe):
     NOTES = [5, 10, 20, 50, 100]
@@ -75,6 +78,15 @@ AUFGABEN = {
 def aufgabenstellung(modul_id, jg):
     return AUFGABEN[modul_id](jg, 3)
 
+AUFGABEN_INIT = {
+    1: ergaenzen_init,
+    2: addieren_init,
+    3: subtrahieren_init,
+}
+
+def aufgaben_init(modul_id, zaehler_id):
+    return AUFGABEN_INIT[modul_id](zaehler_id)
+
 def kontrolle(given, right):
     return given == right 
 
@@ -87,17 +99,25 @@ def get_fake_user():
 
 def index(req):
     Protokoll.objects.filter(tries=0).delete()
-    modul = Kategorie.objects.all().order_by('id')
+    modul = Kategorie.objects.all().order_by('zeile')
     return render(req, 'core/index.html', {'module': modul})
+
+def uebersicht(req):
+    user=get_fake_user()
+    uebersicht = Zaehler.objects.filter(user=user).order_by('kategorie__zeile')
+    return render(req, 'core/uebersicht.html', {'uebersicht': uebersicht, 'user':user})
 
 def protokoll(req):
     protokoll = Protokoll.objects.all().order_by('id').reverse()
+    user=get_fake_user()    
+    zaehler = get_object_or_404(Zaehler, kategorie=protokoll.kategorie, user=user)
     return render(req, 'core/protokoll.html', {'protokoll': protokoll})
 
 def details(req, zeile_id):
     protokoll = get_object_or_404(Protokoll, pk=zeile_id)
     zaehler = Zaehler.objects.get(user=protokoll.user, kategorie=protokoll.kategorie)
     return render(req, 'core/details.html', {'protokoll': protokoll, 'zaehler': zaehler})
+
 
 def aufgabe(req, slug):
     modul = get_object_or_404(Kategorie, slug=slug)
@@ -121,7 +141,8 @@ def aufgabe(req, slug):
                 zaehler.save()
                 #min, sec = divmod(protokoll.bearbeitungszeit, 60)
                 #msg = f'Zeit: {int(min)}min {int(sec)}s'
-                msg=f'richtig: {zaehler.richtig}, falsch: {zaehler.falsch}'
+                quote=int(zaehler.falsch/(zaehler.richtig+zaehler.falsch)*100)
+                msg=f'richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%'
                 messages.info(req, f'Richtig! Versuche: {protokoll.tries}, {msg}')
                 if zaehler.aufgnr>=10:
                     zaehler.aufgnr=1
@@ -129,7 +150,8 @@ def aufgabe(req, slug):
                     return redirect('index')
                 else:
                     return redirect('aufgabe', slug)
-        msg=f'richtig: {zaehler.richtig}, falsch: {zaehler.falsch}'
+        quote=int(zaehler.falsch/(zaehler.richtig+zaehler.falsch)*100)
+        msg=f'richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%'
         messages.info(req, f'Leider falsch! Versuche: {protokoll.tries}, {msg}')        
         protokoll.eingabe=form.cleaned_data['eingabe']
         protokoll.wertung="f"
@@ -152,26 +174,30 @@ def aufgabe(req, slug):
             user=user, kategorie=modul, text=text, value=result, loesung=str(result)         
         )
         req.session['eingabe_id'] = protokoll.id    
-        zaehler, created = Zaehler.objects.get_or_create(
-            user=user,
-            kategorie=modul,            
-        )
+        # zaehler, created = Zaehler.objects.get_or_create(
+        #     user=user,
+        #     kategorie=modul,            
+        # )
+        zaehler.aufgnr +=1
+        zaehler.save()
         req.session['zaehler_id'] = zaehler.id       
     context = dict(kategorie=modul, aufgnr=zaehler.aufgnr, text=text, aufgabe=aufgabe, form=form)
     return render(req, 'core/aufgabe.html', context)
 
-def auswahl(req, kategorie_id):
-    kategorie = get_object_or_404(Kategorie, pk=kategorie_id)
+def optionen(req, slug):
+    kategorie = get_object_or_404(Kategorie, slug=slug)
     form = AuswahlForm(kategorie=kategorie)
-    if kategorie.auswahl_set.all().count()>0:
-        user=get_fake_user()
-        return render(req, 'core/auswahl.html', {'kategorie': kategorie, 'auswahl_form':form})
+    user=get_fake_user()    
+    zaehler = get_object_or_404(Zaehler, kategorie=kategorie, user=user)
+    if req.method == 'POST':
+        form = AuswahlForm(req.POST, kategorie=kategorie)
+        if form.is_valid():
+            zaehler.optionen = ';'.join(map(str, form.cleaned_data['optionen']))
+            zaehler.save
+            return HttpResponse(zaehler.optionen)
     else:
-        return HttpResponse("keine Optionen")
-
-def wahl(req, kategorie_id):
-    kategorie = get_object_or_404(Kategorie, pk=kategorie_id)
-    form = AuswahlForm(req.POST, kategorie=kategorie)
-    if form.is_valid():
-        return HttpResponse(form.cleaned_data['optionen'])
-    
+        if kategorie.auswahl_set.all().count()>0:
+            user=get_fake_user()
+            return render(req, 'core/optionen.html', {'kategorie': kategorie, 'auswahl_form':form})
+        else:
+            return HttpResponse("keine Optionen")   

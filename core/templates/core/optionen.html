@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block css_files %}
-<link rel="stylesheet" href="{% static 'core/aufgaben.css' %}">
+<link rel="stylesheet" href="{% static 'core/optionen.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -12,7 +12,7 @@
 
 <h2>{{ kategorie.name }}</h2>
 <ul>
-<form action="{% url 'wahl' kategorie.id%}" method="Post">
+<form action="{% url 'optionen' kategorie.slug %}" method="Post">
     {% csrf_token %}
     {{auswahl_form}}
     <input type="submit" value="weiter">

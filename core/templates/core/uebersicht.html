@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block css_files %}
+<link rel="stylesheet" href="{% static 'core/protokoll.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include "includes/header.html" %}
+
+<h2>Uebersicht {{user}}</h2>
+
+<ul>
+    {% for zeile in uebersicht %}
+        <li>{{zeile.kategorie|title}}: richtig: {{zeile.richtig}}, falsch: {{zeile.falsch}}, Fehlerquote: {{zeile.quote|floatformat:"0"}}%, Aufgaben ohne Fehler: {{zeile.aufgaben_of}}, Optionen: {{zeile.optionen}}</li>
+        {% empty %}
+        <strong>Leider kein Eintrag vorhanden.</strong>
+    {% endfor %}
+</ul>
+
+{% endblock %}

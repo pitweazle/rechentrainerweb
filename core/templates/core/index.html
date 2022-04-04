@@ -21,7 +21,7 @@
 
 <ul>
     {% for modul in module %}
-        <li><a  class="button" href="{% url 'aufgabe' modul.slug %}" {% if not modul.fragen.count %}disabled{% endif %}>
+        <li><a  class="button" href="{% url 'optionen' modul.slug %}" {% if not modul.fragen.count %}disabled{% endif %}>
             {{ modul.name }}</a></li>
     {% endfor %}
 </ul>
