@@ -121,14 +121,17 @@ class Schueler(models.Model):
         verbose_name_plural = 'Schüler'
 
 class Protokoll(models.Model):
-    user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='protokoll', on_delete=models.CASCADE)
+    user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='protokolle', on_delete=models.CASCADE)
     #gewertet werden nur die Aufgaben des jeweiligen Schuljabjahres, im Januar, Juni und August, kann der user aber auch schon festlegen, dass die Aufgaben für das nächste Schulhalbjahr gelten:
     halbjahr = models.PositiveSmallIntegerField(default=0)
 
-    kategorie = models.ForeignKey(Kategorie, verbose_name='Kategorie', related_name='protokoll', on_delete=models.CASCADE)
-    #frage = models.ForeignKey(Frage, verbose_name='Frage', related_name='protokoll', on_delete=models.CASCADE)
-    #typ = models.CharField(max_length=5, blank=True )
-
+    kategorie = models.ForeignKey(Kategorie, verbose_name='Kategorie', related_name='protokolle', on_delete=models.CASCADE)
+    typ = models.CharField(max_length=5, blank=True)
+    #frage = models.ForeignKey(Frage, verbose_name='Frage', related_name='protokolle', default=0, on_delete=models.CASCADE)
+    frage = models.IntegerField('Frage_id', default=0)
+     
+    aufgnr = models.PositiveSmallIntegerField(default=0) 
+    
     #der Aufgabentext:
     text = models.TextField(blank=True)
 
@@ -152,15 +155,16 @@ class Protokoll(models.Model):
         verbose_name = 'Protokoll'
         verbose_name_plural = 'Protokoll'
 
-    def __str__(self):
-        return f"({self.start} {self.user} {self.kategorie} {self.text}={self.value}?)"
+    #def __str__(self):
+    #     return f"({self.start} {self.user} {self.kategorie} {self.text}={self.value}?)"
 
 class Zaehler(models.Model):
     user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='zaehler', on_delete=models.CASCADE)    
     kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, related_name="zaehler")
     
     optionen=models.CharField(max_length=100, blank=True, verbose_name="Optionen")
-    typ_anf = models.SmallIntegerField(default=0)    
+    
+    typ_anf = models.SmallIntegerField(default=0)        
     typ_end = models.SmallIntegerField(default=0)    
 
     aufgnr = models.PositiveSmallIntegerField(default=0)  
@@ -179,6 +183,10 @@ class Zaehler(models.Model):
 
     def __str__(self):
         return f"({self.user}, {self.kategorie}, {self.aufgnr})"
+    
+    def quote(self):
+        gesamt = self.richtig + self.falsch
+        return self.falsch / gesamt *100 if gesamt else 0
 
     class Meta:
         verbose_name = 'Zähler'

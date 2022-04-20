@@ -16,13 +16,18 @@
         {% endfor %}
 </p>
 {% endif %}
-
+<li>
 <h2> Wähle aus: </h2>
-
 <ul>
-    {% for modul in module %}
-        <li><a  class="button" href="{% url 'optionen' modul.slug %}" {% if not modul.fragen.count %}disabled{% endif %}>
-            {{ modul.name }}</a></li>
-    {% endfor %}
+{% for modul in module %}
+<li>
+    {% if modul.fragen.count %}
+    <a  class="button" href="{% url 'main' modul.slug %}">{{ modul.name }}</a>
+    {% else %}
+    <button class="button" disabled>{{ modul.name }}</button>
+    {% endif %}
+</li>
+{% endfor %}
+</li>
 </ul>
 {% endblock %}

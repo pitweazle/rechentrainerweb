@@ -2,11 +2,23 @@
 {% load static %}
 
 {% block css_files %}
-<link rel="stylesheet" href="{% static 'core/aufgaben.css' %}">
+<link rel="stylesheet" href="{% static 'core/aufgabe.css' %}">
+<link rel="stylesheet" href="{% static 'core/includes/header_aufgabe.css' %}">
 {% endblock %}
 
+
+
 {% block content %}
-{% include "includes/header.html" %}
+<header>
+    <h1>Der Rechentrainer</h1>
+
+    <nav>
+        <a href="{% url 'abbrechen' zaehler_id %}">Abbrechen</a>
+        <a href="{% url 'uebersicht' %}">Hilfe</a>
+        <a href="{% url 'protokoll' %}">Lösung anzeigen</a>
+    </nav>
+</header>
+
 <ul>
 <h2>{{ kategorie.name }}:</h2>
 {% if messages %}
@@ -17,9 +29,9 @@
         {% endfor %}
 </p>
 {% endif %}
-<h3>Aufg. Nr. {{aufgnr}}/10</h3> 
+<h3>Aufg. Nr. {{aufgnr}}/10 Typ: ({{typ}})</h3> 
 <h3>{{text}} {{aufgabe}}</h3>
-<form action="{% url 'aufgabe' kategorie.slug %}" method="post">
+<form action="{% url 'main' kategorie.slug %}" method="post">
     {% csrf_token %}
     <fieldset>
         {{ form.eingabe.label_tag }}
@@ -28,4 +40,5 @@
     </fieldset>
 </form>
 </ul>
+
 {% endblock %}

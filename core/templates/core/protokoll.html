@@ -9,14 +9,33 @@
 {% include "includes/header.html" %}
 
 <h2>Protokoll:</h2>
-
 <ul>
-    {% for zeile in protokoll %}
-        <li><a class="button" href="{% url 'details' zeile.id %}">{{zeile.start|date:"d.m.y H:i"}} {{zeile.kategorie}} ({{ zeile.aufgnr}}): {{ zeile.text|truncatewords:"20"}} ({{zeile.value|floatformat:"-3"}}), Eingabe: {{zeile.eingabe}} ({{zeile.richtig}}/{{zeile.tries}}) {{zeile.bearbeitungszeit|floatformat:"0"}}sec</li>
-        {% empty %}
-        <strong>Leider keine Kategorien vorhanden.</strong>
-    {% endfor %}
+<table>
+    <thead>
+        <tr>
+            <th>Datum</th>
+            <th>Kategorie</th>
+            <th>Aufgnr.</th>
+            <th>Aufgabe</th>
+            <th>Ergebnis</th>
+            <th>Eingabe</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for zeile in protokoll %}
+            <tr>
+                <td><a class="button" href="{% url 'details' zeile.id %}">{{zeile.start|date:"d.m.y H:i"}}</td>
+                <td>{{zeile.kategorie|title}}</td>
+                <td>{{zeile.aufgnr}} ({{zeile.typ}})</td>
+                <td>{{ zeile.text|truncatewords:"20"}}</td>
+                <td>{{zeile.value|floatformat:"-3"}}</td>
+                <td style="background-color:rgba(0,150,0,0.8);">{{zeile.eingabe}}</td>
+            </tr>
+            {% comment %} {% empty %}
+            <strong>Leider keine Kategorien vorhanden.</strong>                 {% endcomment %}
+        {% endfor %}
+    </tbody>
+</table>
 </ul>
-
 {% endblock %}
 

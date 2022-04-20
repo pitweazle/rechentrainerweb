@@ -9,8 +9,9 @@ class AufgabeFormStr(forms.Form):
     eingabe = forms.CharField(label='Ergebnis')
 
 class AuswahlForm(forms.Form):
-    optionen = forms.ModelMultipleChoiceField(queryset=Kategorie.objects, widget=forms.CheckboxSelectMultiple, required=False)
-    #optionen=forms.ModelChoiceField(queryset=Kategorie.objects, widget=forms.RadioSelect)
+    #optionen = forms.ModelMultipleChoiceField(queryset=Kategorie.objects, widget=forms.CheckboxSelectMultiple, required=False)
+    #optionen=forms.ModelChoiceField(queryset=Kategorie.objects, widget=forms.CheckboxSelectMultiple)
+    optionen=forms.ModelMultipleChoiceField(queryset=Kategorie.objects, widget=forms.CheckboxSelectMultiple, required=False)
     def __init__(self, *args, **kwargs):
         kategorie = kwargs.pop('kategorie')
         super().__init__(*args, **kwargs)

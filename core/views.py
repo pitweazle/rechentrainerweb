@@ -18,16 +18,7 @@ from .models import Auswahl
 
 from django.http import HttpResponse, HttpResponseNotFound
 
-def ergaenzen_init(jg, stufe, optionen):
-    return HttpResponse(optionen)
-
-def addieren_init(jg, stufe, optionen):
-    return HttpResponse(optionen)
-
-def subtrahieren_init(jg, stufe, optionen):
-    return HttpResponse(optionen)
-
-def ergaenzen(jg, stufe):
+def ergaenzen(jg=5, stufe=3, typ_anf=0, typ_end=0, optionen="", init=False):
     NOTES = [5, 10, 20, 50, 100]
     low = random.uniform(0.1, 99.0)
     low = decimal.Decimal(round(low, 2))
@@ -40,34 +31,60 @@ def ergaenzen(jg, stufe):
     result=high-low
     return low, high, result
 
-def addieren(jg, stufe):
-    if jg==5:
-        zahl1=random.randint(5, 45)
-        zahl2=random.randint(5, 45)
+def addieren(jg=5, stufe=3, typ_anf=0, typ_end=0, optionen="", init=False):
+    if init==True:
+        typ_anf=1
+        typ_end=1
+        if jg>=7:
+            typ_end=2
+        else:
+            if "mit" in optionen:
+                typ_end=2
+        return typ_anf, typ_end
     else:
-        rund1 = random.randint(0,2)
-        zahl1 = random.randint(5, 225)
-        zahl1=zahl1/10**rund1
-        rund2 = random.randint(0,2)
-        zahl2 = random.randint(5, 225)
-        zahl2=zahl2/10**rund2
-    return zahl1, zahl2, zahl1+zahl2
+        typ=1 
+        if typ_end>1:
+            typ=random.randint(typ_anf, typ_end+1)
+        if typ==1:
+                zahl1=random.randint(5, 45)
+                zahl2=random.randint(5, 45)
+        else:
+                rund1 = random.randint(0,2)
+                zahl1 = random.randint(5, 225)
+                zahl1=zahl1/10**rund1
+                rund2 = random.randint(0,2)
+                zahl2 = random.randint(5, 225)
+                zahl2=zahl2/10**rund2
+        return typ, zahl1, zahl2, zahl1+zahl2
 
-def subtrahieren(jg, stufe):
-    if jg==5:
-        zahl2=random.randint(1, 99)
-        result=random.randint(1, 49)
-        zahl1=result+zahl2
+def subtrahieren(jg=5, stufe=3, typ_anf=0, typ_end=0, optionen="", init=False):
+    if init==True:
+        typ_anf=1
+        typ_end=1
+        if jg>=7:
+            typ_end=2
+        else:
+            if "mit" in optionen:
+                typ_end=2
+        return typ_anf, typ_end
     else:
-        rund1 = random.randint(0,2)
-        zahl2 = random.randint(1, 99)
-        zahl2=zahl2/10**rund1
-        rund2 = random.randint(0,2)
-        result = random.randint(1, 99)
-        result=result/10**rund2
-        zahl1=zahl2+result
-        zahl1=round(zahl1,(max(rund1, rund2)))
-    return zahl1, zahl2, result
+        typ=1 
+        if typ_end>1:
+            typ=random.randint(typ_anf, typ_end+1)
+        if typ==1:
+            zahl2=random.randint(1, 99)
+            result=random.randint(1, 49)
+            zahl1=result+zahl2
+        else:
+            rund1 = random.randint(0,2)
+            zahl2 = random.randint(1, 99)
+            zahl2=zahl2/10**rund1
+            rund2 = random.randint(0,2)
+            result = random.randint(1, 99)
+            result=result/10**rund2
+            zahl1=zahl2+result
+            zahl1=round(zahl1,(max(rund1, rund2)))
+    return typ, zahl1, zahl2, result
 
 AUFGABEN = {
     1: ergaenzen,
@@ -75,17 +92,8 @@ AUFGABEN = {
     3: subtrahieren,
 }
 
-def aufgabenstellung(modul_id, jg):
-    return AUFGABEN[modul_id](jg, 3)
-
-AUFGABEN_INIT = {
-    1: ergaenzen_init,
-    2: addieren_init,
-    3: subtrahieren_init,
-}
-
-def aufgaben_init(modul_id, zaehler_id):
-    return AUFGABEN_INIT[modul_id](zaehler_id)
+def aufgaben(modul_id, jg=5, stufe=3, typ_anf=0, typ_end=0, optionen="", init=False):
+    return AUFGABEN[modul_id](jg, stufe, typ_anf, typ_end, optionen, init)
 
 def kontrolle(given, right):
     return given == right 
@@ -97,29 +105,29 @@ def get_fake_user():
     #return Schueler.objects.all().order_by('?').first()
     return Schueler.objects.all().first()
 
-def index(req):
+def kategorien(req):
     Protokoll.objects.filter(tries=0).delete()
     modul = Kategorie.objects.all().order_by('zeile')
-    return render(req, 'core/index.html', {'module': modul})
+    return render(req, 'core/kategorien.html', {'module': modul})
 
 def uebersicht(req):
     user=get_fake_user()
     uebersicht = Zaehler.objects.filter(user=user).order_by('kategorie__zeile')
+    #modul = Kategorie.objects.all()
     return render(req, 'core/uebersicht.html', {'uebersicht': uebersicht, 'user':user})
 
 def protokoll(req):
     protokoll = Protokoll.objects.all().order_by('id').reverse()
     user=get_fake_user()    
-    zaehler = get_object_or_404(Zaehler, kategorie=protokoll.kategorie, user=user)
     return render(req, 'core/protokoll.html', {'protokoll': protokoll})
 
 def details(req, zeile_id):
     protokoll = get_object_or_404(Protokoll, pk=zeile_id)
     zaehler = Zaehler.objects.get(user=protokoll.user, kategorie=protokoll.kategorie)
-    return render(req, 'core/details.html', {'protokoll': protokoll, 'zaehler': zaehler})
+    frage = Frage.objects.get(pk=protokoll.frage)
+    return render(req, 'core/details.html', {'protokoll': protokoll, 'zaehler': zaehler, 'frage':frage,})
 
-
-def aufgabe(req, slug):
+def main(req, slug):
     modul = get_object_or_404(Kategorie, slug=slug)
     user=get_fake_user()    
     zaehler = get_object_or_404(Zaehler, kategorie=modul, user=user)
@@ -127,77 +135,123 @@ def aufgabe(req, slug):
         protokoll = Protokoll.objects.get(pk=req.session.get('eingabe_id'))
         protokoll.tries += 1
         zaehler=Zaehler.objects.get(pk=req.session.get('zaehler_id'))
+        frage = get_object_or_404(Frage, pk=protokoll.frage)
         form = AufgabeFormZahl(req.POST)
         right=protokoll.value
         if form.is_valid():
-            if kontrolle(form.cleaned_data['eingabe'], right):
-                protokoll.eingabe=form.cleaned_data['eingabe']
-                protokoll.bearbeitungszeit=(timezone.now() - protokoll.start).total_seconds()
-                protokoll.wertung="richtig"
-                protokoll.save()
-                zaehler.aufgnr +=1
-                zaehler.richtig +=1
-                zaehler.richtig_of +=1
-                zaehler.save()
-                #min, sec = divmod(protokoll.bearbeitungszeit, 60)
-                #msg = f'Zeit: {int(min)}min {int(sec)}s'
+            eingabe=form.cleaned_data['eingabe']
+            print(protokoll.tries)
+            if protokoll.tries==1:
+                protokoll.eingabe=eingabe
+            elif protokoll.tries==2:
+                protokoll.eingabe=f"(1:) {protokoll.eingabe} (2:) {eingabe}"
+            else:
+                protokoll.eingabe=f"{protokoll.eingabe} (3:) {eingabe}"
+            protokoll.save()
+            if kontrolle(eingabe, right):
+                richtig(protokoll.id, zaehler.id)
                 quote=int(zaehler.falsch/(zaehler.richtig+zaehler.falsch)*100)
                 msg=f'richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%'
                 messages.info(req, f'Richtig! Versuche: {protokoll.tries}, {msg}')
-                if zaehler.aufgnr>=10:
-                    zaehler.aufgnr=1
-                    zaehler.save()
-                    return redirect('index')
-                else:
-                    return redirect('aufgabe', slug)
-        quote=int(zaehler.falsch/(zaehler.richtig+zaehler.falsch)*100)
-        msg=f'richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%'
-        messages.info(req, f'Leider falsch! Versuche: {protokoll.tries}, {msg}')        
-        protokoll.eingabe=form.cleaned_data['eingabe']
-        protokoll.wertung="f"
-        protokoll.save()
-        zaehler.falsch +=1
-        zaehler.richtig_of =0
-        zaehler.save()
-        text = protokoll.text
-        if protokoll.tries>=3:
-            return redirect('index')
+                return redirect('main', slug)
+            else:
+                falsch(protokoll.id, zaehler.id)
+                quote=int(zaehler.falsch/(zaehler.richtig+zaehler.falsch)*100)
+                msg=f'falsch: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%'
+                messages.info(req, f'Leider falsch! Versuche: {protokoll.tries}, {msg}')        
+                text = protokoll.text
+                if protokoll.tries>=3:
+                    return redirect('kategorien')
+                    
     else:
-        frage = Frage.objects.filter(
-            kategorie=modul
-        ).order_by('?').first()
+        frage = Frage.objects.filter(kategorie=modul).order_by('?').first()
+        frage_id=frage.id
         form = AufgabeFormZahl()
         user=get_fake_user()
-        zahl1, zahl2, result =aufgabenstellung(modul.id, user.jahrgang) 
+        if zaehler.optionen=="":
+            return redirect('optionen', slug)
+        typ, zahl1, zahl2, result =aufgaben(modul.id, typ_anf=zaehler.typ_anf, typ_end=zaehler.typ_end, init=False) 
         text = frage.aufgabe.format(zahl1=zahl1, zahl2=zahl2)
         protokoll = Protokoll.objects.create(
             user=user, kategorie=modul, text=text, value=result, loesung=str(result)         
         )
         req.session['eingabe_id'] = protokoll.id    
-        # zaehler, created = Zaehler.objects.get_or_create(
-        #     user=user,
-        #     kategorie=modul,            
-        # )
-        zaehler.aufgnr +=1
-        zaehler.save()
-        req.session['zaehler_id'] = zaehler.id       
-    context = dict(kategorie=modul, aufgnr=zaehler.aufgnr, text=text, aufgabe=aufgabe, form=form)
+        req.session['zaehler_id'] = zaehler.id   
+        if zaehler.aufgnr==0:
+            zaehler.aufgnr=1
+        zaehler.save()        
+        protokoll.typ=typ
+        protokoll.frage=frage_id
+        protokoll.aufgnr=zaehler.aufgnr
+        if frage.protokolltext=="":
+            protokoll.text = protokoll.text
+        else:
+            protokoll.text=protokoll.aufgabe
+        protokoll.save()  
+    context = dict(kategorie=modul, aufgnr=zaehler.aufgnr, text=text, aufgabe=main, form=form, zaehler_id=zaehler.id,)
     return render(req, 'core/aufgabe.html', context)
 
 def optionen(req, slug):
     kategorie = get_object_or_404(Kategorie, slug=slug)
     form = AuswahlForm(kategorie=kategorie)
-    user=get_fake_user()    
+    user=get_fake_user()   
     zaehler = get_object_or_404(Zaehler, kategorie=kategorie, user=user)
     if req.method == 'POST':
         form = AuswahlForm(req.POST, kategorie=kategorie)
         if form.is_valid():
-            zaehler.optionen = ';'.join(map(str, form.cleaned_data['optionen']))
-            zaehler.save
-            return HttpResponse(zaehler.optionen)
+            optionen = ';'.join(map(str, form.cleaned_data['optionen']))
+            if optionen=="":
+                optionen="keine"
+        else:
+            optionen="keine"  
     else:
-        if kategorie.auswahl_set.all().count()>0:
-            user=get_fake_user()
+        auswahl=kategorie.auswahl_set.all().count()
+        if auswahl>0:
             return render(req, 'core/optionen.html', {'kategorie': kategorie, 'auswahl_form':form})
         else:
-            return HttpResponse("keine Optionen")   
+            optionen="keine"
+    zaehler.optionen=optionen        
+    zaehler.save()
+    typ_anf, typ_end = aufgaben(kategorie.id, jg=user.jahrgang, stufe=user.stufe, optionen=zaehler.optionen, init=True)
+    zaehler.typ_anf=typ_anf
+    zaehler.typ_end=typ_end
+    zaehler.save()
+    return redirect('main', slug)
+
+def abbrechen(req, zaehler_id):
+    zaehler = get_object_or_404(Zaehler, pk=zaehler_id)
+    zaehler.aufgnr=0
+    zaehler.optionen=""
+    zaehler.abbrechen =zaehler.abbrechen+1
+    zaehler.richtig_of =0 
+    zaehler.save() 
+    return redirect('kategorien')
+
+def richtig(protokoll_id, zaehler_id):
+    protokoll = Protokoll.objects.get(pk=protokoll_id)
+    zaehler = Zaehler.objects.get(pk=zaehler_id)
+    #protokoll.tries += 1
+    protokoll.bearbeitungszeit=(timezone.now() - protokoll.start).total_seconds()
+    protokoll.wertung="richtig"
+    protokoll.save()
+    zaehler.richtig +=1
+    zaehler.richtig_of +=1
+    zaehler.aufgnr +=1
+    zaehler.save()
+    if zaehler.aufgnr>10:
+        zaehler.aufgnr=0
+        zaehler.optionen=""
+        zaehler.save()
+        return redirect('kategorien')
+    
+def falsch(protokoll_id, zaehler_id):
+    protokoll = Protokoll.objects.get(pk=protokoll_id)
+    zaehler = Zaehler.objects.get(pk=zaehler_id)
+    #protokoll.tries += 1
+    protokoll.bearbeitungszeit=(timezone.now() - protokoll.start).total_seconds()
+    protokoll.wertung="f"
+    protokoll.save()
+    zaehler.falsch +=1
+    zaehler.richtig_of =0
+    zaehler.save()
+   

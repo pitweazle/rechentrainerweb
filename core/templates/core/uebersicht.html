@@ -2,20 +2,37 @@
 {% load static %}
 
 {% block css_files %}
-<link rel="stylesheet" href="{% static 'core/protokoll.css' %}">
+<link rel="stylesheet" href="{% static 'core/uebersicht.css' %}">
 {% endblock %}
 
 {% block content %}
 {% include "includes/header.html" %}
 
-<h2>Uebersicht {{user}}</h2>
-
+<h2>Übersicht {{user}}</h2>
 <ul>
-    {% for zeile in uebersicht %}
-        <li>{{zeile.kategorie|title}}: richtig: {{zeile.richtig}}, falsch: {{zeile.falsch}}, Fehlerquote: {{zeile.quote|floatformat:"0"}}%, Aufgaben ohne Fehler: {{zeile.aufgaben_of}}, Optionen: {{zeile.optionen}}</li>
-        {% empty %}
-        <strong>Leider kein Eintrag vorhanden.</strong>
-    {% endfor %}
+<table>
+    <thead>
+        <tr>
+            <th>Kategorie</th>
+            <th>richtig</th>
+            <th>falsch</th>
+            <th>Fehlerquote</th>
+            <th>Aufg. ohne Fehler</th>
+            <th>Abbrechen</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for zeile in uebersicht %}
+            <tr>
+                <th class="button" href="{% url 'main' zeile.kategorie.slug %}">{{zeile.kategorie|title}}</th>
+                <td>{{zeile.richtig}}</td>
+                <td>{{zeile.falsch}}</td>
+                <td>{{zeile.quote|floatformat:"0"}}%</td>
+                <td>{{zeile.richtig_of}}</td>
+                <td>{{zeile.abbrechen}}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 </ul>
-
 {% endblock %}
