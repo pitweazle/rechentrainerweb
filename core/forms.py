@@ -3,10 +3,11 @@ from .models import Kategorie, Auswahl, Zaehler
 
 class AufgabeFormZahl(forms.Form):
     eingabe = forms.DecimalField(label='Ergebnis', max_digits=15,
-                                decimal_places=5)
-
+                                decimal_places=5, widget=forms.NumberInput(attrs={'autofocus': True}))
+    
 class AufgabeFormStr(forms.Form):
     eingabe = forms.CharField(label='Ergebnis')
+    
 
 class AuswahlForm(forms.Form):
     #optionen = forms.ModelMultipleChoiceField(queryset=Kategorie.objects, widget=forms.CheckboxSelectMultiple, required=False)

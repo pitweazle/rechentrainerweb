@@ -16,22 +16,40 @@
             <th>Kategorie</th>
             <th>richtig</th>
             <th>falsch</th>
-            <th>Fehlerquote</th>
-            <th>Aufg. ohne Fehler</th>
+            <th>%</th>
+            <th>Aufgaben ohne Fehler</th>
             <th>Abbrechen</th>
+            <th>Lsg.</th>
         </tr>
     </thead>
     <tbody>
-        {% for zeile in uebersicht %}
-            <tr>
-                <th class="button" href="{% url 'main' zeile.kategorie.slug %}">{{zeile.kategorie|title}}</th>
-                <td>{{zeile.richtig}}</td>
-                <td>{{zeile.falsch}}</td>
-                <td>{{zeile.quote|floatformat:"0"}}%</td>
-                <td>{{zeile.richtig_of}}</td>
-                <td>{{zeile.abbrechen}}</td>
-            </tr>
+        {% for zeile, zaehler in kategorien %}
+        <tr>
+        <td><a class="button" href="{% url 'main' zeile.slug %}">{{zeile.name|title}}</th>
+            {% if zaehler %}
+                <td>{{zaehler.richtig}}</td>                    
+                <td>{{zaehler.falsch}}</td>
+                {% if zaehler.quote <= 5 %}
+                <td style="background-color:rgba(0,255,0,0.6);">{{zaehler.quote|floatformat:"0"}}%</td>
+                {% elif zaehler.quote < 33 %}
+                    <td style="background-color:rgba(255,255,0,0.6);">{{zaehler.quote|floatformat:"0"}}%</td>
+                {% else %}
+                    <td style="background-color:rgba(255,0, 0,0.6);">{{zaehler.quote|floatformat:"0"}}%</td>
+                {% endif %}     
+                <td>{{zaehler.richtig_of}}/{{zeile.eof}}</td>
+                <td>{{zaehler.abbrechen}}</td>
+                <td>{{zaehler.loesung}}</td>
+            {% else %}
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>  
+                <td>-</td>
+           {% endif %}
+        </tr>
         {% endfor %}
+
     </tbody>
 </table>
 </ul>

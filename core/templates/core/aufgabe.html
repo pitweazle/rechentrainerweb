@@ -11,11 +11,10 @@
 {% block content %}
 <header>
     <h1>Der Rechentrainer</h1>
-
     <nav>
         <a href="{% url 'abbrechen' zaehler_id %}">Abbrechen</a>
-        <a href="{% url 'uebersicht' %}">Hilfe</a>
-        <a href="{% url 'protokoll' %}">Lösung anzeigen</a>
+        {% comment %} <a href="{% url 'uebersicht' %}">Hilfe</a>
+        <a href="{% url 'loesung' eingabe_id %}">Lösung anzeigen</a> {% endcomment %}
     </nav>
 </header>
 
@@ -23,13 +22,19 @@
 <h2>{{ kategorie.name }}:</h2>
 {% if messages %}
 <p>
-    Letzte Antwort:<br>
+    Letzte Antwort:
         {% for message in messages %}
-        <li>{{ message }}</li>
+            {% if 'Leider' in message.message %}
+                <li style="background-color:rgba(255,0, 0,0.6);">{{ message }}</li>
+            {% elif 'Richtig' in message.message %}
+                <li style="background-color:rgba(0, 255, 0,0.6);">{{ message }}</li>                
+            {% else %}
+                <li style="background-color:rgba(255, 255,0.6);">{{ message }}</li>
+            {% endif%}
         {% endfor %}
 </p>
 {% endif %}
-<h3>Aufg. Nr. {{aufgnr}}/10 Typ: ({{typ}})</h3> 
+<h3>Aufg. Nr. {{aufgnr}}/10 </h3> 
 <h3>{{text}} {{aufgabe}}</h3>
 <form action="{% url 'main' kategorie.slug %}" method="post">
     {% csrf_token %}
@@ -37,6 +42,12 @@
         {{ form.eingabe.label_tag }}
         {{ form.eingabe }}
         <input class="button-primary" type="submit" value="Prüfen">
+    </fieldset>
+</form>
+<form action="{% url 'loesung' zaehler_id %}" method="get">
+    <fieldset>
+        <input class="button-primary" type="submit", name="loesung", value="Lösung anzeigen">
+        <input class="button-primary" type="submit", name="hilfe", value="Hilfe anzeigen">
     </fieldset>
 </form>
 </ul>

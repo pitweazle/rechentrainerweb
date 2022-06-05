@@ -1,0 +1,22 @@
+
+
+{% block title %}
+Login 
+{% endblock %}
+
+{% comment %} {% block content %}
+     <form method="post" class="from-group">
+	{% csrf_token %}
+	<p>Du hast noch keinen Accoount? hier <a href="/signup">klicken</a></p>
+	<button type="submit" class="btn btn-success">Login</button>	
+    </form>
+{% endblock %} {% endcomment %}
+
+<!-- templates/registration/login.html -->
+<h2>Log In</h2>
+<form method="post">
+  {% csrf_token %}
+  <p>Du hast noch keinen Accoount? hier <a href="/signup">klicken</a></p>
+  {{ form.as_p }}
+  <button type="submit">Log In</button>
+</form>

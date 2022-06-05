@@ -8,6 +8,15 @@
 {% block content %}
 {% include "includes/header.html" %}
 
+{% if user.is_authenticated %}
+Hallo {{ user.username }}!
+<p><a href="{% url 'logout' %}">Log Out</a></p>
+<p><a href="{% url 'password_reset' %}">Passwort zurücksetzen</a></p>
+{% else %}
+<p>Du bist nicht eingeloggt</p>
+<a href="{% url 'login' %}">Log In</a>
+{% endif %}
+
 {% if messages %}
 <p>
     Letzte Antwort:<br>
@@ -19,7 +28,7 @@
 <li>
 <h2> Wähle aus: </h2>
 <ul>
-{% for modul in module %}
+{% for modul in kategorie %}
 <li>
     {% if modul.fragen.count %}
     <a  class="button" href="{% url 'main' modul.slug %}">{{ modul.name }}</a>

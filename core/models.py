@@ -44,9 +44,9 @@ class Kategorie(models.Model):
         verbose_name_plural = 'Kategorien'
 
 class Auswahl(models.Model):
-    kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE)
+    kategorie = models.ForeignKey(Kategorie, null=True, on_delete=models.CASCADE)
     text = models.CharField(max_length=80, verbose_name="Text")
-    bis_stufe = models.IntegerField(default=0, verbose_name="bis Stufe:")
+    bis_stufe = models.IntegerField(default=0, verbose_name="bis Stufe (ex):")
     bis_jg = models.IntegerField(default=0, verbose_name="bis Jahrgang:")
 
     def __str__(self):
@@ -97,9 +97,8 @@ class Schueler(models.Model):
     nachname = models.CharField(max_length=20)
     vorname = models.CharField(max_length=20)
     
-    
     klasse = models.CharField(max_length=10)
-    jahrgang = models.PositiveSmallIntegerField(validators=[MinValueValidator(5), MaxValueValidator(10)])
+    jg = models.PositiveSmallIntegerField(validators=[MinValueValidator(5), MaxValueValidator(10)])
 
     kurs= models.CharField(max_length=1, choices=wahl_kurs.choices, default=wahl_kurs.E_KURS,)
 
@@ -109,7 +108,8 @@ class Schueler(models.Model):
 
     # werden beim Erstellen eingestellt
     datum_start = models.DateField(auto_now_add=True, verbose_name="Startdatum", editable=False, )
-    stufe = models.PositiveSmallIntegerField(default=0, editable=False)
+    stufe = models.PositiveSmallIntegerField(default=0) #, editable=False)
+    e_kurs = models.BooleanField(default=True)
     halbjahr = models.PositiveSmallIntegerField(default=0, editable=False)
     voreinst = models.IntegerField(default=1, editable=False)                               #hier könnte, mithilf von Primzahlen, Voreinstellungen gesetzt und abgefragt werden
 
@@ -128,7 +128,7 @@ class Protokoll(models.Model):
     kategorie = models.ForeignKey(Kategorie, verbose_name='Kategorie', related_name='protokolle', on_delete=models.CASCADE)
     typ = models.CharField(max_length=5, blank=True)
     #frage = models.ForeignKey(Frage, verbose_name='Frage', related_name='protokolle', default=0, on_delete=models.CASCADE)
-    frage = models.IntegerField('Frage_id', default=0)
+    frage_id = models.IntegerField('Frage_id', default=0)
      
     aufgnr = models.PositiveSmallIntegerField(default=0) 
     
@@ -162,7 +162,8 @@ class Zaehler(models.Model):
     user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='zaehler', on_delete=models.CASCADE)    
     kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, related_name="zaehler")
     
-    optionen=models.CharField(max_length=100, blank=True, verbose_name="Optionen")
+    #optionen = models.ManyToManyField(Auswahl)
+    optionen_text=models.CharField(max_length=40, blank=True, verbose_name="Optionen")
     
     typ_anf = models.SmallIntegerField(default=0)        
     typ_end = models.SmallIntegerField(default=0)    
@@ -171,15 +172,15 @@ class Zaehler(models.Model):
 
     richtig = models.PositiveSmallIntegerField(default=0)    
     Extrapunkte = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-    richtig_of = models.PositiveSmallIntegerField(default=0)    
+    richtig_of = models.PositiveSmallIntegerField(default=0)   
+    bearbeitungszeit = models.FloatField(default=0)     
 
     falsch = models.PositiveSmallIntegerField(default=0)    
     loesung = models.PositiveSmallIntegerField(default=0)    
     abbrechen = models.PositiveSmallIntegerField(default=0)    
     hilfe = models.PositiveSmallIntegerField(default=0) 
-
-    stufe_next = models.PositiveSmallIntegerField(default=0)        #wenn größer null dann wird nach 10 richtigen Eingaben die Stufe entsprechend hochgesetzt    
-    stufe_zaehl = models.PositiveSmallIntegerField(default=0)       #und hier wird gezählt
+    
+    message = models.CharField(max_length=40, blank=True, verbose_name="Message")
 
     def __str__(self):
         return f"({self.user}, {self.kategorie}, {self.aufgnr})"

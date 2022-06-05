@@ -1,11 +1,6 @@
 from django.contrib import admin
 from .models import  Kategorie, Auswahl, Frage, Schueler, Protokoll, Zaehler
 
-# Register your models here.
-
-#class KategorieAdmin(admin.ModelAdmin):
-#    prepopulated_fields = {"slug": ("name",)}
-
 class AuswahlInline(admin.TabularInline):
     model = Auswahl
     extra = 0
@@ -22,6 +17,7 @@ class ZaehlerAdmin(admin.ModelAdmin):
     
 class ProtokollAdmin(admin.ModelAdmin):
     list_filter=("user",)
+
 
 admin.site.register(Kategorie, KategorieAdmin)
 #admin.site.register(Auswahl)
