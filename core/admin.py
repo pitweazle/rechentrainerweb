@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import  Kategorie, Auswahl, Frage, Schueler, Protokoll, Zaehler
+from .models import  Kategorie, Auswahl, Schueler, Protokoll, Zaehler
 
 class AuswahlInline(admin.TabularInline):
     model = Auswahl
@@ -21,7 +21,6 @@ class ProtokollAdmin(admin.ModelAdmin):
 
 admin.site.register(Kategorie, KategorieAdmin)
 #admin.site.register(Auswahl)
-admin.site.register(Frage)
 
 admin.site.register(Schueler)
 

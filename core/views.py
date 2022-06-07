@@ -13,7 +13,7 @@ from datetime import datetime
 from .forms import AufgabeFormZahl, AufgabeFormStr
 from .forms import AuswahlForm
 
-from .models import Kategorie, Frage, Protokoll, Zaehler
+from .models import Kategorie, Protokoll, Zaehler
 from .models import Schueler
 from .models import Auswahl
 
@@ -84,19 +84,30 @@ def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
         return typ_anf, typ_end
     else:
         typ = 1 
+
+        if stufe >= 4 or jg >= 6 :
+            typ_end = 2
+
+        faktor = stufe%2+1                                  #2 für E-Kurs, 1 für G-Kurs und i
+
         if typ_end>1:
             typ = random.randint(typ_anf, typ_end+1)
+
+    # hier wird die Aufgabe erstellt:
+
         if typ == 1:
-                zahl1 = random.randint(5, 45)
-                zahl2 = random.randint(5, 45)
+                zahl1 = random.randint(5, faktor*45)
+                zahl2 = random.randint(5, faktor*45)
+                #text = (str(zahl1)) + " + " + (str(zahl2)) 
         else:
-                rund1 = random.randint(0,2)
-                zahl1 = random.randint(5, 225)
+                rund1 = random.randint(0,faktor)
+                zahl1 = random.randint(5,faktor*112)
                 zahl1 = zahl1/10**rund1
-                rund2 = random.randint(0,2)
-                zahl2 = random.randint(5, 225)
+                rund2 = random.randint(0,faktor)
+                zahl2 = random.randint(5, faktor*112)
                 zahl2 = zahl2/10**rund2
-        return typ, (str(zahl1).replace('.', ',').rstrip(',')), (str(zahl2).replace('.', ',').rstrip(',')), zahl1+zahl2
+        text = str(zahl1).replace('.', ',').rstrip('0').rstrip(',') + " + " + str(zahl2).replace('.', ',').rstrip('0').rstrip(',') 
+        return typ, text, str(zahl1+zahl2).replace('.', ',').rstrip('0').rstrip(','), zahl1+zahl2
 
 def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
@@ -110,12 +121,23 @@ def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
         return typ_anf, typ_end
     else:
         typ = 1 
+
+        if stufe >= 4 or jg >= 6 :
+            typ_end = 2
+
+        faktor = stufe%2+1                                  #2 für E-Kurs, 1 für G-Kurs und i
+
         if typ_end>1:
             typ = random.randint(typ_anf, typ_end+1)
+
+    # hier wird die Aufgabe erstellt:
+
         if typ == 1:
             zahl2 = random.randint(1, 99)
             result = random.randint(1, 49)
             zahl1 = result+zahl2
+            text = (str(zahl1)) + " - " + (str(zahl2)) 
+
         else:
             rund1 = random.randint(0,1)
             zahl2 = random.randint(1, 99)
@@ -125,7 +147,8 @@ def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             result = result/10**rund2
             zahl1 = zahl2+result
             zahl1 = round(zahl1,(max(rund1, rund2)))
-    return typ, str(zahl1).replace('.', ',').rstrip('0').rstrip(','), str(zahl2).replace('.', ',').rstrip('0').rstrip(','), result
+            text = (str(zahl1).replace('.', ',').rstrip('0').rstrip(',')) + " - " + (str(zahl2).replace('.', ',').rstrip('0').rstrip(',')) 
+    return typ, text, result
 
 def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     pass
@@ -186,13 +209,11 @@ def kategorien(req):
 
 def uebersicht(req):
     user = get_fake_user()
-    #zaehler = Zaehler.objects.filter(user = user).order_by('kategorie__zeile')
-    #kategorie = Kategorie.objects.all()
     kategorien = []
     for kategorie in Kategorie.objects.all():
         zaehler = Zaehler.objects.filter(user=user, kategorie=kategorie).first()
         kategorien.append((kategorie, zaehler))
-    return render(req, 'core/uebersicht.html', {'kategorien': kategorien, 'zaehler': zaehler, 'user':user})
+    return render(req, 'core/uebersicht.html', {'kategorien': kategorien, 'user':user})
 
 def protokoll(req):
     protokoll = Protokoll.objects.all().order_by('id').reverse()
@@ -202,20 +223,19 @@ def protokoll(req):
 def details(req, zeile_id):
     protokoll = get_object_or_404(Protokoll, pk = zeile_id)
     zaehler = Zaehler.objects.get(user = protokoll.user, kategorie = protokoll.kategorie)
-    frage = Frage.objects.get(pk = protokoll.frage_id)
-    return render(req, 'core/details.html', {'protokoll': protokoll, 'zaehler': zaehler, 'frage':frage,})
+    #frage = Frage.objects.get(pk = protokoll.frage_id)
+    return render(req, 'core/details.html', {'protokoll': protokoll, 'zaehler': zaehler})
 
 def main(req, slug):                                                        #hier läuft alles zusammen
     kategorie = get_object_or_404(Kategorie, slug = slug)
     kategorie_id = kategorie.id
     user = get_fake_user()    
     zaehler = get_object_or_404(Zaehler, kategorie = kategorie, user = user)
-    if req.method == 'POST':                                                
+    if req.method == 'POST':       
         protokoll = Protokoll.objects.get(pk = req.session.get('eingabe_id'))
         protokoll.tries += 1
         zaehler = Zaehler.objects.get(pk = req.session.get('zaehler_id'))
-        zaehler.message = ""
-        frage = get_object_or_404(Frage, pk = protokoll.frage_id)
+        zaehler.hinweis = ""
         form = AufgabeFormZahl(req.POST)
         right = protokoll.value
         if form.is_valid():                                                 #Aufgabe beantwortet
@@ -235,20 +255,20 @@ def main(req, slug):                                                        #hie
                 zaehler.richtig_of +=1
                 zaehler.aufgnr += 1
                 zaehler.save()
-                if zaehler.aufgnr > 10 and zaehler.optionen_text not in ["", "keine",]:
-                    max_stufe = 3
-                    for auswahl in Auswahl.objects.filter(
-                        kategorie=kategorie_id,
-                        text__in=zaehler.optionen_text.split(";"),
-                        ).all():
-                            if(auswahl.bis_stufe) > user.stufe:
-                                user.stufe = auswahl.bis_stufe
-                                if user.e_kurs:
-                                    user.stufe += 1
-                                #user.stufe = 3
-                                user.save()
+                if zaehler.aufgnr > 10:
+                    if zaehler.optionen_text not in ["", "keine",]:         #setzt eventuell Stufe hoch wenn eine Option angekreuzt wurde
+                        max_stufe = 3
+                        for auswahl in Auswahl.objects.filter(
+                            kategorie=kategorie_id,
+                            text__in=zaehler.optionen_text.split(";"),
+                            ).all():
+                                if(auswahl.bis_stufe) > user.stufe:
+                                    user.stufe = auswahl.bis_stufe
+                                    if user.e_kurs:
+                                        user.stufe += 1
+                                    user.save()
                     zaehler.optionen_text = ""
-                    zaehler.message = ""
+                    zaehler.hinweis = ""
                     zaehler.aufgnr = 0
                     zaehler.save()
                     return redirect('kategorien')
@@ -269,32 +289,23 @@ def main(req, slug):                                                        #hie
                 if protokoll.tries >= 3:                                    #3 mal falsch
                     return redirect('kategorien')
     else:                                                                   #Aufgabenstellung
-        frage = Frage.objects.filter(kategorie = kategorie).order_by('?').first()
-        frage_id = frage.id
         form = AufgabeFormZahl()
         user = get_fake_user()
         if zaehler.optionen_text == "":                                     #Aufgaben Einstellung
             return redirect('optionen', slug)
-        typ, zahl1, zahl2, result = aufgaben(kategorie.id, typ_anf = zaehler.typ_anf, typ_end = zaehler.typ_end, optionen = "") 
-        text = frage.text.format(zahl1 = zahl1, zahl2 = zahl2)
+        typ, text, lsg, result = aufgaben(kategorie.id, jg = user.jg, stufe = user.stufe, typ_anf = zaehler.typ_anf, typ_end = zaehler.typ_end, optionen = "") 
         protokoll = Protokoll.objects.create(
-            user = user, kategorie = kategorie, text = text, value = result, loesung = str(result)         
+            user = user, kategorie = kategorie, typ = typ, text = text, value = result, loesung = lsg         
         )                                                                   #Protokoll wird erstellt
         req.session['eingabe_id'] = protokoll.id    
         req.session['zaehler_id'] = zaehler.id   
         if zaehler.aufgnr == 0:
             zaehler.aufgnr = 1
         zaehler.save()        
-        protokoll.typ = typ
-        protokoll.frage_id = frage_id
         protokoll.aufgnr = zaehler.aufgnr
-        if frage.protokolltext == "":
-            protokoll.text = text
-        else:
-            protokoll.text = frage.protokolltext
         protokoll.save()  
-        if zaehler.message!= "":
-            messages.info(req, f'Lösung: {zaehler.message}')    
+        if zaehler.hinweis!= "":
+            messages.info(req, f'Lösung: {zaehler.hinweis}')    
     context = dict(kategorie = kategorie, aufgnr = zaehler.aufgnr, text = text, form = form, zaehler_id = zaehler.id,)
     return render(req, 'core/aufgabe.html', context)
 
@@ -337,7 +348,7 @@ def abbrechen(req, zaehler_id):
     #zaehler.optionen.clear()
     zaehler.abbrechen = zaehler.abbrechen+1
     zaehler.richtig_of = 0 
-    zaehler.message = ""
+    zaehler.hinweis = ""
     zaehler.save() 
     protokoll = Protokoll.objects.filter(user = zaehler.user).order_by('-id').first()
     protokoll.eingabe = "abbr."
@@ -352,6 +363,6 @@ def loesung(req, zaehler_id):
     msg=f'{protokoll.text} = {protokoll.value}'    
     protokoll.eingabe = "Lsg."
     protokoll.save()
-    zaehler.message = msg
+    zaehler.hinweis = msg
     zaehler.save()   
     return redirect('main', zaehler.kategorie)

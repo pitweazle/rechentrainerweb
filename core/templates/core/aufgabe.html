@@ -1,14 +1,15 @@
 {% extends 'layout.html' %}
 {% load static %}
+{% load l10n %}
+
 
 {% block css_files %}
 <link rel="stylesheet" href="{% static 'core/aufgabe.css' %}">
 <link rel="stylesheet" href="{% static 'core/includes/header_aufgabe.css' %}">
 {% endblock %}
 
-
-
 {% block content %}
+
 <header>
     <h1>Der Rechentrainer</h1>
     <nav>
@@ -34,6 +35,7 @@
         {% endfor %}
 </p>
 {% endif %}
+
 <h3>Aufg. Nr. {{aufgnr}}/10 </h3> 
 <h3>{{text}} {{aufgabe}}</h3>
 <form action="{% url 'main' kategorie.slug %}" method="post">
