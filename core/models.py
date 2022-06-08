@@ -56,32 +56,6 @@ class Auswahl(models.Model):
         verbose_name = 'Auswahl'
         verbose_name_plural = 'Auswahl'
 
-class Frage(models.Model):
-    kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, related_name="fragen")
-    typA = models.PositiveSmallIntegerField(default=0)
-    typB = models.PositiveSmallIntegerField(default=0)
-
-    text = models.TextField(blank=True)
-    aufgabe = models.CharField(blank=True,max_length=80)
-    protokolltext = models.CharField(blank=True,max_length=80)
-
-    loesung = models.CharField(blank=True,max_length=100)
-
-    anmerkung = models.CharField(blank=True,max_length=50)
-
-    hilfe1 = models.CharField(blank=True,max_length=50)
-    hilfe2 = models.CharField(blank=True,max_length=50)
-
-    grafik = models.IntegerField(default=0)  # gehört eine Grafik zur Aufgabe?
-    #auswertung = models.CharField(blank=True,max_length=5)
-
-    def __str__(self):
-        return f"({self.text} {self.aufgabe})"
-
-    class Meta:
-        verbose_name = 'Frage'
-        verbose_name_plural = 'Fragen'
-
 class wahl_kurs(models.TextChoices):
     GYMNASIUM = 'Y', 'Gymnasium'
     REALSCHULE = 'R', 'Realschule'

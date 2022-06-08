@@ -6,12 +6,10 @@ class AufgabeFormZahl(forms.Form):
                                 decimal_places=5, widget=forms.NumberInput(attrs={'autofocus': True}))
     
 class AufgabeFormStr(forms.Form):
-    eingabe = forms.CharField(label='Ergebnis')
+    eingabe = forms.CharField(label='Ergebnis', localize=True)
     
 
 class AuswahlForm(forms.Form):
-    #optionen = forms.ModelMultipleChoiceField(queryset=Kategorie.objects, widget=forms.CheckboxSelectMultiple, required=False)
-    #optionen=forms.ModelChoiceField(queryset=Kategorie.objects, widget=forms.CheckboxSelectMultiple)
     optionen=forms.ModelMultipleChoiceField(queryset=Kategorie.objects, widget=forms.CheckboxSelectMultiple, required=False)
     def __init__(self, *args, **kwargs):
         kategorie = kwargs.pop('kategorie')

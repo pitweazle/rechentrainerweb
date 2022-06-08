@@ -30,11 +30,7 @@ Hallo {{ user.username }}!
 <ul>
 {% for modul in kategorie %}
 <li>
-    {% if modul.fragen.count %}
     <a  class="button" href="{% url 'main' modul.slug %}">{{ modul.name }}</a>
-    {% else %}
-    <button class="button" disabled>{{ modul.name }}</button>
-    {% endif %}
 </li>
 {% endfor %}
 </li>
