@@ -100,7 +100,7 @@ class Protokoll(models.Model):
     halbjahr = models.PositiveSmallIntegerField(default=0)
 
     kategorie = models.ForeignKey(Kategorie, verbose_name='Kategorie', related_name='protokolle', on_delete=models.CASCADE)
-    typ = models.CharField(max_length=5, blank=True)
+    typ = models.CharField(max_length=20, blank=True)
     #frage = models.ForeignKey(Frage, verbose_name='Frage', related_name='protokolle', default=0, on_delete=models.CASCADE)
     frage_id = models.IntegerField('Frage_id', default=0)
      
@@ -136,7 +136,6 @@ class Zaehler(models.Model):
     user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='zaehler', on_delete=models.CASCADE)    
     kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, related_name="zaehler")
     
-    #optionen = models.ManyToManyField(Auswahl)
     optionen_text=models.CharField(max_length=40, blank=True, verbose_name="Optionen")
     
     typ_anf = models.SmallIntegerField(default=0)        
@@ -154,7 +153,7 @@ class Zaehler(models.Model):
     abbrechen = models.PositiveSmallIntegerField(default=0)    
     hilfe = models.PositiveSmallIntegerField(default=0) 
     
-    message = models.CharField(max_length=40, blank=True, verbose_name="Message")
+    hinweis = models.CharField(max_length=40, blank=True, verbose_name="Message")
 
     def __str__(self):
         return f"({self.user}, {self.kategorie}, {self.aufgnr})"

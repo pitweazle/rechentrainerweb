@@ -32,7 +32,7 @@ def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
         return typ_anf, typ_end
     else:
         typ = random.randint(typ_anf, typ_end)        
-        if typ == 1:                                        #Wechselgeld
+        if typ == 1 :                                        #Wechselgeld
             NOTES = [2, 5, 10, 20, 50, 100]
             zahl1 = random.randint(5, 5950)/100
             start = 0
@@ -41,7 +41,6 @@ def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
                     break
                 start += 1
             zahl2 = (random.choice(NOTES[start:]))
-            print(zahl2)
             if zahl2 != 2:
                 art = "Schein"
             else:
@@ -49,11 +48,12 @@ def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             text = (
                 f"Du hast für {format_number(zahl1,2)}€ eingekauft und"
                 f" bezahlst mit einem {format_number(zahl2,0)}€ {art}."
-                f"Wieviel Wechselgeld erhälst du?")  
+                f"<br> Wieviel Wechselgeld erhälst du?")  
             pro_text = (
                 f"Wechselgeld: {format_number(zahl2,0)}€"
                 f"- {format_number(zahl1,2,True)}€")
             lsg = f"{format_number(zahl2-zahl1)}€"
+            typ = "(Wechselgeld)"
         elif typ <= 3:                                               #ganze Zahlen
             exp = random.randint(2,4)
             zahl2 = 10**exp
@@ -221,7 +221,7 @@ def main(req, slug):                                                        #hie
         protokoll = Protokoll.objects.get(pk = req.session.get('eingabe_id'))
         protokoll.tries += 1
         zaehler = Zaehler.objects.get(pk = req.session.get('zaehler_id'))
-        zaehler.message = ""
+        zaehler.hinweis = ""
         form = AufgabeFormZahl(req.POST)
         right = protokoll.value
         if form.is_valid():                                                 #Aufgabe beantwortet
@@ -254,12 +254,12 @@ def main(req, slug):                                                        #hie
                                         user.stufe += 1
                                     user.save()
                     zaehler.optionen_text = ""
-                    zaehler.message = ""
+                    zaehler.hinweis = ""
                     zaehler.aufgnr = 0
                     zaehler.save()
                     return redirect('kategorien')
                 quote = int(zaehler.falsch/(zaehler.richtig+zaehler.falsch)*100)
-                msg = f'richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%, EoF: {zaehler.richtig_of}/{kategorie.eof}'
+                msg = f'<br>richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%, EoF: {zaehler.richtig_of}/{kategorie.eof}'
                 messages.info(req, f'Richtig! {msg}')
                 return redirect('main', slug)
             else:                                                           #Antwort falsch
@@ -269,7 +269,7 @@ def main(req, slug):                                                        #hie
                 zaehler.richtig_of  = 0
                 zaehler.save()
                 quote = int(zaehler.falsch/(zaehler.richtig+zaehler.falsch)*100)
-                msg = f'richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%, EoF: {zaehler.richtig_of}/{kategorie.eof}'
+                msg = f'<br>richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%, EoF: {zaehler.richtig_of}/{kategorie.eof}'
                 messages.info(req, f'Leider falsch! Versuche: {protokoll.tries}, {msg}')        
                 text = protokoll.text
                 if protokoll.tries >= 3:                                    #3 mal falsch
@@ -291,9 +291,9 @@ def main(req, slug):                                                        #hie
         protokoll.typ = typ
         protokoll.aufgnr = zaehler.aufgnr
         protokoll.save()  
-        if zaehler.message!= "":
-            messages.info(req, f'Lösung: {zaehler.message}')    
-    context = dict(kategorie = kategorie, aufgnr = zaehler.aufgnr, text = text, form = form, zaehler_id = zaehler.id,)
+        if zaehler.hinweis!= "":
+            messages.info(req, f'Lösung: {zaehler.hinweis}')    
+    context = dict(kategorie = kategorie, typ = typ, aufgnr = zaehler.aufgnr, text = text, form = form, zaehler_id = zaehler.id,)
     return render(req, 'core/aufgabe.html', context)
 
 def optionen(req, slug):
@@ -332,10 +332,9 @@ def abbrechen(req, zaehler_id):
     zaehler = get_object_or_404(Zaehler, pk = zaehler_id)
     zaehler.aufgnr = 0
     zaehler.optionen_text = ""
-    #zaehler.optionen.clear()
     zaehler.abbrechen = zaehler.abbrechen+1
     zaehler.richtig_of = 0 
-    zaehler.message = ""
+    zaehler.hinweis = ""
     zaehler.save() 
     protokoll = Protokoll.objects.filter(user = zaehler.user).order_by('-id').first()
     protokoll.eingabe = "abbr."
@@ -350,6 +349,6 @@ def loesung(req, zaehler_id):
     msg=f'{protokoll.text} = {protokoll.loesung}'    
     protokoll.eingabe = "Lsg."
     protokoll.save()
-    zaehler.message = msg
+    zaehler.hinweis = msg
     zaehler.save()   
     return redirect('main', zaehler.kategorie)

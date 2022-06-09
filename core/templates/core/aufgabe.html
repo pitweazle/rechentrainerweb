@@ -18,9 +18,10 @@
         <a href="{% url 'loesung' eingabe_id %}">Lösung anzeigen</a> {% endcomment %}
     </nav>
 </header>
+{% autoescape off %}
 
 <ul>
-<h2>{{ kategorie.name }}:</h2>
+<h2>{{ kategorie.name }}  {{ typ }} :</h2>
 {% if messages %}
 <p>
     Letzte Antwort:
@@ -35,9 +36,9 @@
         {% endfor %}
 </p>
 {% endif %}
-
 <h3>Aufg. Nr. {{aufgnr}}/10 </h3> 
 <h3>{{text}} {{aufgabe}}</h3>
+{% endautoescape %}
 <form action="{% url 'main' kategorie.slug %}" method="post">
     {% csrf_token %}
     <fieldset>
@@ -53,5 +54,4 @@
     </fieldset>
 </form>
 </ul>
-
 {% endblock %}
