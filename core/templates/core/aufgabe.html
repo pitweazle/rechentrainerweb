@@ -24,11 +24,10 @@
 <h2>{{ kategorie.name }}  {{ typ }} :</h2>
 {% if messages %}
 <p>
-    Letzte Antwort:
         {% for message in messages %}
-            {% if 'Leider' in message.message %}
+            {% if 'leider' in message.message %}
                 <li style="background-color:rgba(255,0, 0,0.6);">{{ message }}</li>
-            {% elif 'Richtig' in message.message %}
+            {% elif 'richtig!' in message.message %}
                 <li style="background-color:rgba(0, 255, 0,0.6);">{{ message }}</li>                
             {% else %}
                 <li style="background-color:rgba(255, 255,0.6);">{{ message }}</li>

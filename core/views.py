@@ -137,36 +137,32 @@ def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     return typ, text, pro_text, lsg, result
 
 def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
-    pass
-	# if aControl.state=0 then
-	# 	typ=vonbis (0, 4)
-   	# 	if typ < 4 then		
-	# 		zahl1=vonbis (6, 60)
-	# 	else
-	# 		zahl1=vonbis (2, 30)
-	# 	endif	
-	# else
-	# 	do 	
-	# 		typ=vonbis (-2, 2)				
-	# 		zahl2=vonbis (4, 60)
-	# 		zahl1=zahl2*10^typ
-	# 	loop while (zahl1 mod 10=0)			
-	# endif
-	# if typ<4 then
-   	# 	Titel="Verdoppeln"      	
-    #        Aufgabe="Was ist das Doppelte von " & format(zahl1,"0.###")
-    #        gleich="?"
-    #        erg=zahl1*2
-    #        Loesung="2 mal " & format(zahl1,"0.###") & " ist " & erg
-    #        Hilfe1="Verdoppeln muss man im Schlaf können!" 
-    #     else
-    #        Titel="Mal 4" 
-    #        Aufgabe="4 mal " & format(zahl1,"0.###")
-    #        gleich="="
-    #        erg=zahl1*4
-    #        Loesung="4 mal " & format(zahl1,"0.###") & "=" & erg
-    #        Hilfe1="Hier musst du zweimal nacheinander verdoppeln!"
-	# endif
+    if optionen != "":
+        typ_anf = 0
+        typ_end = 4
+        if stufe >= 4 or jg >= 7 or "mit" in optionen:
+            typ_anf = 3
+            typ_end = 6
+        return typ_anf, typ_end
+    else:
+        typ = random.randint(typ_anf, typ_end)
+    # hier wird die Aufgabe erstellt:
+        if typ == 4:
+            zahl1 = random.randint(6,60)
+            text = "Was ist das Doppelte von " + (str(zahl1)) + "?"
+            lsg = str(zahl1*2)       
+        elif typ < 4:
+            zahl1 = random.randint(3,30)
+            text = "Was ist das Vierfache von " + (str(zahl1)) + "?"
+            lsg = str(zahl1*2)  
+        else:                                                               #Kommazahlen      
+            exp=abs(typ-4)*-1
+            zahl2 = random.randint(4,60)
+            zahl1 = zahl2*10**(exp)
+            text = f"Was ist das Doppelte von {format_number(zahl1,exp*-1)} ?"
+            lsg = f"{format_number(zahl1*2,exp*-1)}"           
+    pro_text = text
+    return typ, text, pro_text, lsg, zahl1*2
 
 AUFGABEN = {
     1: ergaenzen,
@@ -216,8 +212,7 @@ def main(req, slug):                                                        #hie
     kategorie = get_object_or_404(Kategorie, slug = slug)
     kategorie_id = kategorie.id
     user = get_fake_user()    
-    zaehler = get_object_or_404(Zaehler, kategorie = kategorie, user = user)
-    if req.method == 'POST':       
+    if req.method == 'POST':  
         protokoll = Protokoll.objects.get(pk = req.session.get('eingabe_id'))
         protokoll.tries += 1
         zaehler = Zaehler.objects.get(pk = req.session.get('zaehler_id'))
@@ -260,7 +255,7 @@ def main(req, slug):                                                        #hie
                     return redirect('kategorien')
                 quote = int(zaehler.falsch/(zaehler.richtig+zaehler.falsch)*100)
                 msg = f'<br>richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%, EoF: {zaehler.richtig_of}/{kategorie.eof}'
-                messages.info(req, f'Richtig! {msg}')
+                messages.info(req, f'Die letzte Aufgabe war richtig! {msg}')
                 return redirect('main', slug)
             else:                                                           #Antwort falsch
                 protokoll.wertung = "f"
@@ -270,11 +265,14 @@ def main(req, slug):                                                        #hie
                 zaehler.save()
                 quote = int(zaehler.falsch/(zaehler.richtig+zaehler.falsch)*100)
                 msg = f'<br>richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%, EoF: {zaehler.richtig_of}/{kategorie.eof}'
-                messages.info(req, f'Leider falsch! Versuche: {protokoll.tries}, {msg}')        
+                messages.info(req, f'Die letzte Aufgabe war leider falsch! Versuche: {protokoll.tries}, {msg}')        
                 text = protokoll.text
                 if protokoll.tries >= 3:                                    #3 mal falsch
                     return redirect('kategorien')
     else:                                                                   #Aufgabenstellung
+        #zaehler = get_object_or_404(Zaehler, kategorie = kategorie, user = user)
+        #zaehler = Zaehler.objects.get(kategorie = kategorie, user = user)
+        zaehler, created = Zaehler.objects.get_or_create(user = user, kategorie = kategorie)
         form = AufgabeFormZahl()
         user = get_fake_user()
         if zaehler.optionen_text == "":                                     #Aufgaben Einstellung
@@ -292,7 +290,10 @@ def main(req, slug):                                                        #hie
         protokoll.aufgnr = zaehler.aufgnr
         protokoll.save()  
         if zaehler.hinweis!= "":
-            messages.info(req, f'Lösung: {zaehler.hinweis}')    
+            messages.info(req, f'Lösung: {zaehler.hinweis}')   
+    print(typ) 
+    if len(str(typ)) < 3:
+        typ = ""
     context = dict(kategorie = kategorie, typ = typ, aufgnr = zaehler.aufgnr, text = text, form = form, zaehler_id = zaehler.id,)
     return render(req, 'core/aufgabe.html', context)
 

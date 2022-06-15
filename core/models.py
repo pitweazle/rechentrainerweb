@@ -136,7 +136,7 @@ class Zaehler(models.Model):
     user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='zaehler', on_delete=models.CASCADE)    
     kategorie = models.ForeignKey(Kategorie, on_delete=models.CASCADE, related_name="zaehler")
     
-    optionen_text=models.CharField(max_length=40, blank=True, verbose_name="Optionen")
+    optionen_text=models.CharField(max_length=40, blank=True, default="", verbose_name="Optionen")
     
     typ_anf = models.SmallIntegerField(default=0)        
     typ_end = models.SmallIntegerField(default=0)    
