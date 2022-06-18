@@ -6,6 +6,18 @@ tbody {
   background-color:whitesmoke;
 }
 
+tr {
+  text-align: center;
+}
+
+tr:nth-child(1n+1) {
+    background-color: #B0E2FF;
+    }
+
+tr:nth-child(1n+8) {
+    background-color: #9AFF9A;
+}
+
 th {
   padding:0.5rem 1rem;
   height: 3rem;
@@ -14,10 +26,6 @@ th {
 td {
   padding:0.5rem 1rem;
   height: 1rem;
-}
-
-tr {
-  text-align: center;
 }
 
 ul {
@@ -39,8 +47,7 @@ ul {
     padding-top: 0.2rem;
     padding-bottom: 0.2rem;
   }
-  
-  
+    
   li a {
     text-decoration: none;
     color: #383838;
@@ -50,3 +57,8 @@ ul {
   li a:active {
     color: #7e0154;
   }
+
+  table {
+    table-layout: fixed;
+    width: 100%;
+ }

@@ -25,7 +25,6 @@ Hallo {{ user.username }}!
         {% endfor %}
 </p>
 {% endif %}
-<li>
 <h2> Wähle aus: </h2>
 <ul>
 {% for modul in kategorie %}
@@ -33,6 +32,5 @@ Hallo {{ user.username }}!
     <a  class="button" href="{% url 'main' modul.slug %}">{{ modul.name }}</a>
 </li>
 {% endfor %}
-</li>
 </ul>
 {% endblock %}

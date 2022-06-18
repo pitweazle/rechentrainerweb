@@ -8,6 +8,10 @@
 {% block content %}
 {% include "includes/header.html" %}
 
+<style>
+    thead {background-color: #FFFFFF;   }
+</style> 
+
 <h2>Übersicht {{user}}</h2>
 <ul>
 <table>
@@ -49,7 +53,6 @@
            {% endif %}
         </tr>
         {% endfor %}
-
     </tbody>
 </table>
 </ul>
