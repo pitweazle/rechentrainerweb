@@ -46,11 +46,9 @@
         <input class="button-primary" type="submit" value="Prüfen">
     </fieldset>
 </form>
-<form action="{% url 'loesung' zaehler_id %}" method="get">
-    <fieldset>
-        <input class="button-primary" type="submit", name="loesung", value="Lösung anzeigen">
-        <input class="button-primary" type="submit", name="hilfe", value="Hilfe anzeigen">
-    </fieldset>
-</form>
+<nav>
+    <a href="{% url 'loesung' zaehler_id %}">Lösung anzeigen</a>
+    <a href="{% url 'hilfe' zaehler_id %}" {% if not hilfe  %}disabled{% endif %}>Hilfe anzeigen</a>
+</nav>
 </ul>
 {% endblock %}

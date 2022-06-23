@@ -12,16 +12,7 @@ from django.core import validators
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.translation import gettext_lazy as _
 
-class wahl_gruppe(models.TextChoices):
-    A = 'A'
-    B = 'B'
-    C = 'C'
-    D = 'D'
-    E = 'E'
-
 class Kategorie(models.Model):
-    gruppe = models.CharField(max_length=1, choices=wahl_gruppe.choices, default=wahl_gruppe.A)
-
     zeile = models.PositiveSmallIntegerField(default=0, unique=True)             # entspricht der Aufgabengruppe (1 bis 35)
     name = models.CharField(max_length=20)
 
@@ -101,8 +92,6 @@ class Protokoll(models.Model):
 
     kategorie = models.ForeignKey(Kategorie, verbose_name='Kategorie', related_name='protokolle', on_delete=models.CASCADE)
     typ = models.CharField(max_length=20, blank=True)
-    #frage = models.ForeignKey(Frage, verbose_name='Frage', related_name='protokolle', default=0, on_delete=models.CASCADE)
-    frage_id = models.IntegerField('Frage_id', default=0)
      
     aufgnr = models.PositiveSmallIntegerField(default=0) 
     
@@ -112,15 +101,14 @@ class Protokoll(models.Model):
     #hier speichere ich die Lösung, wahlweise als zahl, u.U. auch (mehrere) Lösungen als String:
     value = models.DecimalField('Wert', max_digits=20, decimal_places=7)
     loesung = models.CharField(max_length=20, blank=True, verbose_name="Lösung")
-
+    hilfe = models.TextField(blank=True)
+    
     #die Eingabe des users:
     eingabe = models.CharField(max_length=20, blank=True, verbose_name="Eingabe")
-    falsch_eingabe = models.TextField(blank=True, verbose_name="Falscheingabe")
 
     tries = models.PositiveSmallIntegerField('Versuche', default=0)
     #Eintrag richtig, falsch, Extrapunkte, Lösung anzeigen, Abbruch:
     wertung = models.CharField(max_length=10, blank=True, verbose_name="Wertung")
-    hilfe = models.PositiveSmallIntegerField(default=0)
 
     start = models.DateTimeField('Start', auto_now_add=True)
     bearbeitungszeit=models.FloatField(default=0)
@@ -128,9 +116,6 @@ class Protokoll(models.Model):
     class Meta:
         verbose_name = 'Protokoll'
         verbose_name_plural = 'Protokoll'
-
-    #def __str__(self):
-    #     return f"({self.start} {self.user} {self.kategorie} {self.text}={self.value}?)"
 
 class Zaehler(models.Model):
     user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='zaehler', on_delete=models.CASCADE)    
@@ -153,7 +138,7 @@ class Zaehler(models.Model):
     abbrechen = models.PositiveSmallIntegerField(default=0)    
     hilfe = models.PositiveSmallIntegerField(default=0) 
     
-    hinweis = models.CharField(max_length=40, blank=True, verbose_name="Message")
+    hinweis = models.CharField(max_length=40, blank=True, verbose_name="Lösung/Hilfe")
 
     def __str__(self):
         return f"({self.user}, {self.kategorie}, {self.aufgnr})"

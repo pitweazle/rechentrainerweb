@@ -75,7 +75,7 @@ def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
                 f"ergänze {format_number(zahl1, exp+exp2,)}"
                 f" zu {format_number(zahl2, exp)}")
             lsg = f"{format_number(zahl2-zahl1,exp+exp2)}"
-        return typ, text, pro_text, lsg,  zahl2-zahl1
+        return typ, text, pro_text, lsg,  "", zahl2-zahl1
 
 def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
@@ -104,7 +104,7 @@ def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
                 text = pro_text = (
                     f"{format_number(zahl1,rund1)} + {format_number(zahl2,rund2)}") 
                 lsg = f"{format_number(zahl1+zahl2,max(rund1,rund2))}"
-        return typ, text, pro_text, lsg, zahl1+zahl2
+        return typ, text, pro_text, lsg, "", zahl1+zahl2
 
 def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
@@ -134,7 +134,7 @@ def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             zahl1 = zahl2+result
             text = pro_text = f"{format_number(zahl1,max(rund1,rund2),False)} - {format_number(zahl2,rund1,False)}"
             lsg =   f"{format_number(result,max(rund1,rund2),False)}"          
-    return typ, text, pro_text, lsg, result
+    return typ, text, pro_text, lsg, "", result
 
 def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
@@ -146,6 +146,7 @@ def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
         return typ_anf, typ_end
     else:
         typ = random.randint(typ_anf, typ_end)
+        hilfe = "Wenn man das gut geübt hat, kann man viel schneller Kopfrechnen!"
     # hier wird die Aufgabe erstellt:
         if typ == 0:
             zahl1 = random.randint(6,60)
@@ -155,13 +156,14 @@ def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             zahl1 = random.randint(3,30)
             text = "Was ist das Vierfache von " + (str(zahl1)) + "?"
             lsg = str(zahl1*2)  
+            hilfe = "Hier muss du zweimal verdoppeln"
         else:                                                               #Kommazahlen      
             zahl2 = random.randint(4,60)
             zahl1 = zahl2*10**(typ)
             text = f"Was ist das Doppelte von {format_number(zahl1,abs(typ))} ?"
             lsg = f"{format_number(zahl1*2,abs(typ))}"           
     pro_text = text
-    return typ, text, pro_text, lsg, zahl1*2
+    return typ, text, pro_text, lsg, hilfe, zahl1*2
     
 def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
@@ -191,8 +193,37 @@ def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             text = f"Was ist die Hälfte von {format_number(zahl1,zahl2)} ?"
             lsg = f"{format_number(zahl1/2,(zahl2+(zahl3%2)))}"   
     pro_text = text
-    return typ, text, pro_text, lsg, zahl1/2
+    return typ, text, pro_text, lsg, "Hilfe", zahl1/2
 
+def einmaleins(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
+    if optionen != "":
+        typ_anf = 1
+        typ_end = 1
+        if stufe >= 4 or jg >= 7 or "mit" in optionen:
+            typ_anf = 2
+            typ_end = 2 + stufe%1
+        return typ_anf, typ_end
+    else:
+        typ = random.randint(typ_anf, typ_end)
+    # hier wird die Aufgabe erstellt:
+        if typ == 1:
+            zahl1 = random.randint(5,99)
+            text = "Was ist die Hälfte von " + 2*(str(zahl1)) + "?"
+            lsg = str(zahl1)       
+        elif typ > 2:                                                               #Kommazahlen      
+            zahl2 = random.randint(0,2)
+            zahl1= 2*random.randint(1,99)
+            zahl1 = zahl1/10**(zahl2)
+            text = f"Was ist die Hälfte von {format_number(zahl1,zahl2)} ?"
+            lsg = f"{format_number(zahl1/2,zahl2)}"   
+        else:   
+            zahl2 = random.randint(0,2)
+            zahl3= random.randint(1,99)
+            zahl1 = zahl3/10**(zahl2)
+            text = f"Was ist die Hälfte von {format_number(zahl1,zahl2)} ?"
+            lsg = f"{format_number(zahl1/2,(zahl2+(zahl3%2)))}"   
+    pro_text = text
+    return typ, text, pro_text, lsg, "Hilfe", zahl1/2
 
 AUFGABEN = {
     1: ergaenzen,
@@ -200,6 +231,7 @@ AUFGABEN = {
     3: subtrahieren,
     4: verdoppeln,
     5: halbieren,
+    6: einmaleins,
 }
 
 def aufgaben(kategorie_id, jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
@@ -238,7 +270,7 @@ def details(req, zeile_id):
     zaehler = Zaehler.objects.get(user = protokoll.user, kategorie = protokoll.kategorie)
     return render(req, 'core/details.html', {'protokoll': protokoll, 'zaehler': zaehler})
 
-def main(req, slug):                                                        #hier läuft alles zusammen
+def main(req, slug, protokoll_id=0):                                                        #hier läuft alles zusammen
     kategorie = get_object_or_404(Kategorie, slug = slug)
     kategorie_id = kategorie.id
     user = get_fake_user()    
@@ -306,9 +338,9 @@ def main(req, slug):                                                        #hie
         user = get_fake_user()
         if zaehler.optionen_text == "":                                     #Aufgaben Einstellung
             return redirect('optionen', slug)
-        typ, text, pro_text, lsg, result = aufgaben(kategorie.id, jg = user.jg, stufe = user.stufe, typ_anf = zaehler.typ_anf, typ_end = zaehler.typ_end, optionen = "") 
+        typ, text, pro_text, lsg, hilfe, result = aufgaben(kategorie.id, jg = user.jg, stufe = user.stufe, typ_anf = zaehler.typ_anf, typ_end = zaehler.typ_end, optionen = "") 
         protokoll = Protokoll.objects.create(
-            user = user, kategorie = kategorie, text = pro_text, value = result, loesung = lsg        
+            user = user, kategorie = kategorie, text = pro_text, value = result, loesung = lsg, hilfe = hilfe        
         )                                                                   #Protokoll wird erstellt
         req.session['eingabe_id'] = protokoll.id    
         req.session['zaehler_id'] = zaehler.id   
@@ -319,11 +351,10 @@ def main(req, slug):                                                        #hie
         protokoll.aufgnr = zaehler.aufgnr
         protokoll.save()  
         if zaehler.hinweis!= "":
-            messages.info(req, f'Lösung: {zaehler.hinweis}')   
-    print(typ) 
+            messages.info(req, f'{zaehler.hinweis}')   
     if len(str(typ)) < 3:
         typ = ""
-    context = dict(kategorie = kategorie, typ = typ, aufgnr = zaehler.aufgnr, text = text, form = form, zaehler_id = zaehler.id,)
+    context = dict(kategorie = kategorie, typ = typ, aufgnr = zaehler.aufgnr, text = text, form = form, zaehler_id = zaehler.id, hilfe = protokoll.hilfe,)
     return render(req, 'core/aufgabe.html', context)
 
 def optionen(req, slug):
@@ -375,8 +406,19 @@ def loesung(req, zaehler_id):
     zaehler.loesung +=1
     zaehler.richtig_of = 0 
     protokoll = Protokoll.objects.filter(user = zaehler.user).order_by('-id').first()
-    msg=f'{protokoll.text} = {protokoll.loesung}'    
+    msg=f'{protokoll.text} Lösung: {protokoll.loesung}'    
     protokoll.eingabe = "Lsg."
+    protokoll.save()
+    zaehler.hinweis = msg
+    zaehler.save()   
+    return redirect('main', zaehler.kategorie)
+
+def hilfe(req, zaehler_id):
+    zaehler = get_object_or_404(Zaehler, pk = zaehler_id)
+    zaehler.hilfe +=1
+    protokoll = Protokoll.objects.filter(user = zaehler.user).order_by('-id').first()
+    msg=f'{protokoll.hilfe}'    
+    protokoll.eingabe = "Hilfe"
     protokoll.save()
     zaehler.hinweis = msg
     zaehler.save()   

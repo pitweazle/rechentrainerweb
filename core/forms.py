@@ -15,3 +15,4 @@ class AuswahlForm(forms.Form):
         kategorie = kwargs.pop('kategorie')
         super().__init__(*args, **kwargs)
         self.fields['optionen'].queryset = kategorie.auswahl_set.all()
+
