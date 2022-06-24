@@ -85,6 +85,7 @@ def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             typ_end = 2
         return typ_anf, typ_end
     else:
+        typ = random.randint(typ_anf, typ_end)    
         faktor = stufe%2+1                                  #2 für E-Kurs, 1 für G-Kurs und i
         if typ_end>1:
             typ = random.randint(typ_anf, typ_end+1)
@@ -151,19 +152,22 @@ def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
         if typ == 0:
             zahl1 = random.randint(6,60)
             text = "Was ist das Doppelte von " + (str(zahl1)) + "?"
-            lsg = str(zahl1*2)       
+            lsg = str(zahl1*2) 
+            erg = zahl1*2      
         elif typ > 0:
             zahl1 = random.randint(3,30)
             text = "Was ist das Vierfache von " + (str(zahl1)) + "?"
-            lsg = str(zahl1*2)  
+            lsg = str(zahl1*4)  
+            erg = zahl1*4      
             hilfe = "Hier muss du zweimal verdoppeln"
         else:                                                               #Kommazahlen      
             zahl2 = random.randint(4,60)
             zahl1 = zahl2*10**(typ)
             text = f"Was ist das Doppelte von {format_number(zahl1,abs(typ))} ?"
-            lsg = f"{format_number(zahl1*2,abs(typ))}"           
+            lsg = f"{format_number(zahl1*2,abs(typ))}" 
+            erg = zahl1*2    
     pro_text = text
-    return typ, text, pro_text, lsg, hilfe, zahl1*2
+    return typ, text, pro_text, lsg, hilfe, erg
     
 def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
@@ -198,32 +202,31 @@ def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
 def einmaleins(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
         typ_anf = 1
-        typ_end = 1
-        if stufe >= 4 or jg >= 7 or "mit" in optionen:
-            typ_anf = 2
-            typ_end = 2 + stufe%1
+        typ_end = 11
+        if "nur" in optionen:
+            typ_end = 7
         return typ_anf, typ_end
     else:
         typ = random.randint(typ_anf, typ_end)
     # hier wird die Aufgabe erstellt:
-        if typ == 1:
-            zahl1 = random.randint(5,99)
-            text = "Was ist die Hälfte von " + 2*(str(zahl1)) + "?"
-            lsg = str(zahl1)       
-        elif typ > 2:                                                               #Kommazahlen      
-            zahl2 = random.randint(0,2)
-            zahl1= 2*random.randint(1,99)
-            zahl1 = zahl1/10**(zahl2)
-            text = f"Was ist die Hälfte von {format_number(zahl1,zahl2)} ?"
-            lsg = f"{format_number(zahl1/2,zahl2)}"   
+        if typ <= 7 :
+            zahl1 = random.randint(2,10)
+            zahl2 = random.randint(2,10)
+        elif typ < 10:                                                               #Kommazahlen      
+            zahl1 = random.randint(4,14)
+            zahl2 = random.randint(2,10) 
         else:   
-            zahl2 = random.randint(0,2)
-            zahl3= random.randint(1,99)
-            zahl1 = zahl3/10**(zahl2)
-            text = f"Was ist die Hälfte von {format_number(zahl1,zahl2)} ?"
-            lsg = f"{format_number(zahl1/2,(zahl2+(zahl3%2)))}"   
-    pro_text = text
-    return typ, text, pro_text, lsg, "Hilfe", zahl1/2
+            zahl1 = random.randint(10,13)
+            zahl2 = random.randint(10,13)
+        if typ != 7:
+            text = pro_text = str(zahl1) + chr(8901) + str(zahl2) +"=?"
+            lsg = str(zahl1*zahl2)  
+            erg = zahl1*zahl2  
+        else:
+            text = pro_text = str(zahl1*zahl2) + ":" + str(zahl2) +"=?"
+            lsg = str(zahl1)  
+            erg = zahl1             
+    return typ, text, pro_text, lsg, "", erg
 
 AUFGABEN = {
     1: ergaenzen,
@@ -270,7 +273,7 @@ def details(req, zeile_id):
     zaehler = Zaehler.objects.get(user = protokoll.user, kategorie = protokoll.kategorie)
     return render(req, 'core/details.html', {'protokoll': protokoll, 'zaehler': zaehler})
 
-def main(req, slug, protokoll_id=0):                                                        #hier läuft alles zusammen
+def main(req, slug):                                                        #hier läuft alles zusammen
     kategorie = get_object_or_404(Kategorie, slug = slug)
     kategorie_id = kategorie.id
     user = get_fake_user()    
@@ -284,9 +287,9 @@ def main(req, slug, protokoll_id=0):                                            
         if form.is_valid():                                                 #Aufgabe beantwortet
             eingabe = form.cleaned_data['eingabe']
             if protokoll.tries == 1:
-                protokoll.eingabe = eingabe
+                protokoll.eingabe = protokoll.eingabe + str(eingabe)
             elif protokoll.tries == 2:
-                protokoll.eingabe = f"(1:) {protokoll.eingabe} (2:) {eingabe}"
+                protokoll.eingabe =f"(1:) {protokoll.eingabe} (2:) {eingabe}"
             else:
                 protokoll.eingabe = f"{protokoll.eingabe} (3:) {eingabe}"
             protokoll.bearbeitungszeit = (timezone.now() - protokoll.start).total_seconds()
@@ -336,7 +339,7 @@ def main(req, slug, protokoll_id=0):                                            
         zaehler, created = Zaehler.objects.get_or_create(user = user, kategorie = kategorie)
         form = AufgabeFormZahl()
         user = get_fake_user()
-        if zaehler.optionen_text == "":                                     #Aufgaben Einstellung
+        if not zaehler.optionen_text :                                     #Aufgaben Einstellung
             return redirect('optionen', slug)
         typ, text, pro_text, lsg, hilfe, result = aufgaben(kategorie.id, jg = user.jg, stufe = user.stufe, typ_anf = zaehler.typ_anf, typ_end = zaehler.typ_end, optionen = "") 
         protokoll = Protokoll.objects.create(
@@ -354,7 +357,7 @@ def main(req, slug, protokoll_id=0):                                            
             messages.info(req, f'{zaehler.hinweis}')   
     if len(str(typ)) < 3:
         typ = ""
-    context = dict(kategorie = kategorie, typ = typ, aufgnr = zaehler.aufgnr, text = text, form = form, zaehler_id = zaehler.id, hilfe = protokoll.hilfe,)
+    context = dict(kategorie = kategorie, typ = typ, aufgnr = zaehler.aufgnr, text = text, form = form, zaehler_id = zaehler.id, hilfe = protokoll.hilfe, protokoll_id = protokoll.id)
     return render(req, 'core/aufgabe.html', context)
 
 def optionen(req, slug):
@@ -374,7 +377,8 @@ def optionen(req, slug):
         anzahl = kategorie.auswahl_set.all().count()
         if anzahl>0:
             anzahl = Auswahl.objects.filter(bis_jg__gt = user.jg, bis_stufe__gt = user.stufe,kategorie = kategorie).count()
-            if anzahl>1:
+            print(anzahl)
+            if anzahl>0:
                 return render(req, 'core/optionen.html', {'kategorie': kategorie, 'auswahl_form':form})
             else:
                 optionen_text = "keine"    
@@ -397,7 +401,7 @@ def abbrechen(req, zaehler_id):
     zaehler.hinweis = ""
     zaehler.save() 
     protokoll = Protokoll.objects.filter(user = zaehler.user).order_by('-id').first()
-    protokoll.eingabe = "abbr."
+    protokoll.eingabe = protokoll.eingabe + "abbr."
     protokoll.save()
     return redirect('uebersicht')
 
@@ -413,13 +417,19 @@ def loesung(req, zaehler_id):
     zaehler.save()   
     return redirect('main', zaehler.kategorie)
 
-def hilfe(req, zaehler_id):
+def hilfe(req, zaehler_id, protokoll_id):
     zaehler = get_object_or_404(Zaehler, pk = zaehler_id)
-    zaehler.hilfe +=1
-    protokoll = Protokoll.objects.filter(user = zaehler.user).order_by('-id').first()
+    protokoll = get_object_or_404(Protokoll, pk = protokoll_id)
     msg=f'{protokoll.hilfe}'    
-    protokoll.eingabe = "Hilfe"
+    messages.info(req, f'{zaehler.hinweis}')  
+    protokoll.eingabe = protokoll.eingabe + " Hilfe "
     protokoll.save()
+    zaehler.hilfe +=1
     zaehler.hinweis = msg
-    zaehler.save()   
-    return redirect('main', zaehler.kategorie)
+    zaehler.save()
+    form = AufgabeFormZahl()
+    context = dict(kategorie = protokoll.kategorie, typ = protokoll.typ, aufgnr = zaehler.aufgnr, text = protokoll.text, form = form, zaehler_id = zaehler.id, hilfe = protokoll.hilfe, protokoll_id = protokoll.id)
+    return render(req, 'core/aufgabe.html', context)
+
+def test(req, para, para2):
+    return HttpResponse(para2)

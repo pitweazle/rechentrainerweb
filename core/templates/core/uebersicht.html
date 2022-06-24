@@ -24,6 +24,8 @@
             <th>Aufgaben ohne Fehler</th>
             <th>Abbrechen</th>
             <th>Lsg.</th>
+            <th>Hilfe</th>
+
         </tr>
     </thead>
     <tbody>
@@ -43,7 +45,10 @@
                 <td>{{zaehler.richtig_of}}/{{zeile.eof}}</td>
                 <td>{{zaehler.abbrechen}}</td>
                 <td>{{zaehler.loesung}}</td>
+                <td>{{zaehler.hilfe}}</td>
+
             {% else %}
+                <td>-</td>
                 <td>-</td>
                 <td>-</td>
                 <td>-</td>

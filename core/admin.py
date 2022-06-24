@@ -7,7 +7,7 @@ class AuswahlInline(admin.TabularInline):
 
 class KategorieAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None,   {'fields': ['gruppe', 'name', 'zeile', 'start_jg', 'start_sw']}),
+        (None,   {'fields': ['name', 'zeile', 'start_jg', 'start_sw']}),
                 ('weitere Infos', {'fields': ['eof'], 'classes': ['collapse']}),        
     ]
     inlines = [AuswahlInline]
