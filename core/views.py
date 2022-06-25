@@ -228,6 +228,124 @@ def einmaleins(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             erg = zahl1             
     return typ, text, pro_text, lsg, "", erg
 
+def kopfrechnen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
+    if optionen != "":
+        typ_anf = 1
+        typ_end = 9
+        if "nur" in optionen:
+            typ_end = 7
+        return typ_anf, typ_end
+    else:
+        typ = random.randint(typ_anf, typ_end)
+        hilfe = "Diese Aufgaben muss du ohne Taschenrechner üben! Du wirst sehen: Wenn du Kopfrechnen kannst, wirst du stolz auf dich sein!"
+    # hier wird die Aufgabe erstellt:
+        if typ < 3 or typ == 6 :
+            zahl1 = random.randint(1,99)
+            zahl2 = random.randint(1,9)
+            lsg = str(zahl1+zahl2)
+            erg = zahl1+zahl2
+            if typ < 3:
+                text = str(zahl1) + " + " + str(zahl2) +" ="
+            else:
+                text = str(zahl2) + " + " + str(zahl1) +" ="
+        elif typ == 3  or typ == 7:
+            zahl2 = random.randint(1,9)
+            zahl1 = random.randint(1,90) + zahl2
+            lsg = str(zahl1-zahl2)
+            erg = zahl1-zahl2
+            text = str(zahl1) + " - " + str(zahl2) +" ="
+        elif typ == 4: 
+            zahl1 = random.randint(1,10)
+            zahl2 = random.randint(1,10)  
+            text = pro_text = str(zahl1) + " " + chr(8901) + " " + str(zahl2) +" ="
+            lsg = str(zahl1*zahl2)  
+            erg = zahl1*zahl2  
+        elif typ == 5:
+            zahl2 = random.randint(1,9)
+            zahl1 = random.randint(1,9) * zahl2
+            lsg = str(zahl1/zahl2)
+            erg = zahl1/zahl2
+            text = str(zahl1) + " : " + str(zahl2) +" ="  
+        else:
+            zahl1 = random.randint(1,14)
+            if zahl1 < 5:
+                zahl2 = random.randint(1,4+zahl1) + (11-zahl1)   
+            else:
+                zahl2 = random.randint(1,14)
+            typ2 = random.randint(1,5)
+            if typ2 == 5:
+                lsg = str(zahl2)
+                erg = zahl2
+                text = str(zahl1) + " : " + str(zahl2) +" ="                  
+            else:
+                lsg = str(zahl1*zahl2)
+                erg = zahl1*zahl2
+                text = str(zahl1) + " " + chr(8901) + " " + str(zahl2) +" ="       
+        pro_text = text            
+    return typ, text, pro_text, lsg, hilfe, erg
+
+def zahl_wort(zahl):
+    einer = ["", "ein", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwölf", "dreizehn", "vierzehn", "fünfzehn", "sechzehn", "siebzehn", "achtzehn", "neunzehn", "zwanzig"]
+    zehner = ["zwanzig", "dreißig", "vierzig", "fünfzig", "sechzig", "siebzig", "achtzig", "neunzig"]
+    if zahl > 99:
+        zahl_hundert = zahl//100
+        zahlwort = einer[zahl_hundert] + "hundert"
+        zahl = zahl%100
+    else:
+        zahlwort = ""
+    if zahl <= 20:
+        zahlwort = zahlwort + einer[zahl]
+    else:
+        zahl_einer = zahl%10
+        zahlwort = zahlwort + einer[zahl_einer]
+        zahl_zehner = zahl//10
+        if zahl_einer != 0:
+            zahlwort = zahlwort + "und" + zehner[zahl_zehner-2]
+        else:
+            zahlwort = zahlwort + zehner[zahl_zehner-2]
+    return zahlwort
+
+def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
+    if optionen != "":
+        if stufe >= 4 or jg >= 7 or "Kommazahlen" in optionen:
+            typ_end = 1
+        elif stufe >= 8 or jg >= 7 or "Brüchen" in optionen:
+            typ_end = 1
+        elif stufe >= 18 or jg >= 8 or "negativen" in optionen:
+            typ_end = 1
+        else:
+            typ_anf = 1
+            typ_end = 1        
+        return typ_anf, typ_end
+    else:
+        typ = random.randint(typ_anf, typ_end)    
+    # hier wird die Aufgabe erstellt:
+        zahl2 = random.randint(5,7+stufe%1)
+        zahl1 = random.randint(10000,10**zahl2)
+        if zahl1 >= 1000000:
+            zahl_mill = zahl1//1000000
+            if zahl_mill == 1:
+                text = "Eine Million "
+            else: 
+                text = (zahl_wort(zahl_mill)) + "millionen " 
+                #text = text_k.capitalize()
+        else:
+            text =""
+        zahl_tsnd = zahl1%1000000//1000
+        text =text + zahl_wort(zahl_tsnd) + "tausend"
+        zahl_klein = zahl1%1000
+        text_k = text + zahl_wort(zahl_klein)
+        text = text_k.title()
+        pro_text = text
+        if zahl1 < 1000000:
+            lsg= "%d %03d"%((zahl_tsnd), (zahl_klein))
+            #lsg= (str(zahl_tsnd) + " " + str(zahl_klein))
+        else:
+            lsg= "%d %03d %03d"%(zahl_mill, zahl_tsnd, zahl_klein)
+            #lsg= str(zahl_mill) + " " + str(zahl_tsnd) + " " + str(zahl_klein)
+        erg=zahl1
+        return typ, text, pro_text, lsg, "", erg
+
 AUFGABEN = {
     1: ergaenzen,
     2: addieren,
@@ -235,6 +353,8 @@ AUFGABEN = {
     4: verdoppeln,
     5: halbieren,
     6: einmaleins,
+    7: kopfrechnen,
+    8: zahlen,
 }
 
 def aufgaben(kategorie_id, jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
@@ -301,17 +421,15 @@ def main(req, slug):                                                        #hie
                 zaehler.richtig_of +=1
                 zaehler.aufgnr += 1
                 zaehler.save()
-                if zaehler.aufgnr > 10:
-                    if zaehler.optionen_text not in ["", "keine",]:         #setzt eventuell Stufe hoch wenn eine Option angekreuzt wurde
+                if zaehler.aufgnr > 5:
+                    if  zaehler.optionen_text not in ["", "keine",] and "nur" not in zaehler.optionen_text:         #setzt eventuell Stufe hoch wenn eine Option angekreuzt wurde
                         max_stufe = 3
                         for auswahl in Auswahl.objects.filter(
                             kategorie=kategorie_id,
                             text__in=zaehler.optionen_text.split(";"),
                             ).all():
                                 if(auswahl.bis_stufe) > user.stufe:
-                                    user.stufe = auswahl.bis_stufe+1
-                                    if user.e_kurs:
-                                        user.stufe += 1
+                                    user.stufe = auswahl.bis_stufe+user.stufe%2
                                     user.save()
                     zaehler.optionen_text = ""
                     zaehler.hinweis = ""
@@ -377,7 +495,6 @@ def optionen(req, slug):
         anzahl = kategorie.auswahl_set.all().count()
         if anzahl>0:
             anzahl = Auswahl.objects.filter(bis_jg__gt = user.jg, bis_stufe__gt = user.stufe,kategorie = kategorie).count()
-            print(anzahl)
             if anzahl>0:
                 return render(req, 'core/optionen.html', {'kategorie': kategorie, 'auswahl_form':form})
             else:

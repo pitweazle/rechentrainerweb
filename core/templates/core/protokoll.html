@@ -29,7 +29,7 @@
                 <td>{{zeile.aufgnr}} ({{zeile.typ}})</td>
                 <td>{{ zeile.text|truncatewords:"20"}}</td>
                 <td>{{zeile.value|floatformat:"-3"}}</td>
-                {% if zeile.tries > 2 or zeile.eingabe == "abbr." %}
+                {% if zeile.tries > 2 or 'abbr.' in zeile.eingabe  %}
                     <td style="background-color:rgba(255,0, 0,0.6);">{{zeile.eingabe}}</td>
                 {% elif zeile.tries > 1 or zeile.eingabe == "Lsg." %}
                     <td style="background-color:rgba(255,255, 0,0.6);">{{zeile.eingabe}}</td>

@@ -37,7 +37,7 @@
 {% endif %}
 <h3>Aufg. Nr. {{aufgnr}}/10 </h3> 
 <h3>{{text}} {{aufgabe}}</h3>
-{% endautoescape %}
+
 <form action="{% url 'main' kategorie.slug %}" method="post">
     {% csrf_token %}
     <fieldset>
@@ -46,6 +46,7 @@
         <input class="button-primary" type="submit" value="Prüfen">
     </fieldset>
 </form>
+{% endautoescape %}
 <nav>
     <a href="{% url 'loesung' zaehler_id %}">Lösung anzeigen</a>
     <a href="{% url 'hilfe' zaehler_id protokoll_id %}" {% if not hilfe  %}disabled{% endif %}>Hilfe anzeigen</a>
