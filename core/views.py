@@ -307,44 +307,63 @@ def zahl_wort(zahl):
 
 def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
+        typ = 1
         if stufe >= 4 or jg >= 7 or "Kommazahlen" in optionen:
-            typ_end = 1
+            typ_end = 3
         elif stufe >= 8 or jg >= 7 or "Brüchen" in optionen:
-            typ_end = 1
+            typ_end = 3
         elif stufe >= 18 or jg >= 8 or "negativen" in optionen:
-            typ_end = 1
+            typ_end = 3
         else:
-            typ_anf = 1
-            typ_end = 1        
+            typ_end = 3        
         return typ_anf, typ_end
     else:
-        typ = random.randint(typ_anf, typ_end)    
+        typ = random.randint(typ_anf, typ_end) 
     # hier wird die Aufgabe erstellt:
-        zahl2 = random.randint(5,7+stufe%1)
-        zahl1 = random.randint(10000,10**zahl2)
-        if zahl1 >= 1000000:
-            zahl_mill = zahl1//1000000
-            if zahl_mill == 1:
-                text = "Eine Million "
-            else: 
-                text = (zahl_wort(zahl_mill)) + "millionen " 
-                #text = text_k.capitalize()
+        if typ == 1:
+            zahl2 = random.randint(5,7+stufe%1)
+            zahl1 = random.randint(10000,10**zahl2)
+            if stufe%2 == 1:
+                while not "0" in str(zahl1):
+                    zahl1 = random.randint(10000,10**zahl2)
+            if zahl1 >= 1000000:
+                zahl_mill = zahl1//1000000
+                if zahl_mill == 1:
+                    text = "Eine Million "
+                else: 
+                    text = (zahl_wort(zahl_mill)) + "millionen " 
+                    #text = text_k.capitalize()
+            else:
+                text =""
+            zahl_tsnd = zahl1%1000000//1000
+            text =text + zahl_wort(zahl_tsnd) + "tausend"
+            zahl_klein = zahl1%1000
+            text_k = text + zahl_wort(zahl_klein)
+            text = text_k.title()
+            if zahl1 < 1000000:
+                lsg= "%d %03d"%((zahl_tsnd), (zahl_klein))
+            else:
+                lsg= "%d %03d %03d"%(zahl_mill, zahl_tsnd, zahl_klein)
+            erg=zahl1
+            hilfe = ""
         else:
-            text =""
-        zahl_tsnd = zahl1%1000000//1000
-        text =text + zahl_wort(zahl_tsnd) + "tausend"
-        zahl_klein = zahl1%1000
-        text_k = text + zahl_wort(zahl_klein)
-        text = text_k.title()
-        pro_text = text
-        if zahl1 < 1000000:
-            lsg= "%d %03d"%((zahl_tsnd), (zahl_klein))
-            #lsg= (str(zahl_tsnd) + " " + str(zahl_klein))
-        else:
-            lsg= "%d %03d %03d"%(zahl_mill, zahl_tsnd, zahl_klein)
-            #lsg= str(zahl_mill) + " " + str(zahl_tsnd) + " " + str(zahl_klein)
-        erg=zahl1
-        return typ, text, pro_text, lsg, "", erg
+            zahl3 = random.randint(2,3+stufe%2)
+            zahl1 = 1
+            for n in range(0,zahl3):
+               zahl2 = random.randint(0,3)
+               zahl2 = (20-zahl2)%10
+               zahl1 = zahl1 + zahl2*10**n
+            if typ == 2:
+                text = "Wie heißt der Nachfolger von %d ?"%zahl1 
+                erg = zahl1+1
+                lsg = str(zahl1+1)
+                hilfe = "Um den Nachfolger auszurechnen musst du 1 addieren."
+            else:
+                text = "Wie heißt der Vorgänger von %d ?"%zahl1 
+                erg = zahl1-1
+                lsg = str(zahl1-1)
+                hilfe = "Um den Vorgänger auszurechnen musst du 1 subtrahieren."
+        return typ, text, text, lsg, hilfe, erg
 
 AUFGABEN = {
     1: ergaenzen,
@@ -421,7 +440,7 @@ def main(req, slug):                                                        #hie
                 zaehler.richtig_of +=1
                 zaehler.aufgnr += 1
                 zaehler.save()
-                if zaehler.aufgnr > 5:
+                if zaehler.aufgnr > 10:
                     if  zaehler.optionen_text not in ["", "keine",] and "nur" not in zaehler.optionen_text:         #setzt eventuell Stufe hoch wenn eine Option angekreuzt wurde
                         max_stufe = 3
                         for auswahl in Auswahl.objects.filter(
