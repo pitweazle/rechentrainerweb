@@ -28,10 +28,10 @@ def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
         typ_anf = 1 
         typ_end = 3
         if stufe >= 4 or jg >= 7 or "mit" in optionen:
-            typ = 5 + stufe%2                               #6 für E-Kurs
+            typ_end = 5 + stufe%2                               #6 für E-Kurs
         return typ_anf, typ_end
     else:
-        typ = random.randint(typ_anf, typ_end)        
+        typ = random.randint(typ_anf, typ_end) 
         if typ == 1 :                                               #Wechselgeld
             NOTES = [2, 5, 10, 20, 50, 100]
             zahl1 = random.randint(5, 5950)/100
@@ -71,11 +71,11 @@ def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
                 zahl2 = 10**(-1*exp)
                 zahl1 = random.randint(1,99)*zahl2/100
                 exp2 = 2
-            text = pro_text(
+            text = pro_text = (
                 f"ergänze {format_number(zahl1, exp+exp2,)}"
                 f" zu {format_number(zahl2, exp)}")
             lsg = f"{format_number(zahl2-zahl1,exp+exp2)}"
-        return typ, text, pro_text, lsg,  "", zahl2-zahl1
+        return typ, text, pro_text, lsg,  "", zahl2-zahl1, {'name':''}
 
 def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
@@ -96,16 +96,16 @@ def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
                 text = pro_text = (str(zahl1)) + " + " + (str(zahl2)) 
                 lsg = str(zahl1 + zahl2)
         else:
-                rund1 = random.randint(0,faktor)
-                zahl1 = random.randint(5,faktor*112)
-                zahl1 = zahl1/10**rund1
-                rund2 = random.randint(0,faktor)
-                zahl2 = random.randint(5, faktor*112)
-                zahl2 = zahl2/10**rund2
-                text = pro_text = (
-                    f"{format_number(zahl1,rund1)} + {format_number(zahl2,rund2)}") 
-                lsg = f"{format_number(zahl1+zahl2,max(rund1,rund2))}"
-        return typ, text, pro_text, lsg, "", zahl1+zahl2
+            rund1 = random.randint(0,faktor)
+            zahl1 = random.randint(5,faktor*112)
+            zahl1 = zahl1/10**rund1
+            rund2 = random.randint(0,faktor)
+            zahl2 = random.randint(5, faktor*112)
+            zahl2 = zahl2/10**rund2
+            text = pro_text = (
+                f"{format_number(zahl1,rund1)} + {format_number(zahl2,rund2)}") 
+            lsg = f"{format_number(zahl1+zahl2,max(rund1,rund2))}"
+        return typ, text, "", lsg, "", zahl1+zahl2, {'name':''}
 
 def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
@@ -135,7 +135,7 @@ def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             zahl1 = zahl2+result
             text = pro_text = f"{format_number(zahl1,max(rund1,rund2),False)} - {format_number(zahl2,rund1,False)}"
             lsg =   f"{format_number(result,max(rund1,rund2),False)}"          
-    return typ, text, pro_text, lsg, "", result
+    return typ, text, "", lsg, "", result, {'name':''}
 
 def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
@@ -167,7 +167,7 @@ def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             lsg = f"{format_number(zahl1*2,abs(typ))}" 
             erg = zahl1*2    
     pro_text = text
-    return typ, text, pro_text, lsg, hilfe, erg
+    return typ, text, "", lsg, hilfe, erg, {'name':''}
     
 def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
@@ -197,7 +197,7 @@ def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             text = f"Was ist die Hälfte von {format_number(zahl1,zahl2)} ?"
             lsg = f"{format_number(zahl1/2,(zahl2+(zahl3%2)))}"   
     pro_text = text
-    return typ, text, pro_text, lsg, "Hilfe", zahl1/2
+    return typ, text, "", lsg, "Hilfe", zahl1/2, {'name':''}
 
 def einmaleins(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
@@ -226,7 +226,7 @@ def einmaleins(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             text = pro_text = str(zahl1*zahl2) + ":" + str(zahl2) +"=?"
             lsg = str(zahl1)  
             erg = zahl1             
-    return typ, text, pro_text, lsg, "", erg
+    return typ, text, "", lsg, "", erg, {'name':''}
 
 def kopfrechnen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
@@ -282,7 +282,7 @@ def kopfrechnen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
                 erg = zahl1*zahl2
                 text = str(zahl1) + " " + chr(8901) + " " + str(zahl2) +" ="       
         pro_text = text            
-    return typ, text, pro_text, lsg, hilfe, erg
+    return typ, text, "", lsg, hilfe, erg, {'name':''}
 
 def zahl_wort(zahl):
     einer = ["", "ein", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwölf", "dreizehn", "vierzehn", "fünfzehn", "sechzehn", "siebzehn", "achtzehn", "neunzehn", "zwanzig"]
@@ -307,19 +307,20 @@ def zahl_wort(zahl):
 
 def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
     if optionen != "":
-        typ = 1
+        typ_anf = 1
         if stufe >= 4 or jg >= 7 or "Kommazahlen" in optionen:
-            typ_end = 3
+            typ_end = 5
         elif stufe >= 8 or jg >= 7 or "Brüchen" in optionen:
-            typ_end = 3
+            typ_end = 5
         elif stufe >= 18 or jg >= 8 or "negativen" in optionen:
-            typ_end = 3
+            typ_end = 5
         else:
-            typ_end = 3        
+            typ_end = 5        
         return typ_anf, typ_end
     else:
-        typ = random.randint(typ_anf, typ_end) 
+        typ = random.randint(typ_anf, typ_end+stufe%1*2) 
     # hier wird die Aufgabe erstellt:
+        grafik = {'name': ''}
         if typ == 1:
             zahl2 = random.randint(5,7+stufe%1)
             zahl1 = random.randint(10000,10**zahl2)
@@ -339,17 +340,17 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             text =text + zahl_wort(zahl_tsnd) + "tausend"
             zahl_klein = zahl1%1000
             text_k = text + zahl_wort(zahl_klein)
-            text = text_k.title()
+            text = "Schreibe folgende Zahl in Ziffern: " + text_k.title()
             if zahl1 < 1000000:
                 lsg= "%d %03d"%((zahl_tsnd), (zahl_klein))
             else:
                 lsg= "%d %03d %03d"%(zahl_mill, zahl_tsnd, zahl_klein)
             erg=zahl1
             hilfe = ""
-        else:
+        elif typ < 4:
             zahl3 = random.randint(2,3+stufe%2)
-            zahl1 = 1
-            for n in range(0,zahl3):
+            zahl1 = 0
+            for n in range(1,zahl3):
                zahl2 = random.randint(0,3)
                zahl2 = (20-zahl2)%10
                zahl1 = zahl1 + zahl2*10**n
@@ -359,11 +360,29 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
                 lsg = str(zahl1+1)
                 hilfe = "Um den Nachfolger auszurechnen musst du 1 addieren."
             else:
+                if zahl1 == 0:
+                    zahl1 = 1
                 text = "Wie heißt der Vorgänger von %d ?"%zahl1 
                 erg = zahl1-1
                 lsg = str(zahl1-1)
                 hilfe = "Um den Vorgänger auszurechnen musst du 1 subtrahieren."
-        return typ, text, text, lsg, hilfe, erg
+        else:
+            anf = 10                            #fängt ohne neg Zahlen bei 10 an, sonst bei 0
+            eint = 10                           #10 ergibt 10er Einteilung, 20 ergibt 5er und 25 ergibt 4er (für Brüche)
+            exp = random.randint(1,4)
+            z = 10**exp                         #Einteilung der Anzeige 0.1 1, 10, 100 ...
+            v = 0                               #ist die Verschiebung des Nullpunktes
+            text_v = len(str(z))*-3             #die Verscheibung des Textes (dmit die Zahl in der Mitte unter dem Strich steht)
+            if stufe%2 == 1 and eint == 10 and z > 10:
+                zahl1 = random.randint(1,90)*5
+            else:
+                zahl1 = random.randint(1,45)*10
+            text = "Auf welche Zahl zeigt der Pfeil ?"
+            hilfe = ""
+            erg = int(zahl1*z/100+z*v)
+            lsg = str(erg)
+            grafik = {'name': 'zahlenstrahl', 'anf': anf, 'eint':eint, 'txt0':  z+(v-1)*z, 'txt1': z+v*z, 'txt2': z+(v+1)*z, 'txt3': z+z*(v+2), 'txt4': z+z*(v+3), 'text_v': text_v, 'x': int(zahl1+anf)}
+        return typ, text, "", str(erg), hilfe, erg, grafik 
 
 AUFGABEN = {
     1: ergaenzen,
@@ -468,9 +487,8 @@ def main(req, slug):                                                        #hie
                 quote = int(zaehler.falsch/(zaehler.richtig+zaehler.falsch)*100)
                 msg = f'<br>richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%, EoF: {zaehler.richtig_of}/{kategorie.eof}'
                 messages.info(req, f'Die letzte Aufgabe war leider falsch! Versuche: {protokoll.tries}, {msg}')   
-                typ = protokoll.typ
-                text = protokoll.text
                 if protokoll.tries >= 3:                                    #3 mal falsch
+                    messages.info(req, f'letzte Aufgabe: {protokoll.text}, Lösung: {protokoll.loesung}')                     
                     return redirect('kategorien')
     else:                                                                   #Aufgabenstellung
         zaehler, created = Zaehler.objects.get_or_create(user = user, kategorie = kategorie)
@@ -478,9 +496,11 @@ def main(req, slug):                                                        #hie
         user = get_fake_user()
         if not zaehler.optionen_text :                                     #Aufgaben Einstellung
             return redirect('optionen', slug)
-        typ, text, pro_text, lsg, hilfe, result = aufgaben(kategorie.id, jg = user.jg, stufe = user.stufe, typ_anf = zaehler.typ_anf, typ_end = zaehler.typ_end, optionen = "") 
+        typ, text, pro_text, lsg, hilfe, result, grafik = aufgaben(kategorie.id, jg = user.jg, stufe = user.stufe, typ_anf = zaehler.typ_anf, typ_end = zaehler.typ_end, optionen = "") 
+        if not pro_text:
+            pro_text = text 
         protokoll = Protokoll.objects.create(
-            user = user, kategorie = kategorie, text = pro_text, value = result, loesung = lsg, hilfe = hilfe        
+            user = user, kategorie = kategorie, text = text, pro_text = pro_text, value = result, loesung = lsg, hilfe = hilfe, grafik = grafik       
         )                                                                   #Protokoll wird erstellt
         req.session['eingabe_id'] = protokoll.id    
         req.session['zaehler_id'] = zaehler.id   
@@ -488,13 +508,14 @@ def main(req, slug):                                                        #hie
             zaehler.aufgnr = 1
         zaehler.save()        
         protokoll.typ = typ
-        protokoll.aufgnr = zaehler.aufgnr
+        protokoll.aufgnr = zaehler.aufgnr        
         protokoll.save()  
         if zaehler.hinweis!= "":
             messages.info(req, f'{zaehler.hinweis}')   
-    if len(str(typ)) < 3:
-        typ = ""
-    context = dict(kategorie = kategorie, typ = typ, aufgnr = zaehler.aufgnr, text = text, form = form, zaehler_id = zaehler.id, hilfe = protokoll.hilfe, protokoll_id = protokoll.id)
+    if len(str(protokoll.typ)) < 3:
+        protokoll.typ = ""
+    print(protokoll.grafik)
+    context = dict(kategorie = kategorie, typ = protokoll.typ, aufgnr = zaehler.aufgnr, text = protokoll.text, form = form, zaehler_id = zaehler.id, hilfe = protokoll.hilfe, protokoll_id = protokoll.id, grafik = protokoll.grafik)
     return render(req, 'core/aufgabe.html', context)
 
 def optionen(req, slug):

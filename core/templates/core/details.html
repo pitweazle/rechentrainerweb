@@ -9,7 +9,7 @@
 {% include "includes/header.html" %}
 
 <h2>Details:</h2>
-
+{% autoescape off %}
 <ul>
     <li>ID: {{protokoll.id}}</li>
 
@@ -23,6 +23,10 @@
     <br/>
     <li>Kategorie: {{protokoll.kategorie}}</li>
     <li>typ: {{protokoll.typ}}</li>
+    {% if protokoll.grafik.name %}
+        <li>grafik: {{protokoll.grafik}}</li>
+    {% endif %}
+   
     <li>Frage: {{protokoll.text}}</li>
     <li>Ergebnis: {{protokoll.value|floatformat:"-3"}}</li>
     <li>Lösung: {{protokoll.loesung}}</li>
@@ -35,5 +39,5 @@
     <li>falsch: {{zaehler.falsch}}</li>
     <li>ohne Fehler: {{zaehler.richtig_of}}</li>    
 </ul>
-
+{% endautoescape %}
 {% endblock %}

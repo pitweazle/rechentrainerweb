@@ -1,6 +1,8 @@
 {% extends 'layout.html' %}
 {% load static %}
+{% comment %} {% load svg %} {% endcomment %}
 {% load l10n %}
+{% load mathfilters %}
 
 
 {% block css_files %}
@@ -24,15 +26,15 @@
 <h2>{{ kategorie.name }}  {{ typ }} :</h2>
 {% if messages %}
 <p>
-        {% for message in messages %}
-            {% if 'leider' in message.message %}
-                <li style="background-color:rgba(255,0, 0,0.6);">{{ message }}</li>
-            {% elif 'richtig!' in message.message %}
-                <li style="background-color:rgba(0, 255, 0,0.6);">{{ message }}</li>                
-            {% else %}
-                <li style="background-color:rgba(255, 255,0.6);">{{ message }}</li>
-            {% endif%}
-        {% endfor %}
+    {% for message in messages %}
+        {% if 'leider' in message.message %}
+            <li style="background-color:rgba(255,0, 0,0.6);">{{ message }}</li>
+        {% elif 'richtig!' in message.message %}
+            <li style="background-color:rgba(0, 255, 0,0.6);">{{ message }}</li>                
+        {% else %}
+            <li style="background-color:rgba(255, 255,0.6);">{{ message }}</li>
+        {% endif%}
+    {% endfor %}
 </p>
 {% endif %}
 <h3>Aufg. Nr. {{aufgnr}}/10 </h3> 
@@ -47,6 +49,13 @@
     </fieldset>
 </form>
 {% endautoescape %}
+
+{% comment %} <p> {{grafik.name}} </p> {% endcomment %}
+{% if grafik.name %}
+    {% include "svg/zahlenstrahl.svg" %} 
+    {% comment %} {% include {{grafik.name|urlencode}} %}     {% endcomment %}
+{% endif %}
+
 <nav>
     <a href="{% url 'loesung' zaehler_id %}">Lösung anzeigen</a>
     <a href="{% url 'hilfe' zaehler_id protokoll_id %}" {% if not hilfe  %}disabled{% endif %}>Hilfe anzeigen</a>

@@ -18,12 +18,14 @@ Hallo {{ user.username }}!
 {% endif %}
 
 {% if messages %}
+{% autoescape off %}
 <p>
     Letzte Antwort:<br>
         {% for message in messages %}
         <li>{{ message }}</li>
         {% endfor %}
 </p>
+{% endautoescape %}
 {% endif %}
 <h2> Wähle aus: </h2>
 <ul>

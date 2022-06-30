@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core.apps.CoreConfig', 
-    'accounts'
+    'accounts',
+    'mathfilters',
 ]
 #    'register.apps.RegisterConfig'
 #LOGIN_URL = '/benutzer/anmelden/'
@@ -140,3 +141,5 @@ LOGOUT_REDIRECT_URL = "kategorien"
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = BASE_DIR / "sent_emails"
+
+#SVG_DIRS=[os.path.join(BASE_DIR, 'my-svgs')]

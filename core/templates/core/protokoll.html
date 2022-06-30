@@ -27,7 +27,7 @@
                 <td><a class="button" href="{% url 'details' zeile.id %}">{{zeile.start|date:"d.m.y H:i"}}</td>
                 <td>{{zeile.kategorie|title}}</td>
                 <td>{{zeile.aufgnr}} ({{zeile.typ}})</td>
-                <td>{{ zeile.text|truncatewords:"20"}}</td>
+                <td>{{ zeile.pro_text}}</td>
                 <td>{{zeile.value|floatformat:"-3"}}</td>
                 {% if zeile.tries > 2 or 'abbr.' in zeile.eingabe  %}
                     <td style="background-color:rgba(255,0, 0,0.6);">{{zeile.eingabe}}</td>
