@@ -97,7 +97,9 @@ class Protokoll(models.Model):
     
     #der Aufgabentext:
     text = models.TextField(blank=True)
-    pro_text = models.CharField(max_length=25, blank=True)
+    pro_text = models.CharField(max_length=50, blank=True)
+    anmerkung = models.CharField(max_length=50, blank=True)
+   
     grafik = models.CharField(max_length=400, blank=True)
 
     #hier speichere ich die Lösung, wahlweise als zahl, u.U. auch (mehrere) Lösungen als String:

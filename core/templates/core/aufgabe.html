@@ -38,7 +38,9 @@
 </p>
 {% endif %}
 <h3>Aufg. Nr. {{aufgnr}}/10 </h3> 
+
 <h3>{{text}} {{aufgabe}}</h3>
+<p> {{ anmerkung }} </p>
 
 <form action="{% url 'main' kategorie.slug %}" method="post">
     {% csrf_token %}
