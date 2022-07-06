@@ -14,21 +14,26 @@
     <thead>
         <tr>
             <th>Datum</th>
-            <th>Kategorie</th>
-            <th>Aufgnr. (Typ)</th>
+            <th>Kategorie (Typ)</th>
+            <th>Aufgnr.</th>
             <th>Aufgabe</th>
             <th>Ergebnis</th>
             <th>Eingabe</th>
         </tr>
     </thead>
     <tbody>
+        {% autoescape off %}
         {% for zeile in protokoll %}
             <tr>
                 <td><a class="button" href="{% url 'details' zeile.id %}">{{zeile.start|date:"d.m.y H:i"}}</td>
-                <td>{{zeile.kategorie|title}}</td>
-                <td>{{zeile.aufgnr}} ({{zeile.typ}})</td>
+                <td>{{zeile.kategorie|title }} <br>({{zeile.typ}})</td>
+                <td>{{zeile.aufgnr}} </td>
                 <td>{{ zeile.pro_text}}</td>
-                <td>{{zeile.value|floatformat:"-3"}}</td>
+                {% if zeile.value == 0  %}
+                    <td>{{zeile.loesung.0}}</td>
+                {% else %}
+                    <td>{{zeile.value|floatformat:"-3"}}</td>
+                {% endif%}
                 {% if zeile.tries > 2 or 'abbr.' in zeile.eingabe  %}
                     <td style="background-color:rgba(255,0, 0,0.6);">{{zeile.eingabe}}</td>
                 {% elif zeile.tries > 1 or zeile.eingabe == "Lsg." %}
@@ -40,6 +45,7 @@
             {% comment %} {% empty %}
             <strong>Leider keine Kategorien vorhanden.</strong>                 {% endcomment %}
         {% endfor %}
+        {% endautoescape %}
     </tbody>
 </table>
 </ul>

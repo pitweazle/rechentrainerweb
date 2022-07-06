@@ -6,7 +6,7 @@ class AufgabeFormZahl(forms.Form):
                                 decimal_places=5, widget=forms.NumberInput(attrs={'autofocus': True}))
     
 class AufgabeFormStr(forms.Form):
-    eingabe = forms.CharField(label='Ergebnis', localize=True)
+    eingabe = forms.CharField(label='Ergebnis', localize=True, widget=forms.TextInput(attrs={'autofocus': True}))
     
 
 class AuswahlForm(forms.Form):

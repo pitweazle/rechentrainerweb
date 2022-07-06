@@ -90,7 +90,7 @@ class Protokoll(models.Model):
     #gewertet werden nur die Aufgaben des jeweiligen Schuljabjahres, im Januar, Juni und August, kann der user aber auch schon festlegen, dass die Aufgaben für das nächste Schulhalbjahr gelten:
     halbjahr = models.PositiveSmallIntegerField(default=0)
 
-    kategorie = models.ForeignKey(Kategorie, verbose_name='Kategorie', related_name='protokolle', on_delete=models.CASCADE)
+    kategorie = models.ForeignKey(Kategorie, related_name='protokolle', on_delete=models.CASCADE)
     typ = models.CharField(max_length=20, blank=True)
      
     aufgnr = models.PositiveSmallIntegerField(default=0) 
@@ -100,19 +100,19 @@ class Protokoll(models.Model):
     pro_text = models.CharField(max_length=50, blank=True)
     anmerkung = models.CharField(max_length=50, blank=True)
    
-    grafik = models.CharField(max_length=400, blank=True)
-
+    grafik = models.JSONField()
+ 
     #hier speichere ich die Lösung, wahlweise als zahl, u.U. auch (mehrere) Lösungen als String:
     value = models.DecimalField('Wert', max_digits=20, decimal_places=7)
-    loesung = models.CharField(max_length=20, blank=True, verbose_name="Lösung")
+    loesung = models.JSONField()
     hilfe = models.TextField(blank=True)
     
     #die Eingabe des users:
-    eingabe = models.CharField(max_length=20, blank=True, verbose_name="Eingabe")
+    eingabe = models.CharField(max_length=20, blank=True)
 
     tries = models.PositiveSmallIntegerField('Versuche', default=0)
     #Eintrag richtig, falsch, Extrapunkte, Lösung anzeigen, Abbruch:
-    wertung = models.CharField(max_length=10, blank=True, verbose_name="Wertung")
+    wertung = models.CharField(max_length=10, blank=True)
 
     start = models.DateTimeField('Start', auto_now_add=True)
     bearbeitungszeit=models.FloatField(default=0)

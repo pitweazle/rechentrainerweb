@@ -14,16 +14,16 @@
 
 <header>
     <h1>Der Rechentrainer</h1>
-    <nav>
-        <a href="{% url 'abbrechen' zaehler_id %}">Abbrechen</a>
-        {% comment %} <a href="{% url 'uebersicht' %}">Hilfe</a>
-        <a href="{% url 'loesung' eingabe_id %}">Lösung anzeigen</a> {% endcomment %}
-    </nav>
 </header>
 {% autoescape off %}
 
 <ul>
-<h2>{{ kategorie.name }}  {{ typ }} :</h2>
+<h2>
+    {% if typ %}
+        {{typ}}        
+    {% else %}
+        {{ kategorie.name }}
+    {% endif%}</h2>
 {% if messages %}
 <p>
     {% for message in messages %}
@@ -61,6 +61,7 @@
 <nav>
     <a href="{% url 'loesung' zaehler_id %}">Lösung anzeigen</a>
     <a href="{% url 'hilfe' zaehler_id protokoll_id %}" {% if not hilfe  %}disabled{% endif %}>Hilfe anzeigen</a>
+    <a href="{% url 'abbrechen' zaehler_id %}">Abbrechen</a>
 </nav>
 </ul>
 {% endblock %}
