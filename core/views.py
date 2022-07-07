@@ -305,7 +305,12 @@ def zahl_wort(zahl):
             zahlwort = zahlwort + zehner[zahl_zehner-2]
     return zahlwort
 
-def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
+def ggt(a,b):
+    if b == 0:
+        return a
+    return ggt(b, a % b)
+
+def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
         typ_anf = 3
         if stufe >= 4 or jg >= 7 or "Kommazahlen" in optionen:
@@ -318,8 +323,11 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             typ_anf = 1
             typ_end = 5        
         return typ_anf, typ_end
+    elif eingabe != "":
+        print("OK")
     else:
         typ = random.randint(typ_anf, typ_end+stufe%1*2) 
+        typ = 10
         anm = ""
         pro_text = ""
     # hier wird die Aufgabe erstellt:
@@ -471,36 +479,29 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
                 hilfe = "Für den Nenner musst du zählen in wieviele Teile der Zahlenstrahl zwischen den Zahlen unterteilt ist."
                 erg = 0
                 ganz = int(bruch*100//100)
-                zaehler = int(bruch*100//eint)
+                #zaehler = int(bruch*100//eint)
+                zaehler = int(bruch*100//eint - ganz * 100/eint)
+                nenner = int(100/eint) 
+                bruch_str = str(zaehler) + "/" + str(nenner) 
                 if ganz == 0:
-                    bruch_str = str(zaehler) + "/" + str(int(100/eint)) 
                     lsg = [bruch_str]
                 else:
-                    bruch_str = str(ganz) + " " +  str(int(bruch*100//eint - ganz * 100/eint))  + "/" + str(int(100/eint)) 
-                    lsg = [bruch_str, (str(zaehler)+"/"+str(nenner))] 
-                print(bruch_str)
-                print(bruch)
-                print(zaehler)
-                print(100/eint)
+                    bruch_str = str(ganz) + " " + bruch_str
+                    lsg = [bruch_str, (str(zaehler+ganz*nenner)+"/"+str(nenner))] 
                 kuerz = ggt(zaehler,100/eint)
-                print(kuerz)
                 if kuerz > 1 :
-                    if ganz == 0:
-                        bruch_str = str(int(zaehler/kuerz)) + "/" + str(int(100/eint/kuerz)) 
+                    bruch_str = str(int(zaehler/kuerz)) + "/" + str(int(nenner/kuerz)) 
+                    if ganz == 0:                        
                         lsg.append(bruch_str)
                     else: 
-                        bruch_str = str(ganz) + " " +  str(int(bruch*50//eint - ganz * 50/eint))  + "/" + str(int(50/eint)) 
+                        bruch_str = str(ganz) + " " +  bruch_str
                         lsg.append(bruch_str)
-                        lsg.append(str(int(zaehler/2))+"/"+str(int(50/eint))) 
+                        lsg.append(str(int((zaehler+ganz*nenner)/kuerz)) +"/"+ str(int(nenner/kuerz)))
+                lsg.append("indiv")
                 text = "Welcher Bruch ist hier dargestellt ?"
                 anm = "Schreibe als Bruch (9/7) oder als gemischte Zahl (1 2/7)"
             grafik = {'name': 'zahlenstrahl', 'anf': anf, 'eint':eint, 'v': v, 'txt0':  z+(v-1)*z, 'txt1': z+v*z, 'txt2': z+(v+1)*z, 'txt3': z+z*(v+2), 'txt4': z+z*(v+3), 'text_v': text_v, 'x': int(zahl1)+20, 'bruch':bruch}
         return typ, text, pro_text, anm, lsg, hilfe, erg, grafik 
-
-def ggt(a,b):
-    if b == 0:
-        return a
-    return ggt(b, a % b)
 
 AUFGABEN = {
     1: ergaenzen,
@@ -513,7 +514,7 @@ AUFGABEN = {
     8: zahlen,
 }
 
-def aufgaben(kategorie_id, jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
+def aufgaben(kategorie_id, jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     return AUFGABEN[kategorie_id](jg, stufe, typ_anf, typ_end, optionen)
 
 def kontrolle(given, value, lsg):
@@ -524,6 +525,8 @@ def kontrolle(given, value, lsg):
         for loe in (lsg):
             if given.replace(" ","") == loe.replace(" ",""):
                 return True
+            if loe == "indiv":
+                print("weiter")
         else:
             return False
 
@@ -710,11 +713,6 @@ def hilfe(req, zaehler_id, protokoll_id):
     zaehler = get_object_or_404(Zaehler, pk = zaehler_id)
     protokoll = get_object_or_404(Protokoll, pk = protokoll_id)
     kategorie = protokoll.kategorie
-    typ = protokoll.typ
-    text = protokoll.text
-    anm = protokoll.anmerkung
-    hilfe = protokoll.hilfe
-    grafik = protokoll.grafik
     msg=f'{protokoll.hilfe}'
     messages.info(req, f'{zaehler.hinweis}')  
     protokoll.eingabe = protokoll.eingabe + " Hilfe "
@@ -722,9 +720,4 @@ def hilfe(req, zaehler_id, protokoll_id):
     zaehler.hilfe +=1
     zaehler.hinweis = msg
     zaehler.save()
-    if protokoll.value != 0:
-        form = AufgabeFormZahl(req.POST)
-    else:
-        form = AufgabeFormStr(req.POST)
-    context = dict(kategorie = kategorie, typ = typ, aufgnr = zaehler.aufgnr, text = text, form = form, zaehler_id = zaehler.id, hilfe = hilfe, protokoll_id = protokoll.id)
-    return render(req, 'core/aufgabe.html', context)
+    return redirect('main', kategorie.slug)
