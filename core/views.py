@@ -324,7 +324,8 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe =
             typ_end = 5        
         return typ_anf, typ_end
     elif eingabe != "":
-        print("OK")
+        if not "/" in eingabe:
+            return 0, "Du sollst den angezeigten Wert als Bruch eingeben!"
     else:
         typ = random.randint(typ_anf, typ_end+stufe%1*2) 
         typ = 10
@@ -515,20 +516,24 @@ AUFGABEN = {
 }
 
 def aufgaben(kategorie_id, jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
-    return AUFGABEN[kategorie_id](jg, stufe, typ_anf, typ_end, optionen)
+    return AUFGABEN[kategorie_id](jg, stufe, typ_anf, typ_end, optionen, eingabe)
 
-def kontrolle(given, value, lsg):
+def kontrolle(eingabe, value, lsg, protokoll_id):
     if value != 0:
-        return given == value 
+        if eingabe == value:
+            return "richtig", ""
         #return abs(given - value) < decimal.Decimal('0.001')
     else:
+        if "indiv" in lsg:
+            protokoll = get_object_or_404(Protokoll, pk = protokoll_id)
+            punkte, rueckmeldung = aufgaben(protokoll.kategorie_id, eingabe=eingabe) 
+            if rueckmeldung:
+                return punkte, rueckmeldung
         for loe in (lsg):
-            if given.replace(" ","") == loe.replace(" ",""):
-                return True
-            if loe == "indiv":
-                print("weiter")
+            if eingabe.replace(" ","") == loe.replace(" ",""):
+                return "richtig", ""
         else:
-            return False
+            return "falsch", ""
 
 def get_fake_user():
     #return Schueler.objects.all().order_by('?').first()
@@ -580,7 +585,9 @@ def main(req, slug):                                                        #hie
                 protokoll.eingabe = f"{protokoll.eingabe} (3:) {eingabe}"
             protokoll.bearbeitungszeit = (timezone.now() - protokoll.start).total_seconds()
             protokoll.save()
-            if kontrolle(eingabe, protokoll.value, protokoll.loesung):      #Anwort richtig
+            wertung, rueckmeldung = kontrolle(eingabe, protokoll.value, protokoll.loesung, protokoll.id)
+            if wertung == "richtig":
+            #if kontrolle(eingabe, protokoll.value, protokoll.loesung):      #Anwort richtig
                 protokoll.wertung = "richtig"
                 protokoll.save()
                 zaehler.richtig += 1
@@ -607,17 +614,21 @@ def main(req, slug):                                                        #hie
                 messages.info(req, f'Die letzte Aufgabe war richtig! {msg}')
                 return redirect('main', slug)
             else:                                                           #Antwort falsch
-                protokoll.wertung = "f"
-                protokoll.save()
-                zaehler.falsch += 1
-                zaehler.richtig_of  = 0
-                zaehler.save()
-                quote = int(zaehler.falsch/(zaehler.richtig+zaehler.falsch)*100)
-                msg = f'<br>richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%, EoF: {zaehler.richtig_of}/{kategorie.eof}'
-                messages.info(req, f'Die letzte Aufgabe war leider falsch! Versuche: {protokoll.tries}, {msg}')   
-                if protokoll.tries >= 3:                                    #3 mal falsch
-                    messages.info(req, f'letzte Aufgabe: {protokoll.text}, Lösung: {protokoll.loesung}')                     
-                    return redirect('kategorien')
+                print(wertung)
+                if wertung == "falsch":
+                    protokoll.wertung = "f"
+                    protokoll.save()
+                    zaehler.falsch += 1
+                    zaehler.richtig_of  = 0
+                    zaehler.save()
+                    quote = int(zaehler.falsch/(zaehler.richtig+zaehler.falsch)*100)
+                    msg = f'<br>richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%, EoF: {zaehler.richtig_of}/{kategorie.eof}'
+                    messages.info(req, f'Die letzte Aufgabe war leider falsch! Versuche: {protokoll.tries}, {msg}')   
+                    if protokoll.tries >= 3:                                    #3 mal falsch
+                        messages.info(req, f'letzte Aufgabe: {protokoll.text}, Lösung: {protokoll.loesung}')                     
+                        return redirect('kategorien')
+                else:
+                    messages.info(req, f'{rueckmeldung}')   
                 text = protokoll.text
                 anm = protokoll.anmerkung
                 hilfe = protokoll.hilfe
@@ -710,6 +721,19 @@ def loesung(req, zaehler_id):
     return redirect('main', zaehler.kategorie)
 
 def hilfe(req, zaehler_id, protokoll_id):
+    zaehler = get_object_or_404(Zaehler, pk = zaehler_id)
+    protokoll = get_object_or_404(Protokoll, pk = protokoll_id)
+    kategorie = protokoll.kategorie
+    msg=f'{protokoll.hilfe}'
+    messages.info(req, f'{zaehler.hinweis}')  
+    protokoll.eingabe = protokoll.eingabe + " Hilfe "
+    protokoll.save()
+    zaehler.hilfe +=1
+    zaehler.hinweis = msg
+    zaehler.save()
+    return redirect('main', kategorie.slug)
+
+def hinweis(zaehler_id, protokoll_id, hinweis):
     zaehler = get_object_or_404(Zaehler, pk = zaehler_id)
     protokoll = get_object_or_404(Protokoll, pk = protokoll_id)
     kategorie = protokoll.kategorie
