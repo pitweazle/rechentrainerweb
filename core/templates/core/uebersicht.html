@@ -25,10 +25,23 @@
             <th>Abbrechen</th>
             <th>Lsg.</th>
             <th>Hilfe</th>
-
         </tr>
     </thead>
     <tbody>
+        <td>Aufgaben Halbjahr</td>
+        <td>{{richtig}}</td>
+        <td>{{falsch}}</td>
+        {% if zaehler.quote <= 5 %}
+        <td style="background-color:rgba(0,255,0,0.6);">{{quote}}%</td>
+        {% elif zaehler.quote < 33 %}
+            <td style="background-color:rgba(255,255,0,0.6);">{{quote}}%</td>
+        {% else %}
+            <td style="background-color:rgba(255,0, 0,0.6);">{{quote}}%</td>
+        {% endif %}            <td>-</td>
+        <td>{{abbr}}</td>
+        <td>{{lsg}}</td>
+        <td>{{hilfe}}</td>
+
         {% for zeile, zaehler in kategorien %}
         <tr>
         <td><a class="button" href="{% url 'main' zeile.slug %}">{{zeile.name|title}}</th>

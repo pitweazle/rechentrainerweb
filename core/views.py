@@ -11,7 +11,7 @@ from django.utils import timezone
 from datetime import datetime
 
 from .forms import AufgabeFormZahl, AufgabeFormStr
-from .forms import AuswahlForm
+from .forms import AuswahlForm, ProtokollFilter
 
 from .models import Kategorie, Protokoll, Zaehler
 from .models import Schueler
@@ -19,11 +19,13 @@ from .models import Auswahl
 
 from django.http import HttpResponse, HttpResponseNotFound
 
+from django.db.models import Sum
+
 def format_number(value, precision=2, trailing_zeros=True):
     text = f"{value:.{precision}f}".replace(".", ",")
     return text.rstrip(",0") if not trailing_zeros and "," in text else text
 
-def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
+def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
         typ_anf = 1 
         typ_end = 3
@@ -32,6 +34,8 @@ def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
         return typ_anf, typ_end
     else:
         typ = random.randint(typ_anf, typ_end) 
+        hilfe = """Hier ist es gut die Zahlenpaare zu kennen, die zusammen 10 ergeben, also 1-9, 2-8, 3-7 ... 
+        Beim Ergänzen musst du normalerweise immer vom Partner der angezeigten Ziffer 1 subtrahiern (Bsp.: Anzeige "7", Partner "3", Eingabe "2") - außer bei der letzten Ziffer, da darfst du nicht 1 subtrahieren."""
         if typ == 1 :                                               #Wechselgeld
             NOTES = [2, 5, 10, 20, 50, 100]
             zahl1 = random.randint(5, 5950)/100
@@ -75,9 +79,9 @@ def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
                 f"ergänze {format_number(zahl1, exp+exp2,)}"
                 f" zu {format_number(zahl2, exp)}")
             lsg = f"{format_number(zahl2-zahl1,exp+exp2)}"
-        return typ, text, pro_text, "", lsg,  "", zahl2-zahl1, {'name':''}
+        return typ, text, pro_text, "", [lsg],  hilfe, zahl2-zahl1, {'name':''}
 
-def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
+def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
         typ_anf = 1
         typ_end = 1
@@ -105,9 +109,9 @@ def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             text = pro_text = (
                 f"{format_number(zahl1,rund1)} + {format_number(zahl2,rund2)}") 
             lsg = f"{format_number(zahl1+zahl2,max(rund1,rund2))}"
-        return typ, text, "", "", lsg, "", zahl1+zahl2, {'name':''}
+        return typ, text, "", "", [lsg], "", zahl1+zahl2, {'name':''}
 
-def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
+def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
         typ_anf = 1
         typ_end = 1
@@ -135,9 +139,9 @@ def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             zahl1 = zahl2+result
             text = pro_text = f"{format_number(zahl1,max(rund1,rund2),False)} - {format_number(zahl2,rund1,False)}"
             lsg =   f"{format_number(result,max(rund1,rund2),False)}"          
-    return typ, text, "", "", lsg, "", result, {'name':''}
+    return typ, text, "", "", [lsg], "", result, {'name':''}
 
-def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
+def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
         typ_anf = 0
         typ_end = 3
@@ -167,9 +171,9 @@ def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             lsg = f"{format_number(zahl1*2,abs(typ))}" 
             erg = zahl1*2    
     pro_text = text
-    return typ, text, "", "", lsg, hilfe, erg, {'name':''}
+    return typ, text, "", "", [lsg], hilfe, erg, {'name':''}
     
-def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
+def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
         typ_anf = 1
         typ_end = 1
@@ -197,9 +201,9 @@ def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             text = f"Was ist die Hälfte von {format_number(zahl1,zahl2)} ?"
             lsg = f"{format_number(zahl1/2,(zahl2+(zahl3%2)))}"   
     pro_text = text
-    return typ, text, "", "", lsg, "Hilfe", zahl1/2, {'name':''}
+    return typ, text, "", "", [lsg], "Hilfe", zahl1/2, {'name':''}
 
-def einmaleins(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
+def einmaleins(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
         typ_anf = 1
         typ_end = 11
@@ -226,9 +230,9 @@ def einmaleins(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
             text = pro_text = str(zahl1*zahl2) + ":" + str(zahl2) +"=?"
             lsg = str(zahl1)  
             erg = zahl1             
-    return typ, text, "", "", lsg, "", erg, {'name':''}
+    return typ, text, "", "", [lsg], "", erg, {'name':''}
 
-def kopfrechnen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
+def kopfrechnen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
         typ_anf = 1
         typ_end = 9
@@ -282,7 +286,7 @@ def kopfrechnen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = ""):
                 erg = zahl1*zahl2
                 text = str(zahl1) + " " + chr(8901) + " " + str(zahl2) +" ="       
         pro_text = text            
-    return typ, text, "", "", lsg, hilfe, erg, {'name':''}
+    return typ, text, "", "", [lsg], hilfe, erg, {'name':''}
 
 def zahl_wort(zahl):
     einer = ["", "ein", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwölf", "dreizehn", "vierzehn", "fünfzehn", "sechzehn", "siebzehn", "achtzehn", "neunzehn", "zwanzig"]
@@ -326,9 +330,10 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe =
     elif eingabe != "":
         if not "/" in eingabe:
             return 0, "Du sollst den angezeigten Wert als Bruch eingeben!"
+        else:
+            return 0, "" 
     else:
         typ = random.randint(typ_anf, typ_end+stufe%1*2) 
-        typ = 10
         anm = ""
         pro_text = ""
     # hier wird die Aufgabe erstellt:
@@ -504,6 +509,44 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe =
             grafik = {'name': 'zahlenstrahl', 'anf': anf, 'eint':eint, 'v': v, 'txt0':  z+(v-1)*z, 'txt1': z+v*z, 'txt2': z+(v+1)*z, 'txt3': z+z*(v+2), 'txt4': z+z*(v+3), 'text_v': text_v, 'x': int(zahl1)+20, 'bruch':bruch}
         return typ, text, pro_text, anm, lsg, hilfe, erg, grafik 
 
+def malget10(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
+    if optionen != "":
+        typ_anf = 1
+        typ_end = 3
+        if "mit" in optionen:
+            typ_end = 8 + stufe%2
+        return typ_anf, typ_end
+    else:
+        typ = random.randint(typ_anf, typ_end)
+        typ = 3
+        if typ < 4:
+            zahl1 = random.randint(1,99) 
+            exp = random.randint(1,3)
+            zahl2 = 10**exp 
+            if typ < 3:
+                typ ="Mal: "
+                text="Multipliziere:<br> {0} {1} {2}".format(zahl1, chr(8901), zahl2)
+                hilfe="Mal {0} heißt, dass die Zahl {1} um  {2} Stelle(n) größer wird.".format(zahl2,zahl1, exp) 
+                if stufe%2 == 0:
+                    hilfe = hilfe + "<br>Du musst also {0} Null(en) anhängen.".format(exp)
+                erg = zahl1 * zahl2
+            else:
+                zahl1 = zahl1 * zahl2
+                exp2 = 4
+                while exp2 > exp:
+                    exp2 = random.randint(1,3)
+                    zahl3 = 10**exp2
+                typ ="Geteilt durch: "
+                text="Dividiere:<br> {0} {1} {2}".format(zahl1, " : " , zahl3)
+                hilfe="Geteilt durch {0} heißt, dass die Zahl {1} um  {2} Stelle(n) kleiner wird.".format(zahl3, zahl1, exp2) 
+                if stufe%2 == 0:
+                    hilfe = hilfe + "<br>Du musst also {0} Null(en) wegnehmen.".format(exp2)
+                erg = zahl1/zahl3
+        print(hilfe)
+        typ = typ +  "10, 100, 1000"
+        lsg = str(erg)
+        return typ, text, "", "", [lsg], hilfe, erg, {'name':''}
+
 AUFGABEN = {
     1: ergaenzen,
     2: addieren,
@@ -513,22 +556,25 @@ AUFGABEN = {
     6: einmaleins,
     7: kopfrechnen,
     8: zahlen,
+    9: malget10,
 }
 
 def aufgaben(kategorie_id, jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     return AUFGABEN[kategorie_id](jg, stufe, typ_anf, typ_end, optionen, eingabe)
 
 def kontrolle(eingabe, value, lsg, protokoll_id):
-    if value != 0:
+    if value != 0:                                      #das wird zB gebraucht beim Kürzen, wenn es nicht auf den Wert ankommt, sondern auf die Schreibweise
         if eingabe == value:
             return "richtig", ""
         #return abs(given - value) < decimal.Decimal('0.001')
+        else:
+            return "falsch", ""    
     else:
-        if "indiv" in lsg:
+        if "indiv" in lsg:                              #wenn in der Liste 'loesungen' 'indiv' steht, dann wird der eingegebene Wert in der Funtion der entsprechenden Kategorie überprüft
             protokoll = get_object_or_404(Protokoll, pk = protokoll_id)
             punkte, rueckmeldung = aufgaben(protokoll.kategorie_id, eingabe=eingabe) 
             if rueckmeldung:
-                return punkte, rueckmeldung
+                return punkte, rueckmeldung             #hier kann unter 'punkte" festgelegt werden, ob es z.B. Extrapunkte oder Punktabzüge gibt
         for loe in (lsg):
             if eingabe.replace(" ","") == loe.replace(" ",""):
                 return "richtig", ""
@@ -546,16 +592,38 @@ def kategorien(req):
 
 def uebersicht(req):
     user = get_fake_user()
+    summe = Zaehler.objects.filter(user=user)
+    richtig = summe.aggregate(Sum('richtig'))
+    richtig = richtig['richtig__sum']
+    falsch = summe.aggregate(Sum('falsch'))
+    falsch = falsch['falsch__sum']
+    if richtig+falsch > 0:
+        quote = int(falsch/(richtig+falsch)*100)
+    else:
+        quote = "-"
+    abbr = summe.aggregate(Sum('abbrechen'))
+    abbr = abbr['abbrechen__sum']
+    lsg = summe.aggregate(Sum('loesung'))
+    lsg = lsg['loesung__sum']
+    hilfe = summe.aggregate(Sum('hilfe'))
+    hilfe = hilfe['hilfe__sum']
+
     kategorien = []
     for kategorie in Kategorie.objects.all():
         zaehler = Zaehler.objects.filter(user=user, kategorie=kategorie).first()
         kategorien.append((kategorie, zaehler))
-    return render(req, 'core/uebersicht.html', {'kategorien': kategorien, 'user':user})
+    return render(req, 'core/uebersicht.html', {'kategorien': kategorien, 'user':user, 'richtig':richtig, 'falsch':falsch, 'quote':quote, 'abbr':abbr, 'lsg':lsg, 'hilfe': hilfe})
 
 def protokoll(req):
-    protokoll = Protokoll.objects.all().order_by('id').reverse()
+    form = ProtokollFilter
+    if req.method == 'POST':
+        auswahl = form(req.POST)
+        if auswahl.is_valid():     
+            filter = auswahl.cleaned_data['filter']
+            print(filter)
     user = get_fake_user()    
-    return render(req, 'core/protokoll.html', {'protokoll': protokoll})
+    protokoll = Protokoll.objects.filter(user=user).order_by('id').reverse()
+    return render(req, 'core/protokoll.html', {'protokoll': protokoll, 'form': form})
 
 def details(req, zeile_id):
     protokoll = get_object_or_404(Protokoll, pk = zeile_id)
@@ -588,7 +656,7 @@ def main(req, slug):                                                        #hie
             wertung, rueckmeldung = kontrolle(eingabe, protokoll.value, protokoll.loesung, protokoll.id)
             if wertung == "richtig":
             #if kontrolle(eingabe, protokoll.value, protokoll.loesung):      #Anwort richtig
-                protokoll.wertung = "richtig"
+                protokoll.wertung = protokoll.wertung + "r"
                 protokoll.save()
                 zaehler.richtig += 1
                 zaehler.richtig_of +=1
@@ -613,10 +681,9 @@ def main(req, slug):                                                        #hie
                 msg = f'<br>richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%, EoF: {zaehler.richtig_of}/{kategorie.eof}'
                 messages.info(req, f'Die letzte Aufgabe war richtig! {msg}')
                 return redirect('main', slug)
-            else:                                                           #Antwort falsch
-                print(wertung)
+            else:                                                                       #Antwort falsch
                 if wertung == "falsch":
-                    protokoll.wertung = "f"
+                    protokoll.wertung = protokoll.wertung + "f"
                     protokoll.save()
                     zaehler.falsch += 1
                     zaehler.richtig_of  = 0
@@ -624,11 +691,11 @@ def main(req, slug):                                                        #hie
                     quote = int(zaehler.falsch/(zaehler.richtig+zaehler.falsch)*100)
                     msg = f'<br>richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%, EoF: {zaehler.richtig_of}/{kategorie.eof}'
                     messages.info(req, f'Die letzte Aufgabe war leider falsch! Versuche: {protokoll.tries}, {msg}')   
-                    if protokoll.tries >= 3:                                    #3 mal falsch
+                    if protokoll.tries >= 3:                                            #3 mal falsch
                         messages.info(req, f'letzte Aufgabe: {protokoll.text}, Lösung: {protokoll.loesung}')                     
                         return redirect('kategorien')
                 else:
-                    messages.info(req, f'{rueckmeldung}')   
+                    messages.info(req, f'{rueckmeldung}')                               #gibt eine Rückmeldung wenn "indiv" bei Lösung steht  
                 text = protokoll.text
                 anm = protokoll.anmerkung
                 hilfe = protokoll.hilfe
@@ -642,8 +709,9 @@ def main(req, slug):                                                        #hie
         typ, text, pro_text, anm, lsg, hilfe, result, grafik = aufgaben(kategorie.id, jg = user.jg, stufe = user.stufe, typ_anf = zaehler.typ_anf, typ_end = zaehler.typ_end, optionen = "") 
         if not pro_text:
             pro_text = text 
+        halbjahr = user.halbjahr/10
         protokoll = Protokoll.objects.create(
-            user = user, kategorie = kategorie, text = text, pro_text = pro_text, anmerkung = anm, value = result, loesung = lsg, hilfe = hilfe, grafik = grafik       
+            user = user, halbjahr = halbjahr, kategorie = kategorie, text = text, pro_text = pro_text, anmerkung = anm, value = result, loesung = lsg, hilfe = hilfe, grafik = grafik, individuell = ""       
         )                                                                   #Protokoll wird erstellt
         req.session['eingabe_id'] = protokoll.id    
         req.session['zaehler_id'] = zaehler.id   
@@ -704,6 +772,7 @@ def abbrechen(req, zaehler_id):
     zaehler.hinweis = ""
     zaehler.save() 
     protokoll = Protokoll.objects.filter(user = zaehler.user).order_by('-id').first()
+    protokoll.wertung = protokoll.wertung + "a"
     protokoll.eingabe = protokoll.eingabe + "abbr."
     protokoll.save()
     return redirect('uebersicht')
@@ -714,7 +783,7 @@ def loesung(req, zaehler_id):
     zaehler.richtig_of = 0 
     protokoll = Protokoll.objects.filter(user = zaehler.user).order_by('-id').first()
     msg=f'letzte Aufgabe:<br>{protokoll.text} Lösung: {protokoll.loesung[0]}'    
-    protokoll.eingabe = "Lsg."
+    protokoll.eingabe = protokoll.eingabe + "Lsg."
     protokoll.save()
     zaehler.hinweis = msg
     zaehler.save()   

@@ -8,12 +8,19 @@
 {% block content %}
 {% include "includes/header.html" %}
 
-<h2>Protokoll:</h2>
+<h2>Protokoll {{user}}:</h2>
+
 <ul>
+<form action="{% url 'protokoll' %}" method="POST">
+    {% csrf_token %}
+    {{form}}
+     <input type="submit" value="anwenden">
+</form>  
+
 <table>
     <thead>
         <tr>
-            <th>Datum</th>
+            <th>Datum/Hj.</th>
             <th>Kategorie (Typ)</th>
             <th>Aufgnr.</th>
             <th>Aufgabe</th>
@@ -25,7 +32,7 @@
         {% autoescape off %}
         {% for zeile in protokoll %}
             <tr>
-                <td><a class="button" href="{% url 'details' zeile.id %}">{{zeile.start|date:"d.m.y H:i"}}</td>
+                <td><a class="button" href="{% url 'details' zeile.id %}">{{zeile.start|date:"d.m.y H:i"}} {{zeile.halbjahr}}</td>
                 <td>{{zeile.kategorie|title }} <br>({{zeile.typ}})</td>
                 <td>{{zeile.aufgnr}} </td>
                 <td>{{ zeile.pro_text}}</td>

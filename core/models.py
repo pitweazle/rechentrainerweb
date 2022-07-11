@@ -74,8 +74,7 @@ class Schueler(models.Model):
     # werden beim Erstellen eingestellt
     datum_start = models.DateField(auto_now_add=True, verbose_name="Startdatum", editable=False, )
     stufe = models.PositiveSmallIntegerField(default=0) #, editable=False)
-    e_kurs = models.BooleanField(default=True)
-    halbjahr = models.PositiveSmallIntegerField(default=0, editable=False)
+    halbjahr = models.PositiveSmallIntegerField(default=0)
     voreinst = models.IntegerField(default=1, editable=False)                               #hier könnte, mithilf von Primzahlen, Voreinstellungen gesetzt und abgefragt werden
 
     def __str__(self):
@@ -88,7 +87,7 @@ class Schueler(models.Model):
 class Protokoll(models.Model):
     user = models.ForeignKey(Schueler, verbose_name='Benutzer', related_name='protokolle', on_delete=models.CASCADE)
     #gewertet werden nur die Aufgaben des jeweiligen Schuljabjahres, im Januar, Juni und August, kann der user aber auch schon festlegen, dass die Aufgaben für das nächste Schulhalbjahr gelten:
-    halbjahr = models.PositiveSmallIntegerField(default=0)
+    halbjahr = models.DecimalField(max_digits=5, decimal_places=1)
 
     kategorie = models.ForeignKey(Kategorie, related_name='protokolle', on_delete=models.CASCADE)
     typ = models.CharField(max_length=20, blank=True)
@@ -97,14 +96,16 @@ class Protokoll(models.Model):
     
     #der Aufgabentext:
     text = models.TextField(blank=True)
-    pro_text = models.CharField(max_length=50, blank=True)
-    anmerkung = models.CharField(max_length=50, blank=True)
+    pro_text = models.CharField(max_length=100, blank=True)
+    anmerkung = models.CharField(max_length=100, blank=True)
    
     grafik = models.JSONField()
  
     #hier speichere ich die Lösung, wahlweise als zahl, u.U. auch (mehrere) Lösungen als String:
     value = models.DecimalField('Wert', max_digits=20, decimal_places=7)
-    loesung = models.JSONField()
+    loesung = models.JSONField()                                                    #hier können mehrere Werte eingegeben werden, der erste wird angezeigt wenn "Lösung anzeigen" angeklickt wird. Steht hier auch "indiv" so wird die Eingabe in der jeweiligen Funktion überprüft
+    individuell = models.JSONField()                                                #hier können, wenn oben "inivi" eingetragen wird, individeuelle Werte eingegeben werden, wie z.B. Nenner und Zähler
+
     hilfe = models.TextField(blank=True)
     
     #die Eingabe des users:
@@ -142,7 +143,7 @@ class Zaehler(models.Model):
     abbrechen = models.PositiveSmallIntegerField(default=0)    
     hilfe = models.PositiveSmallIntegerField(default=0) 
     
-    hinweis = models.CharField(max_length=40, blank=True, verbose_name="Lösung/Hilfe")
+    hinweis = models.CharField(max_length=100, blank=True, verbose_name="Hilfe/Hinweis")
 
     def __str__(self):
         return f"({self.user}, {self.kategorie}, {self.aufgnr})"

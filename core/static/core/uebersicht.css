@@ -10,11 +10,11 @@ tr {
   text-align: center;
 }
 
-tbody > tr:nth-child(1n+1) {
+tbody > tr:nth-child(1n+2) {
     background-color: #B0E2FF;
     }
 
-tbody > tr:nth-child(1n+8) {
+tbody > tr:nth-child(1n+9) {
     background-color: #9AFF9A;
 }
 

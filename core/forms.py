@@ -8,7 +8,6 @@ class AufgabeFormZahl(forms.Form):
 class AufgabeFormStr(forms.Form):
     eingabe = forms.CharField(label='Ergebnis', localize=True, widget=forms.TextInput(attrs={'autofocus': True}))
     
-
 class AuswahlForm(forms.Form):
     optionen=forms.ModelMultipleChoiceField(queryset=Kategorie.objects, widget=forms.CheckboxSelectMultiple, required=False)
     def __init__(self, *args, **kwargs):
@@ -16,3 +15,6 @@ class AuswahlForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['optionen'].queryset = kategorie.auswahl_set.all()
 
+class ProtokollFilter(forms.Form):
+    filter = forms.ChoiceField(label='Filter', choices=[('heute','heute'), ('woche','Woche'), ("hj",'aktuelles Halbjahr'),("sj",'aktuelles Schuljahr'),("all",'Alles'),])
+ 
