@@ -90,7 +90,8 @@ class Protokoll(models.Model):
     halbjahr = models.DecimalField(max_digits=5, decimal_places=1)
 
     kategorie = models.ForeignKey(Kategorie, related_name='protokolle', on_delete=models.CASCADE)
-    typ = models.CharField(max_length=20, blank=True)
+    titel = models.CharField(max_length=20, blank=True)
+    typ = models.SmallIntegerField(default=0) 
      
     aufgnr = models.PositiveSmallIntegerField(default=0) 
     
@@ -143,7 +144,7 @@ class Zaehler(models.Model):
     abbrechen = models.PositiveSmallIntegerField(default=0)    
     hilfe = models.PositiveSmallIntegerField(default=0) 
     
-    hinweis = models.CharField(max_length=100, blank=True, verbose_name="Hilfe/Hinweis")
+    hinweis = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return f"({self.user}, {self.kategorie}, {self.aufgnr})"

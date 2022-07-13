@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 from .forms import AufgabeFormZahl, AufgabeFormStr
 from .forms import AuswahlForm, ProtokollFilter
@@ -34,6 +34,7 @@ def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingab
         return typ_anf, typ_end
     else:
         typ = random.randint(typ_anf, typ_end) 
+        titel = "Ergänzen"
         hilfe = """Hier ist es gut die Zahlenpaare zu kennen, die zusammen 10 ergeben, also 1-9, 2-8, 3-7 ... 
         Beim Ergänzen musst du normalerweise immer vom Partner der angezeigten Ziffer 1 subtrahiern (Bsp.: Anzeige "7", Partner "3", Eingabe "2") - außer bei der letzten Ziffer, da darfst du nicht 1 subtrahieren."""
         if typ == 1 :                                               #Wechselgeld
@@ -57,7 +58,7 @@ def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingab
                 f"Wechselgeld: {format_number(zahl2,0)}€"
                 f"- {format_number(zahl1,2,True)}€")
             lsg = f"{format_number(zahl2-zahl1)}€"
-            typ = "Wechselgeld"
+            titel = "Wechselgeld"
         elif typ <= 3:                                              #ganze Zahlen
             exp = random.randint(2,4)
             zahl2 = 10**exp
@@ -79,7 +80,7 @@ def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingab
                 f"ergänze {format_number(zahl1, exp+exp2,)}"
                 f" zu {format_number(zahl2, exp)}")
             lsg = f"{format_number(zahl2-zahl1,exp+exp2)}"
-        return typ, text, pro_text, "", [lsg],  hilfe, zahl2-zahl1, {'name':''}
+        return typ, titel, text, pro_text, "", [lsg],  hilfe, zahl2-zahl1, {'name':''}
 
 def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
@@ -89,7 +90,8 @@ def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe
             typ_end = 2
         return typ_anf, typ_end
     else:
-        typ = random.randint(typ_anf, typ_end)    
+        typ = random.randint(typ_anf, typ_end)  
+        titel = "Addieren"  
         faktor = stufe%2+1                                  #2 für E-Kurs, 1 für G-Kurs und i
         if typ_end>1:
             typ = random.randint(typ_anf, typ_end+1)
@@ -109,7 +111,7 @@ def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe
             text = pro_text = (
                 f"{format_number(zahl1,rund1)} + {format_number(zahl2,rund2)}") 
             lsg = f"{format_number(zahl1+zahl2,max(rund1,rund2))}"
-        return typ, text, "", "", [lsg], "", zahl1+zahl2, {'name':''}
+        return typ, titel, text, "", "", [lsg], "", zahl1+zahl2, {'name':''}
 
 def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
@@ -119,6 +121,7 @@ def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", ein
             typ_end = 2
         return typ_anf, typ_end
     else:
+        titel = "Subtrahieren"
         faktor = stufe%2+1                                  #2 für E-Kurs, 1 für G-Kurs und i
         if typ_end>1:
             typ = random.randint(typ_anf, typ_end+1)
@@ -139,7 +142,7 @@ def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", ein
             zahl1 = zahl2+result
             text = pro_text = f"{format_number(zahl1,max(rund1,rund2),False)} - {format_number(zahl2,rund1,False)}"
             lsg =   f"{format_number(result,max(rund1,rund2),False)}"          
-    return typ, text, "", "", [lsg], "", result, {'name':''}
+    return typ, titel, text, "", "", [lsg], "", result, {'name':''}
 
 def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
@@ -151,6 +154,7 @@ def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", einga
         return typ_anf, typ_end
     else:
         typ = random.randint(typ_anf, typ_end)
+        titel = "Verdoppeln"
         hilfe = "Wenn man das gut geübt hat, kann man viel schneller Kopfrechnen!"
     # hier wird die Aufgabe erstellt:
         if typ == 0:
@@ -171,7 +175,7 @@ def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", einga
             lsg = f"{format_number(zahl1*2,abs(typ))}" 
             erg = zahl1*2    
     pro_text = text
-    return typ, text, "", "", [lsg], hilfe, erg, {'name':''}
+    return typ, titel, text, "", "", [lsg], hilfe, erg, {'name':''}
     
 def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
@@ -183,6 +187,7 @@ def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingab
         return typ_anf, typ_end
     else:
         typ = random.randint(typ_anf, typ_end)
+        titel = "Halbieren"
     # hier wird die Aufgabe erstellt:
         if typ == 1:
             zahl1 = random.randint(5,99)
@@ -201,7 +206,7 @@ def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingab
             text = f"Was ist die Hälfte von {format_number(zahl1,zahl2)} ?"
             lsg = f"{format_number(zahl1/2,(zahl2+(zahl3%2)))}"   
     pro_text = text
-    return typ, text, "", "", [lsg], "Hilfe", zahl1/2, {'name':''}
+    return typ, titel, text, "", "", [lsg], "Hilfe", zahl1/2, {'name':''}
 
 def einmaleins(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
@@ -212,6 +217,7 @@ def einmaleins(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", einga
         return typ_anf, typ_end
     else:
         typ = random.randint(typ_anf, typ_end)
+        titel = "1 mal 1"
     # hier wird die Aufgabe erstellt:
         if typ <= 7 :
             zahl1 = random.randint(2,10)
@@ -230,7 +236,7 @@ def einmaleins(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", einga
             text = pro_text = str(zahl1*zahl2) + ":" + str(zahl2) +"=?"
             lsg = str(zahl1)  
             erg = zahl1             
-    return typ, text, "", "", [lsg], "", erg, {'name':''}
+    return typ, titel, text, "", "", [lsg], "", erg, {'name':''}
 
 def kopfrechnen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
@@ -241,6 +247,7 @@ def kopfrechnen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eing
         return typ_anf, typ_end
     else:
         typ = random.randint(typ_anf, typ_end)
+        titel = "Kopfrechnen"
         hilfe = "Diese Aufgaben muss du ohne Taschenrechner üben! Du wirst sehen: Wenn du Kopfrechnen kannst, wirst du stolz auf dich sein!"
     # hier wird die Aufgabe erstellt:
         if typ < 3 or typ == 6 :
@@ -286,7 +293,7 @@ def kopfrechnen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eing
                 erg = zahl1*zahl2
                 text = str(zahl1) + " " + chr(8901) + " " + str(zahl2) +" ="       
         pro_text = text            
-    return typ, text, "", "", [lsg], hilfe, erg, {'name':''}
+    return typ, titel, text, "", "", [lsg], hilfe, erg, {'name':''}
 
 def zahl_wort(zahl):
     einer = ["", "ein", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwölf", "dreizehn", "vierzehn", "fünfzehn", "sechzehn", "siebzehn", "achtzehn", "neunzehn", "zwanzig"]
@@ -314,9 +321,18 @@ def ggt(a,b):
         return a
     return ggt(b, a % b)
 
+def tausender(zahl):
+    zahl_mill = zahl//1000000        
+    zahl_tsnd = zahl%1000000//1000
+    zahl_klein = zahl%1000 
+    zahl = ""
+    zahl =  "%d %03d %03d"%(zahl_mill, zahl_tsnd, zahl_klein)
+    zahl = zahl.lstrip("0").lstrip(" ").lstrip("0") 
+    return zahl
+
 def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
-        typ_anf = 3
+        typ_anf = 1
         if stufe >= 4 or jg >= 7 or "Kommazahlen" in optionen:
             typ_end = 9
         elif stufe >= 8 or jg >= 7 or "Brüchen" in optionen:
@@ -324,7 +340,6 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe =
         elif stufe >= 18 or jg >= 8 or "negativen" in optionen:
             typ_end = 12
         else:
-            typ_anf = 1
             typ_end = 5        
         return typ_anf, typ_end
     elif eingabe != "":
@@ -339,6 +354,7 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe =
     # hier wird die Aufgabe erstellt:
         grafik = {'name': ''}
         if typ == 1:
+            titel = "Zahlen schreiben"
             zahl2 = random.randint(5,7+stufe%1)
             zahl1 = random.randint(10000,10**zahl2)
             if stufe%2 == 1:
@@ -358,13 +374,11 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe =
             zahl_klein = zahl1%1000
             text_k = text + zahl_wort(zahl_klein)
             text = "Schreibe folgende Zahl in Ziffern: " + text_k.title()
-            if zahl1 < 1000000:
-                lsg= "%d %03d"%((zahl_tsnd), (zahl_klein))
-            else:
-                lsg= "%d %03d %03d"%(zahl_mill, zahl_tsnd, zahl_klein)
+            lsg = tausender(zahl1)
             erg=zahl1
             hilfe = ""
         elif typ == 2:
+            titel = "Vorgänger und Nachfolger"
             typ2 = random.randint(1,2)
             zahl3 = random.randint(2,3+stufe%2)
             zahl1 = 1
@@ -385,6 +399,7 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe =
                 lsg = str(zahl1-1)
                 hilfe = "Um den Vorgänger auszurechnen musst du 1 subtrahieren."
         elif typ in (3,6,7,8):
+            titel = "Kleiner, größer oder gleich"
             zuza1 = random.randint(1,9)
             zuza2 = 1
             if typ == 3:
@@ -428,9 +443,9 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe =
             else:
                 lsg = [str(zahl1) + "=" +  str(zahl2), "="]
             hilfe = "" 
-            typ = "Kleiner, größer oder gleich? (" + str(typ) +")"
             grafik = {'name': ''}                  
         else:                                   # 4+5 ganze zahlen, 9+12 Kommazahlen, 10 Brüche, 11+12 negative Zahlen
+            titel = "Zahlenstrahl"
             if typ != 10:
                 bruch = False
                 if typ == 4 and stufe%2 == 1:
@@ -507,7 +522,7 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe =
                 text = "Welcher Bruch ist hier dargestellt ?"
                 anm = "Schreibe als Bruch (9/7) oder als gemischte Zahl (1 2/7)"
             grafik = {'name': 'zahlenstrahl', 'anf': anf, 'eint':eint, 'v': v, 'txt0':  z+(v-1)*z, 'txt1': z+v*z, 'txt2': z+(v+1)*z, 'txt3': z+z*(v+2), 'txt4': z+z*(v+3), 'text_v': text_v, 'x': int(zahl1)+20, 'bruch':bruch}
-        return typ, text, pro_text, anm, lsg, hilfe, erg, grafik 
+        return typ, titel, text, pro_text, anm, [lsg], hilfe, erg, grafik 
 
 def malget10(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
     if optionen != "":
@@ -550,7 +565,7 @@ def malget10(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe
                 hilfe = "Mal {0} heißt, dass die Zahl {1} um  {2} Stelle(n) größer wird.".format(zahl2,zahl1, exp) 
                 if stufe%2 == 0:
                     hilfe = hilfe + "<br>Du musst also {0} Null(en) anhängen.".format(exp)
-                typ = "Mal: 10, 100, 1000"
+                titel = "Mal: 10, 100, 1000"
             else:
                 typ = "Mal: 0,01; 0,1; 10; 100; 1000"
         else:                                           #typ 3, 6, 7 , 8, 9
@@ -561,19 +576,62 @@ def malget10(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe
                 hilfe="Geteilt durch {0} heißt, dass die Zahl {1} um  {2} Stelle(n) kleiner wird.".format(zahl2, zahl1, exp2) 
                 if stufe%2 == 0:
                     hilfe = hilfe + "<br>Du musst also {0} Null(en) wegnehmen.".format(exp2)
-                typ = "Geteilt durch: 10, 100, 1000"
+                titel = "Geteilt durch: 10, 100, 1000"
             else:
                 if typ == 9:
                     hilfe = "Geteilt durch {0} heißt, dass die Zahl {1} um  {2} Stelle(n) größer wird.".format(zahl2,zahl1, exp).replace(".", ",") 
                     hilfe = hilfe + "<br>Du musst also das Komma um {0} Stelle(n) nach rechts verschieben <br>(und unter Umständen noch Nullen ergänzen).".format(exp)
-                    typ = "Geteilt durch: 0,1; 0,01"
+                    titel = "Geteilt durch: 0,1; 0,01"
                 else:
                     hilfe = "Geteilt durch {0} heißt, dass die Zahl {1} um  {2} Stelle(n) kleiner wird.".format(zahl2,zahl1, exp).replace(".", ",") 
                     hilfe = hilfe + "<br>Du musst also das Komma um {0} Stelle(n) nach links verschieben <br>(und unter Umständen noch Nullen ergänzen).".format(exp)
                     if typ == 8:
                         hilfe = hilfe = hilfe + "<br>(Ja, stimmt, es ist kein Komma da - du musst es dir hinter der {0} denken".format(zahl1)
-                    typ = "Geteilt durch: 10, 100, 1000" 
+                    titel = "Geteilt durch: 10, 100, 1000" 
         return typ, text, "", "", [lsg], hilfe, erg, {'name':''}
+
+def runden(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
+    if optionen != "":
+        typ_anf = 1
+        typ_end = 6
+        if stufe >= 4 or jg >= 7 or "mit" in optionen:
+            typ_anf = -4  
+        return typ_anf, typ_end
+    else:
+        #typ = random.randint(typ_anf, typ_end)
+        typ = random.randint(1,6)
+        titel = "Runden"
+        name_liste = ("Einer", "zehn", "hundert", "tausend", "zehntausend", "hunderttausend",  "million")
+        n = "n"
+        if typ >= 0:
+            if typ == 0:
+                endung = ""
+                n = ""
+            elif typ == 6:
+                endung = "en"
+                n = ""
+            else:
+                endung = "er"
+        else:
+            if typ == 1:
+                endung = "tel"
+            else:
+                endung = "stel"    
+	# 	zahl1=(CLng(rnd()*10^(Abs(typ)+3)))/(10^(typ+2))
+        #if typ >= 0:
+        exp = 10**(typ+2)
+        zahl1 = int(random.random()*exp)        
+        name = name_liste[typ] + endung
+        name = name.title()
+        zahl = tausender(zahl1)
+        text = " Runde {0} auf {1}".format(zahl,name)
+        erg = int(zahl1/10**typ)*10**typ
+        lsg = tausender(erg)
+        erg = 0
+        hilfe = "{0} ist die {1}.Stelle von rechts. Dahinter musst du Nullen schreiben!".format(name,typ+1)
+        next = name_liste[typ-1]
+        hilfe = hilfe + "<br>Wenn die Zahl rechts von den {0}{1} (die {2}er) eine 5, 6, 7, 8 oder 9 ist musst du aufrunden!".format(name,n,next.title())
+        return typ, titel, text, "", "", [lsg], hilfe, erg, {'name':''}
 
 AUFGABEN = {
     1: ergaenzen,
@@ -585,6 +643,7 @@ AUFGABEN = {
     7: kopfrechnen,
     8: zahlen,
     9: malget10,
+    10: runden,
 }
 
 def aufgaben(kategorie_id, jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
@@ -643,14 +702,17 @@ def uebersicht(req):
     return render(req, 'core/uebersicht.html', {'kategorien': kategorien, 'user':user, 'richtig':richtig, 'falsch':falsch, 'quote':quote, 'abbr':abbr, 'lsg':lsg, 'hilfe': hilfe})
 
 def protokoll(req):
+    user = get_fake_user()    
+    protokoll = Protokoll.objects.filter(user=user).order_by('id').reverse()
     form = ProtokollFilter
     if req.method == 'POST':
         auswahl = form(req.POST)
         if auswahl.is_valid():     
             filter = auswahl.cleaned_data['filter']
-            print(filter)
-    user = get_fake_user()    
-    protokoll = Protokoll.objects.filter(user=user).order_by('id').reverse()
+            if filter == "heute":
+                protokoll = protokoll.filter(start__date = date.today())
+            elif filter == "Woche":
+                protokoll =  protokoll.filter(start__date__gte = date.today() - timedelta(days = 7))
     return render(req, 'core/protokoll.html', {'protokoll': protokoll, 'form': form})
 
 def details(req, zeile_id):
@@ -659,7 +721,6 @@ def details(req, zeile_id):
     return render(req, 'core/details.html', {'protokoll': protokoll, 'zaehler': zaehler})
 
 def main(req, slug):                                                        #hier läuft alles zusammen
-    print("1")
     kategorie = get_object_or_404(Kategorie, slug = slug)
     kategorie_id = kategorie.id
     user = get_fake_user()    
@@ -725,6 +786,7 @@ def main(req, slug):                                                        #hie
                         return redirect('kategorien')
                 else:
                     messages.info(req, f'{rueckmeldung}')                               #gibt eine Rückmeldung wenn "indiv" bei Lösung steht  
+                titel = protokoll.titel
                 text = protokoll.text
                 anm = protokoll.anmerkung
                 hilfe = protokoll.hilfe
@@ -735,12 +797,14 @@ def main(req, slug):                                                        #hie
         user = get_fake_user()
         if not zaehler.optionen_text :                                     #Aufgaben Einstellung
             return redirect('optionen', slug)
-        typ, text, pro_text, anm, lsg, hilfe, result, grafik = aufgaben(kategorie.id, jg = user.jg, stufe = user.stufe, typ_anf = zaehler.typ_anf, typ_end = zaehler.typ_end, optionen = "") 
+        typ, titel, text, pro_text, anm, lsg, hilfe, result, grafik = aufgaben(kategorie.id, jg = user.jg, stufe = user.stufe, typ_anf = zaehler.typ_anf, typ_end = zaehler.typ_end, optionen = "") 
         if not pro_text:
             pro_text = text 
+        if not titel:
+            titel = kategorie.name
         halbjahr = user.halbjahr/10
         protokoll = Protokoll.objects.create(
-            user = user, halbjahr = halbjahr, kategorie = kategorie, text = text, pro_text = pro_text, anmerkung = anm, value = result, loesung = lsg, hilfe = hilfe, grafik = grafik, individuell = ""       
+            user = user, titel = titel, halbjahr = halbjahr, kategorie = kategorie, text = text, pro_text = pro_text, anmerkung = anm, value = result, loesung = lsg, hilfe = hilfe, grafik = grafik, individuell = ""       
         )                                                                   #Protokoll wird erstellt
         req.session['eingabe_id'] = protokoll.id    
         req.session['zaehler_id'] = zaehler.id   
@@ -756,13 +820,10 @@ def main(req, slug):                                                        #hie
         protokoll.save()  
         if zaehler.hinweis!= "":
             messages.info(req, f'{zaehler.hinweis}')   
-    if len(str(protokoll.typ)) < 3:
-        protokoll.typ = ""
-    context = dict(kategorie = kategorie, typ = protokoll.typ, aufgnr = zaehler.aufgnr, text = text, anmerkung = anm, form = form, zaehler_id = zaehler.id, hilfe = hilfe, protokoll_id = protokoll.id, grafik = grafik)
+    context = dict(kategorie = kategorie, typ = protokoll.typ, titel = titel, aufgnr = zaehler.aufgnr, text = text, anmerkung = anm, form = form, zaehler_id = zaehler.id, hilfe = hilfe, protokoll_id = protokoll.id, grafik = grafik)
     return render(req, 'core/aufgabe.html', context)
 
 def optionen(req, slug):
-    print("2")
     kategorie = get_object_or_404(Kategorie, slug = slug)
     form = AuswahlForm(kategorie = kategorie)
     user = get_fake_user()   
@@ -823,10 +884,6 @@ def hilfe(req, zaehler_id, protokoll_id):
     zaehler = get_object_or_404(Zaehler, pk = zaehler_id)
     protokoll = get_object_or_404(Protokoll, pk = protokoll_id)
     kategorie = protokoll.kategorie
-    text = protokoll.text
-    anm = protokoll.anmerkung
-    hilfe = protokoll.hilfe
-    grafik = protokoll.grafik
     if protokoll.value != 0:
         form = AufgabeFormZahl(req.POST)
     else:
@@ -836,20 +893,5 @@ def hilfe(req, zaehler_id, protokoll_id):
     zaehler.hilfe +=1
     zaehler.save()
     messages.info(req, f'Hilfe: {protokoll.hilfe}')  
-    if len(str(protokoll.typ)) < 3:
-        protokoll.typ = ""
-    context = dict(kategorie = kategorie, typ = protokoll.typ, aufgnr = zaehler.aufgnr, text = text, anmerkung = anm, form = form, zaehler_id = zaehler.id, hilfe = hilfe, protokoll_id = protokoll.id, grafik = grafik)
+    context = dict(kategorie = kategorie, typ = protokoll.typ, titel = protokoll.titel, aufgnr = zaehler.aufgnr, text = protokoll.text, anmerkung = protokoll.anmerkung, form = form, zaehler_id = zaehler.id, hilfe = protokoll.hilfe, protokoll_id = protokoll.id, grafik = protokoll.grafik)
     return render(req, 'core/aufgabe.html', context)
-
-def hinweis(zaehler_id, protokoll_id, hinweis):
-    zaehler = get_object_or_404(Zaehler, pk = zaehler_id)
-    protokoll = get_object_or_404(Protokoll, pk = protokoll_id)
-    kategorie = protokoll.kategorie
-    msg=f'{protokoll.hilfe}'
-    messages.info(req, f'{zaehler.hinweis}')  
-    protokoll.eingabe = protokoll.eingabe + " Hilfe "
-    protokoll.save()
-    zaehler.hilfe +=1
-    zaehler.hinweis = msg
-    zaehler.save()
-    return redirect('main', kategorie.slug)
