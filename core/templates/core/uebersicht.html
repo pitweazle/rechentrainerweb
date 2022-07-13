@@ -31,9 +31,9 @@
         <td>Aufgaben Halbjahr</td>
         <td>{{richtig}}</td>
         <td>{{falsch}}</td>
-        {% if zaehler.quote <= 5 %}
+        {% if quote <= 5 %}
         <td style="background-color:rgba(0,255,0,0.6);">{{quote}}%</td>
-        {% elif zaehler.quote < 33 %}
+        {% elif quote < 33 %}
             <td style="background-color:rgba(255,255,0,0.6);">{{quote}}%</td>
         {% else %}
             <td style="background-color:rgba(255,0, 0,0.6);">{{quote}}%</td>

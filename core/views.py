@@ -513,38 +513,66 @@ def malget10(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe
     if optionen != "":
         typ_anf = 1
         typ_end = 3
-        if "mit" in optionen:
-            typ_end = 8 + stufe%2
+        if stufe >= 4 or jg >= 7 or "mit" in optionen:
+            typ_end = 8 + stufe%2                               #6 für E-Kurs
         return typ_anf, typ_end
     else:
         typ = random.randint(typ_anf, typ_end)
-        typ = 3
-        if typ < 4:
-            zahl1 = random.randint(1,99) 
-            exp = random.randint(1,3)
+        hilfe = ""
+        exp = random.randint(1,3)
+        if typ < 4:                                     #ganze Zahl
+            zahl1 = random.randint(1,99)                #Multi.
             zahl2 = 10**exp 
-            if typ < 3:
-                typ ="Mal: "
-                text="Multipliziere:<br> {0} {1} {2}".format(zahl1, chr(8901), zahl2)
-                hilfe="Mal {0} heißt, dass die Zahl {1} um  {2} Stelle(n) größer wird.".format(zahl2,zahl1, exp) 
-                if stufe%2 == 0:
-                    hilfe = hilfe + "<br>Du musst also {0} Null(en) anhängen.".format(exp)
-                erg = zahl1 * zahl2
-            else:
-                zahl1 = zahl1 * zahl2
+            if typ == 3:                                #Div.'                    
                 exp2 = 4
                 while exp2 > exp:
                     exp2 = random.randint(1,3)
-                    zahl3 = 10**exp2
-                typ ="Geteilt durch: "
-                text="Dividiere:<br> {0} {1} {2}".format(zahl1, " : " , zahl3)
-                hilfe="Geteilt durch {0} heißt, dass die Zahl {1} um  {2} Stelle(n) kleiner wird.".format(zahl3, zahl1, exp2) 
+                    zahl2 = 10**exp2
+        elif typ > 3:                                   #Kommazahlen
+            if typ < 6:                                 #Multip. typ 4 und 5
+                zahl1 = random.randint(1,999)/10  
+                zahl2 = 10**exp 
+            else:
+                zahl1 = random.randint(1,99)*10/100     #typ 6
+                zahl2=  10**(exp*-1)                
+        elif typ < 9:                                   #Div. durch ganze Zahl   typ 7 und 8     
+            zahl1 = random.randint(1,99)  
+            zahl2 = 10**exp 
+        else:                                           #Div. durch Kommazahl  typ 9                           
+            zahl1 = random.randint(1,99)
+            zahl2 = 10**(exp*-1)  
+                                                        #Aufgabe, Ergebnis, Lösung, Hilfe:    
+        if typ == 1 or typ == 2 or typ == 4 or typ == 5:
+            text = "Multipliziere:<br> {0} {1} {2}".format(zahl1, chr(8901), zahl2).replace(".", ",")
+            erg = zahl1 * zahl2
+            lsg = str(int(erg))
+            if typ < 3:
+                hilfe = "Mal {0} heißt, dass die Zahl {1} um  {2} Stelle(n) größer wird.".format(zahl2,zahl1, exp) 
+                if stufe%2 == 0:
+                    hilfe = hilfe + "<br>Du musst also {0} Null(en) anhängen.".format(exp)
+                typ = "Mal: 10, 100, 1000"
+            else:
+                typ = "Mal: 0,01; 0,1; 10; 100; 1000"
+        else:                                           #typ 3, 6, 7 , 8, 9
+            text = "Dividiere:<br> {0} {1} {2}".format(zahl1, " : ", zahl2).replace(".", ",")
+            erg = zahl1 / zahl2
+            lsg = str(round(erg,5)).replace(".", ",").rstrip(",")
+            if typ == 3:
+                hilfe="Geteilt durch {0} heißt, dass die Zahl {1} um  {2} Stelle(n) kleiner wird.".format(zahl2, zahl1, exp2) 
                 if stufe%2 == 0:
                     hilfe = hilfe + "<br>Du musst also {0} Null(en) wegnehmen.".format(exp2)
-                erg = zahl1/zahl3
-        print(hilfe)
-        typ = typ +  "10, 100, 1000"
-        lsg = str(erg)
+                typ = "Geteilt durch: 10, 100, 1000"
+            else:
+                if typ == 9:
+                    hilfe = "Geteilt durch {0} heißt, dass die Zahl {1} um  {2} Stelle(n) größer wird.".format(zahl2,zahl1, exp).replace(".", ",") 
+                    hilfe = hilfe + "<br>Du musst also das Komma um {0} Stelle(n) nach rechts verschieben <br>(und unter Umständen noch Nullen ergänzen).".format(exp)
+                    typ = "Geteilt durch: 0,1; 0,01"
+                else:
+                    hilfe = "Geteilt durch {0} heißt, dass die Zahl {1} um  {2} Stelle(n) kleiner wird.".format(zahl2,zahl1, exp).replace(".", ",") 
+                    hilfe = hilfe + "<br>Du musst also das Komma um {0} Stelle(n) nach links verschieben <br>(und unter Umständen noch Nullen ergänzen).".format(exp)
+                    if typ == 8:
+                        hilfe = hilfe = hilfe + "<br>(Ja, stimmt, es ist kein Komma da - du musst es dir hinter der {0} denken".format(zahl1)
+                    typ = "Geteilt durch: 10, 100, 1000" 
         return typ, text, "", "", [lsg], hilfe, erg, {'name':''}
 
 AUFGABEN = {
@@ -631,6 +659,7 @@ def details(req, zeile_id):
     return render(req, 'core/details.html', {'protokoll': protokoll, 'zaehler': zaehler})
 
 def main(req, slug):                                                        #hier läuft alles zusammen
+    print("1")
     kategorie = get_object_or_404(Kategorie, slug = slug)
     kategorie_id = kategorie.id
     user = get_fake_user()    
@@ -733,6 +762,7 @@ def main(req, slug):                                                        #hie
     return render(req, 'core/aufgabe.html', context)
 
 def optionen(req, slug):
+    print("2")
     kategorie = get_object_or_404(Kategorie, slug = slug)
     form = AuswahlForm(kategorie = kategorie)
     user = get_fake_user()   
@@ -793,14 +823,23 @@ def hilfe(req, zaehler_id, protokoll_id):
     zaehler = get_object_or_404(Zaehler, pk = zaehler_id)
     protokoll = get_object_or_404(Protokoll, pk = protokoll_id)
     kategorie = protokoll.kategorie
-    msg=f'{protokoll.hilfe}'
-    messages.info(req, f'{zaehler.hinweis}')  
+    text = protokoll.text
+    anm = protokoll.anmerkung
+    hilfe = protokoll.hilfe
+    grafik = protokoll.grafik
+    if protokoll.value != 0:
+        form = AufgabeFormZahl(req.POST)
+    else:
+        form = AufgabeFormStr(req.POST)
     protokoll.eingabe = protokoll.eingabe + " Hilfe "
     protokoll.save()
     zaehler.hilfe +=1
-    zaehler.hinweis = msg
     zaehler.save()
-    return redirect('main', kategorie.slug)
+    messages.info(req, f'Hilfe: {protokoll.hilfe}')  
+    if len(str(protokoll.typ)) < 3:
+        protokoll.typ = ""
+    context = dict(kategorie = kategorie, typ = protokoll.typ, aufgnr = zaehler.aufgnr, text = text, anmerkung = anm, form = form, zaehler_id = zaehler.id, hilfe = hilfe, protokoll_id = protokoll.id, grafik = grafik)
+    return render(req, 'core/aufgabe.html', context)
 
 def hinweis(zaehler_id, protokoll_id, hinweis):
     zaehler = get_object_or_404(Zaehler, pk = zaehler_id)

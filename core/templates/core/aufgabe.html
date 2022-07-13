@@ -60,7 +60,9 @@
 
 <nav>
     <a href="{% url 'loesung' zaehler_id %}">Lösung anzeigen</a>
-    <a href="{% url 'hilfe' zaehler_id protokoll_id %}" {% if not hilfe  %}disabled{% endif %}>Hilfe anzeigen</a>
+    {% if hilfe  %}
+        <a href="{% url 'hilfe' zaehler_id protokoll_id %}"> Hilfe anzeigen</a>
+    {% endif %}
     <a href="{% url 'abbrechen' zaehler_id %}">Abbrechen</a>
 </nav>
 </ul>
