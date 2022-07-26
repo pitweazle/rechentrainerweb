@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 
 class Kategorie(models.Model):
     zeile = models.PositiveSmallIntegerField(default=0, unique=True)             # entspricht der Aufgabengruppe (1 bis 35)
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=30)
 
     slug=models.SlugField(default="", null=False)
 

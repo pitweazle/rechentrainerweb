@@ -1,5 +1,6 @@
 import decimal
 import random
+from re import A
 from token import NOTEQUAL
 from unittest.util import strclass
 
@@ -25,7 +26,7 @@ def format_number(value, precision=2, trailing_zeros=True):
     text = f"{value:.{precision}f}".replace(".", ",")
     return text.rstrip(",0") if not trailing_zeros and "," in text else text
 
-def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
+def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = "", lsg = ""):
     if optionen != "":
         typ_anf = 1 
         typ_end = 3
@@ -82,7 +83,7 @@ def ergaenzen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingab
             lsg = f"{format_number(zahl2-zahl1,exp+exp2)}"
         return typ, titel, text, pro_text, "", [lsg],  hilfe, zahl2-zahl1, {'name':''}
 
-def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
+def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = "", lsg = ""):
     if optionen != "":
         typ_anf = 1
         typ_end = 1
@@ -97,10 +98,10 @@ def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe
             typ = random.randint(typ_anf, typ_end+1)
     # hier wird die Aufgabe erstellt:
         if typ == 1:
-                zahl1 = random.randint(5, faktor*45)
-                zahl2 = random.randint(5, faktor*45)
-                text = pro_text = (str(zahl1)) + " + " + (str(zahl2)) 
-                lsg = str(zahl1 + zahl2)
+            zahl1 = random.randint(5, faktor*45)
+            zahl2 = random.randint(5, faktor*45)
+            text = pro_text = (str(zahl1)) + " + " + (str(zahl2)) 
+            lsg = str(zahl1 + zahl2)
         else:
             rund1 = random.randint(0,faktor)
             zahl1 = random.randint(5,faktor*112)
@@ -113,7 +114,7 @@ def addieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe
             lsg = f"{format_number(zahl1+zahl2,max(rund1,rund2))}"
         return typ, titel, text, "", "", [lsg], "", zahl1+zahl2, {'name':''}
 
-def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
+def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = "", lsg = ""):
     if optionen != "":
         typ_anf = 1
         typ_end = 1
@@ -144,7 +145,7 @@ def subtrahieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", ein
             lsg =   f"{format_number(result,max(rund1,rund2),False)}"          
     return typ, titel, text, "", "", [lsg], "", result, {'name':''}
 
-def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
+def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = "", lsg = ""):
     if optionen != "":
         typ_anf = 0
         typ_end = 3
@@ -177,7 +178,7 @@ def verdoppeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", einga
     pro_text = text
     return typ, titel, text, "", "", [lsg], hilfe, erg, {'name':''}
     
-def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
+def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = "", lsg = ""):
     if optionen != "":
         typ_anf = 1
         typ_end = 1
@@ -208,7 +209,7 @@ def halbieren(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingab
     pro_text = text
     return typ, titel, text, "", "", [lsg], "Hilfe", zahl1/2, {'name':''}
 
-def einmaleins(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
+def einmaleins(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = "", lsg = ""):
     if optionen != "":
         typ_anf = 1
         typ_end = 11
@@ -238,7 +239,7 @@ def einmaleins(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", einga
             erg = zahl1             
     return typ, titel, text, "", "", [lsg], "", erg, {'name':''}
 
-def kopfrechnen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
+def kopfrechnen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = "", lsg = ""):
     if optionen != "":
         typ_anf = 1
         typ_end = 9
@@ -321,16 +322,16 @@ def ggt(a,b):
         return a
     return ggt(b, a % b)
 
-def tausender(zahl):
-    zahl_mill = zahl//1000000        
-    zahl_tsnd = zahl%1000000//1000
-    zahl_klein = zahl%1000 
+def trenner(wert):
+    zahl_mill = wert//1000000        
+    zahl_tsnd = wert%1000000//1000
+    zahl_klein = wert%1000 
     zahl = ""
     zahl =  "%d %03d %03d"%(zahl_mill, zahl_tsnd, zahl_klein)
     zahl = zahl.lstrip("0").lstrip(" ").lstrip("0") 
     return zahl
 
-def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
+def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = "", lsg = ""):
     if optionen != "":
         typ_anf = 1
         if stufe >= 4 or jg >= 7 or "Kommazahlen" in optionen:
@@ -374,7 +375,7 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe =
             zahl_klein = zahl1%1000
             text_k = text + zahl_wort(zahl_klein)
             text = "Schreibe folgende Zahl in Ziffern: " + text_k.title()
-            lsg = tausender(zahl1)
+            lsg = trenner(zahl1)
             erg=zahl1
             hilfe = ""
         elif typ == 2:
@@ -518,13 +519,13 @@ def zahlen(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe =
                         bruch_str = str(ganz) + " " +  bruch_str
                         lsg.append(bruch_str)
                         lsg.append(str(int((zaehler+ganz*nenner)/kuerz)) +"/"+ str(int(nenner/kuerz)))
-                lsg.append("indiv")
+                lsg = ["indiv"] + lsg
                 text = "Welcher Bruch ist hier dargestellt ?"
                 anm = "Schreibe als Bruch (9/7) oder als gemischte Zahl (1 2/7)"
             grafik = {'name': 'zahlenstrahl', 'anf': anf, 'eint':eint, 'v': v, 'txt0':  z+(v-1)*z, 'txt1': z+v*z, 'txt2': z+(v+1)*z, 'txt3': z+z*(v+2), 'txt4': z+z*(v+3), 'text_v': text_v, 'x': int(zahl1)+20, 'bruch':bruch}
-        return typ, titel, text, pro_text, anm, [lsg], hilfe, erg, grafik 
+        return typ, titel, text, pro_text, anm, lsg, hilfe, erg, grafik 
 
-def malget10(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
+def malget10(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = "", lsg = ""):
     if optionen != "":
         typ_anf = 1
         typ_end = 3
@@ -590,48 +591,333 @@ def malget10(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe
                     titel = "Geteilt durch: 10, 100, 1000" 
         return typ, text, "", "", [lsg], hilfe, erg, {'name':''}
 
-def runden(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
+def runden(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = "", lsg = ""):
     if optionen != "":
         typ_anf = 1
         typ_end = 6
         if stufe >= 4 or jg >= 7 or "mit" in optionen:
-            typ_anf = -4  
+            typ_anf = -3  
         return typ_anf, typ_end
+    elif eingabe != "":
+        loe = (lsg[1])
+        if eingabe.replace(" ","") != loe.replace(" ",""):
+            erg = loe.replace(",",".")
+            eing = eingabe.replace(",",".")
+            if float(erg) == float(eing):
+                meldung = "Leider falsch! Richtig wäre: " + (erg) + "- Deine Eingabe: " + eing + "<br>Du darfst die Null am Ende nicht weglassen - <br>Die Zahl muss genau {0} Stellen hinter dem Komma haben".format(len(erg)-erg.find("."))
+                return -1, meldung.replace(".", ",")
+        else:
+            return 0, "" 
     else:
-        #typ = random.randint(typ_anf, typ_end)
-        typ = random.randint(1,6)
+        typ = random.randint(typ_anf, typ_end)
         titel = "Runden"
         name_liste = ("Einer", "zehn", "hundert", "tausend", "zehntausend", "hunderttausend",  "million")
-        n = "n"
-        if typ >= 0:
-            if typ == 0:
-                endung = ""
-                n = ""
-            elif typ == 6:
-                endung = "en"
-                n = ""
-            else:
-                endung = "er"
+        n = ""
+        if typ < -1:
+            endung = "stel" 
+        elif typ == 6:
+            endung = "en"
+        elif typ > 0:
+            endung = "er"
+            n = "n"
+        elif typ == -1:
+            endung = "tel"
         else:
-            if typ == 1:
-                endung = "tel"
+            endung = ""
+
+        if typ > 0:
+            exp = 10**(typ+2)
+            zahl1 = int(random.random()*exp)        
+            name = name_liste[typ] + endung
+            name = name.title()
+            zahl = trenner(zahl1)
+            text = " Runde {0} auf {1}".format(zahl,name)
+            erg = round(zahl1 / 10.0 ** typ)
+            erg = int(erg * 10 ** typ)
+            lsg = [trenner(erg)]
+            hilfe = "{0} ist die {1}.Stelle von rechts. Dahinter musst du Nullen schreiben!".format(name,typ+1)
+            next = name_liste[typ-1]
+            hilfe = hilfe + "<br>Wenn die Zahl rechts von den {0}{1} (die {2}er) eine 5, 6, 7, 8 oder 9 ist musst du aufrunden!".format(name,n,next.title())
+        else:
+            zahl2 = random.randint(1,2)
+            zahl1 = int(random.random()*10**(abs(typ)+zahl2+1))
+            zahl1 = zahl1*10**(typ-zahl2)
+            zahl = format_number(zahl1,abs(typ)+zahl2)
+            name = name_liste[abs(typ)] + endung
+            name = name.title()
+            text = " Runde {0} auf {1}".format(zahl,name)
+            if typ < 0:
+                erg = round(zahl1 ,abs(typ))
+                lsg = ["{0:.{1}f}".format(zahl1,abs(typ)).replace(".",",")]
             else:
-                endung = "stel"    
-	# 	zahl1=(CLng(rnd()*10^(Abs(typ)+3)))/(10^(typ+2))
-        #if typ >= 0:
-        exp = 10**(typ+2)
-        zahl1 = int(random.random()*exp)        
-        name = name_liste[typ] + endung
-        name = name.title()
-        zahl = tausender(zahl1)
-        text = " Runde {0} auf {1}".format(zahl,name)
-        erg = int(zahl1/10**typ)*10**typ
-        lsg = tausender(erg)
+                lsg = [format_number(zahl1,abs(typ))]
+            if typ < 0:
+                hilfe = "{0} ist die {1}.Stelle hinter dem Komma.".format(name,abs(typ))
+                hilfe = hilfe + "<br>Wenn die Zahl rechts von den {0}{1} eine 5, 6, 7, 8 oder 9 ist musst du aufrunden!".format(name,n.title())
+            else:
+                hilfe = "'Runde auf Einer' heißt, dass die Zahlen hinter dem Komma wegfallen."
+                hilfe = hilfe + "<br>Wenn die erste Zahl hinter dem Komma eine 5, 6, 7, 8 oder 9 ist musst du aufrunden!"
+            lsg = ["indiv"] + lsg
         erg = 0
-        hilfe = "{0} ist die {1}.Stelle von rechts. Dahinter musst du Nullen schreiben!".format(name,typ+1)
-        next = name_liste[typ-1]
-        hilfe = hilfe + "<br>Wenn die Zahl rechts von den {0}{1} (die {2}er) eine 5, 6, 7, 8 oder 9 ist musst du aufrunden!".format(name,n,next.title())
-        return typ, titel, text, "", "", [lsg], hilfe, erg, {'name':''}
+        return typ, titel, text, "", "", lsg, hilfe, erg, {'name':''}
+
+def regeln(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = "", lsg = ""):
+    if optionen != "":
+        typ_anf = 1
+        typ_end = 15 + stufe%2
+        return typ_anf, typ_end
+    else:
+        typ = random.randint(typ_anf, typ_end) 
+        erg = 0
+        anmerkung = ""
+        hilfe = ""
+    # hier wird die Aufgabe erstellt:
+        if typ < 5:
+            operation_liste = ["Addition", "Subtraktion", "Multiplikation","Division"]
+            name_liste = ["Plus", "Minus", "Mal", "Geteilt"]
+            ergebnis_liste = ["Summe", "Differenz", "Produkt", "Quotient"]
+            typ2 = random.randint(0,3)
+        elif typ > 10:
+            titel = "Zahlenfolgen"
+            folge = []
+            n = 1
+            zahl = random.randint(1,2)
+            anzab = random.randint(0,1)	
+            anz = 4
+        else:
+            titel = "Rechenregeln"
+            hilfe="Es gelten die Regeln:<br>1. Punktrechnung vor Strichrechnung!<br>2. Falls Klammern da sind, werden sie zuerst berechnet!"
+
+        if typ < 3:
+            titel = "Begriffe"
+            text = "Wie heißt das Ergebnis einer {0}saufgabe?".format(operation_liste[typ2])
+            erg = 0
+            anmerkung = "Achte auf die korrekte Schreibweise!"
+            lsg = ergebnis_liste[typ2]
+            random.shuffle(ergebnis_liste)
+            hilfe = "Es gibt: " + ", ".join(ergebnis_liste)
+            if stufe%2 == 0:
+                hilfe = hilfe + "<br>{0} ist die '{1}'-Rechnung.".format(operation_liste[typ2], name_liste[typ2])
+        elif typ < 5:
+            titel = "Kennst du die Begriffe?"
+            artikel_liste = ["die", "die", "das", "den"]
+            endung_liste = ["","","","en"]
+            if typ2 == 0:
+                zahl1 = random.randint(1,1000)
+                zahl2 = random.randint(1,20)
+                erg = zahl1 + zahl2
+            elif typ2 == 1:
+                zahl3 = random.randint(1,980)
+                zahl2 = random.randint(1,20)
+                zahl1 = zahl3 + zahl2
+                erg = zahl3    
+            elif typ2 == 2:
+                zahl1 = random.randint(1,12)
+                zahl2 = random.randint(1,15)
+                erg = zahl1 * zahl2 
+            else:
+                zahl3 = random.randint(1,9)
+                zahl2 = random.randint(1,9)
+                zahl1 = zahl3 * zahl2
+                erg = zahl3                                            
+            text = "Berechne {0} {1}{2} aus {3} und {4}".format(artikel_liste[typ2], ergebnis_liste[typ2], endung_liste[typ2],zahl1, zahl2)
+            lsg = str(erg)
+            if stufe%2 == 0:
+                hilfe = "{0} ist das Ergebnis einer {1}saufgabe.".format(ergebnis_liste[typ2], operation_liste[typ2])
+        elif typ == 5:
+            zahl1=random.randint(1,10)
+            zahl2=random.randint(1,8)
+            zahl3=random.randint(1,7)
+            text=str(zahl1) + " · ( " + str(zahl2) + " + " + str(zahl3) + ") "
+            erg=zahl1*(zahl2+zahl3)
+        elif typ == 6:
+            zahl1=random.randint(1,8)
+            zahl2=random.randint(1,7)
+            zahl3=random.randint(1,8)
+            zahl4=random.randint(1,7)
+            text="( " + str(zahl1) + " + " + str(zahl2) + " ) · ( " + str(zahl3) + " + " + str(zahl4) + " ) "
+            erg=(zahl1+zahl2)*(zahl3+zahl4)
+        elif typ == 7:       
+            zahl1=random.randint(2,4)
+            zahl2=random.randint(1,10)
+            zahl3=random.randint(1,10)*zahl1
+            text=str(zahl2) + " + " + str(zahl3) + " : " + str(zahl1)
+            erg=zahl2+zahl3/zahl1
+        elif typ == 8:
+            zahl1=random.randint(1,10)
+            zahl2=random.randint(1,5)*zahl1
+            zahl3=random.randint(1,10)
+            text=str(zahl2) + " · " + str(zahl3) + " - " + str(zahl1)
+            erg=zahl2*zahl3-zahl1
+        elif typ == 9:
+            zahl1=random.randint(1,10)
+            zahl2=random.randint(1,10)
+            zahl3=random.randint(1,10)
+            text=str(zahl1) + " + " + str(zahl2) + " · " + str(zahl3)
+            erg=zahl1+zahl2*zahl3
+        elif typ == 10:
+            zahl1=random.randint(1,10)
+            zahl2=random.randint(1,10)
+            zahl3=random.randint(1,10)
+            text=str(zahl1) + " · " + str(zahl2) + " + " + str(zahl3)
+            erg=zahl1*zahl2+zahl3
+        else:
+            if typ == 11:
+                hilfe = "Das ist eine arithmetische Reihe. <br>Hier wird immer eine Zahl addiert."
+                add = random.randint(2,4)	    
+                mult = random.randint(2,3)	
+                zahl = random.randint(2,10)     #Startzahl
+                anzab = random.randint(0,2)	    #Start Anzeige                
+            elif typ == 12:
+                hilfe = "Das ist eine geometrische Reihe. <br>Hier wird immer eine Zahl multipliziert."
+                add = random.randint(2,4)	    
+                mult = random.randint(2,3)	
+            elif typ == 13:
+                hilfe = "Hier wird im Wechsel immer eine Zahl addiert und subtrahiert."
+                add = random.randint(3,5)       #wird subtrahiert	    
+                mult = random.randint(1,2)	             
+            elif typ == 14:
+                hilfe = "Hier wird im Wechsel immer eine Zahl multipliziert und addiert."
+                anmerkung = "Hier musst du zwei verschiedene Rechnungen anwenden."
+                add = random.randint(2,4)	    
+                mult = random.randint(2,3)
+                if mult == 3 and anzab == 1:
+                    anz = 3	
+            elif typ == 15:
+                hilfe = "Hier wird im Wechsel immer eine Zahl multipliziert und subtrahiert."
+                mult = random.randint(2,3)	                  
+                add = mult
+                while add >= mult:
+                    add = random.randint(1,2)	#wird addiert
+                zahl1 = 2
+                anzab = 1
+            elif typ == 16:
+                folge = ["0","1"]
+                a = 1 
+                b = 1
+                anmerkung = "Diese Folge nennt man 'Fibonacci Zahlen'."
+                hilfe = " Addiere die benachbarten Zahlen ..."
+                anzab = 0           
+
+            if anzab == 0:
+                zahl = 1
+            if typ >12:
+                anz = anzab + 6
+            if typ == 16:
+                anz =random.randint(5,8)
+
+            n = 1
+            while n <= anz + anzab:
+                folge.append(str(zahl))
+                if typ == 11:
+                    zahl = zahl + add
+                elif typ == 12:
+                    zahl = zahl * mult
+                elif typ == 13:
+                    if n%2 == 1:
+                        zahl = zahl + add
+                    else:
+                        zahl = zahl - mult                   
+                elif typ == 14:
+                    if n%2 == 1:
+                        zahl = zahl * mult
+                    else:
+                        zahl = zahl + add
+                elif typ == 15:
+                    if n%2 == 1:
+                        zahl = zahl * mult
+                    else:
+                        zahl = zahl - add                        
+                else:
+                    zahl = a + b
+                    b = a
+                    a = zahl
+                n = n+1
+
+        if typ > 10:
+            folge.append("...")   
+            if anzab > 0:
+                folge = folge[anzab:n+anzab]  
+                folge = ["..."] + folge        
+            text = "Wie heißt die nächste Zahl: <br>" + "; ".join(folge)
+            lsg = str(zahl)
+        return typ, titel, text, "", anmerkung, [lsg], hilfe, erg, {'name':''}
+
+def geometrie(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = "", lsg = ""):
+    if optionen != "":                                                              #hier wird typ_anf und typ_end festgelegt u.u. nach Wahl unter 'Optionen'
+        typ_anf = 1
+        typ_end = 2
+        if stufe >= 4 or jg >= 7 or "mit" in optionen:
+            typ_end = 2
+        return typ_anf, typ_end
+    else:
+        typ = random.randint(typ_anf, typ_end) 
+        typ = random.randint(1,2) 
+
+        titel = ""  
+                                                                                    # hier wird die Aufgabe erstellt:
+        if typ <3:
+            titel = "Paralelle"
+
+            if typ == 1:
+                g = [-10,25,25]
+                h = [10,25,-25]
+            else:
+                h = [-10,25,25]
+                g = [5,25,-25]                
+            random.shuffle(g)
+            random.shuffle(h)
+            lsg1 = ""
+            n = 0
+            if typ == 1:
+                while n < 3:
+                    if g[n] == 25:
+                        lsg1 = lsg1 + "g" + str(n+1)
+                    n = n+1
+            else:
+                while n < 3:
+                    if h[n] == 25:
+                        lsg1 = lsg1 + "h" + str(n+1)
+                    n = n+1
+            text = "Welche der Geraden sind parallel zueinander?"
+            erg = 0
+            lsg = lsg1[:2] + " und " + lsg1[2:]
+            lsg2= lsg1[2:] + lsg1[:2]
+           
+            lsg = [lsg, lsg1, lsg2]
+            grafik = {'name': 'parallele', 'g11': g[0], 'g21':g[1], 'g31': g[2], 'g12': -g[0], 'g22': -g[1], 'g32': -g[2],'h11': h[0], 'h21': h[1], 'h31': h[2], 'h12': -h[0], 'h22': -h[1], 'h32': -h[2]}
+        else:
+            pass
+        return typ, titel, text, "", "", lsg, "", erg, grafik
+
+def default(jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = "", lsg = ""):
+    if optionen != "":                                                              #hier wird typ_anf und typ_end festgelegt u.u. nach Wahl unter 'Optionen'
+        typ_anf = 1
+        typ_end = 1
+        if stufe >= 4 or jg >= 7 or "mit" in optionen:
+            typ_end = 2
+        return typ_anf, typ_end
+    elif eingabe != "":                                                              #wenn in Lösungen 'iniv' steht, kann die Lösung hier überprüft werden                                            
+        loe = (lsg[0])
+        if eingabe.replace(" ","") != loe.replace(" ",""):
+            erg = loe.replace(",",".")
+            eing = eingabe.replace(",",".")
+            if float(erg) == float(eing):
+                return 0, "Du darfst die Null am Ende nicht weglassen - <br>Die Zahl muss genau {0} Stellen hinter dem Komma haben".format(len(erg)-erg.find("."))
+        else:
+            return 0, "" 
+    else:
+        typ = random.randint(typ_anf, typ_end)  
+        titel = "Titel"  
+                                                                                    # hier wird die Aufgabe erstellt:
+        if typ == 1:
+                zahl1 = random.randint(0,2)
+                text = ""
+                erg = 0
+                lsg = str(erg)
+        else:
+            pass
+        return typ, titel, text, "", "", [lsg], "", erg, {'name':''}
 
 AUFGABEN = {
     1: ergaenzen,
@@ -644,29 +930,31 @@ AUFGABEN = {
     8: zahlen,
     9: malget10,
     10: runden,
+    11: regeln,
+    12: geometrie,
 }
 
-def aufgaben(kategorie_id, jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = ""):
-    return AUFGABEN[kategorie_id](jg, stufe, typ_anf, typ_end, optionen, eingabe)
+def aufgaben(kategorie_id, jg = 5, stufe = 3, typ_anf = 0, typ_end = 0, optionen = "", eingabe = "", lsg = ""):
+    return AUFGABEN[kategorie_id](jg, stufe, typ_anf, typ_end, optionen, eingabe, lsg)
 
 def kontrolle(eingabe, value, lsg, protokoll_id):
     if value != 0:                                      #das wird zB gebraucht beim Kürzen, wenn es nicht auf den Wert ankommt, sondern auf die Schreibweise
         if eingabe == value:
-            return "richtig", ""
+            return 1, ""
         #return abs(given - value) < decimal.Decimal('0.001')
         else:
-            return "falsch", ""    
+            return -1, ""    
     else:
         if "indiv" in lsg:                              #wenn in der Liste 'loesungen' 'indiv' steht, dann wird der eingegebene Wert in der Funtion der entsprechenden Kategorie überprüft
             protokoll = get_object_or_404(Protokoll, pk = protokoll_id)
-            punkte, rueckmeldung = aufgaben(protokoll.kategorie_id, eingabe=eingabe) 
+            punkte, rueckmeldung = aufgaben(protokoll.kategorie_id, eingabe=eingabe, lsg=lsg) 
             if rueckmeldung:
                 return punkte, rueckmeldung             #hier kann unter 'punkte" festgelegt werden, ob es z.B. Extrapunkte oder Punktabzüge gibt
         for loe in (lsg):
             if eingabe.replace(" ","") == loe.replace(" ",""):
-                return "richtig", ""
+                return 1, ""
         else:
-            return "falsch", ""
+            return -1, ""
 
 def get_fake_user():
     #return Schueler.objects.all().order_by('?').first()
@@ -705,15 +993,20 @@ def protokoll(req):
     user = get_fake_user()    
     protokoll = Protokoll.objects.filter(user=user).order_by('id').reverse()
     form = ProtokollFilter
+    filter = "aktuelles Halbjahr"
     if req.method == 'POST':
         auswahl = form(req.POST)
         if auswahl.is_valid():     
             filter = auswahl.cleaned_data['filter']
-            if filter == "heute":
+            print(filter)
+            if filter == "hj":
+                print("OK")
+            elif filter == "heute":
                 protokoll = protokoll.filter(start__date = date.today())
             elif filter == "Woche":
                 protokoll =  protokoll.filter(start__date__gte = date.today() - timedelta(days = 7))
-    return render(req, 'core/protokoll.html', {'protokoll': protokoll, 'form': form})
+    
+    return render(req, 'core/protokoll.html', {'protokoll': protokoll, 'form': form, 'filter': filter})
 
 def details(req, zeile_id):
     protokoll = get_object_or_404(Protokoll, pk = zeile_id)
@@ -725,7 +1018,7 @@ def main(req, slug):                                                        #hie
     kategorie_id = kategorie.id
     user = get_fake_user()    
     if req.method == 'POST':  
-        protokoll = Protokoll.objects.get(pk = req.session.get('eingabe_id'))
+        protokoll = Protokoll.objects.get(pk = req.session.get('protokoll_id'))
         protokoll.tries += 1
         zaehler = Zaehler.objects.get(pk = req.session.get('zaehler_id'))
         zaehler.hinweis = ""
@@ -744,7 +1037,7 @@ def main(req, slug):                                                        #hie
             protokoll.bearbeitungszeit = (timezone.now() - protokoll.start).total_seconds()
             protokoll.save()
             wertung, rueckmeldung = kontrolle(eingabe, protokoll.value, protokoll.loesung, protokoll.id)
-            if wertung == "richtig":
+            if wertung == 1:
             #if kontrolle(eingabe, protokoll.value, protokoll.loesung):      #Anwort richtig
                 protokoll.wertung = protokoll.wertung + "r"
                 protokoll.save()
@@ -771,8 +1064,14 @@ def main(req, slug):                                                        #hie
                 msg = f'<br>richtig: {zaehler.richtig}, falsch: {zaehler.falsch}, Fehlerquote: {quote}%, EoF: {zaehler.richtig_of}/{kategorie.eof}'
                 messages.info(req, f'Die letzte Aufgabe war richtig! {msg}')
                 return redirect('main', slug)
-            else:                                                                       #Antwort falsch
-                if wertung == "falsch":
+            else:  
+                print(wertung)   
+                print(rueckmeldung) 
+                if wertung < 0:
+                    messages.info(req, rueckmeldung)  
+                    wertung = -1 
+                                                                                 #Antwort falsch
+                if wertung == -1:
                     protokoll.wertung = protokoll.wertung + "f"
                     protokoll.save()
                     zaehler.falsch += 1
@@ -806,7 +1105,7 @@ def main(req, slug):                                                        #hie
         protokoll = Protokoll.objects.create(
             user = user, titel = titel, halbjahr = halbjahr, kategorie = kategorie, text = text, pro_text = pro_text, anmerkung = anm, value = result, loesung = lsg, hilfe = hilfe, grafik = grafik, individuell = ""       
         )                                                                   #Protokoll wird erstellt
-        req.session['eingabe_id'] = protokoll.id    
+        req.session['protokoll_id'] = protokoll.id    
         req.session['zaehler_id'] = zaehler.id   
         if protokoll.value != 0:
             form = AufgabeFormZahl(req.POST)

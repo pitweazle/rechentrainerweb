@@ -16,5 +16,5 @@ class AuswahlForm(forms.Form):
         self.fields['optionen'].queryset = kategorie.auswahl_set.all()
 
 class ProtokollFilter(forms.Form):
-    filter = forms.ChoiceField(label='Filter', choices=[('heute','heute'), ('woche','Woche'), ("hj",'aktuelles Halbjahr'),("sj",'aktuelles Schuljahr'),("all",'Alles'),])
+    filter = forms.ChoiceField(label='Filter', choices=[("hj",'aktuelles Halbjahr'), ('heute','heute'), ('woche','Woche'), ("sj",'aktuelles Schuljahr'),("all",'Alles'),])
  

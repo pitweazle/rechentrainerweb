@@ -1,6 +1,5 @@
 {% extends 'layout.html' %}
 {% load static %}
-{% comment %} {% load svg %} {% endcomment %}
 {% load l10n %}
 {% load mathfilters %}
 
@@ -18,47 +17,49 @@
 {% autoescape off %}
 
 <ul>
-<h2> {{titel }}</h2>
-{% if messages %}
-<p>
-    {% for message in messages %}
-        {% if 'leider' in message.message %}
-            <li style="background-color:rgba(255,0, 0,0.6);">{{ message }}</li>
-        {% elif 'richtig!' in message.message %}
-            <li style="background-color:rgba(0, 255, 0,0.6);">{{ message }}</li>                
-        {% else %}
-            <li style="background-color:rgba(255, 255,0.6);">{{ message }}</li>
-        {% endif%}
-    {% endfor %}
-</p>
-{% endif %}
-<h3>Aufg. Nr. {{aufgnr}}/10 </h3> 
-
-<h3>{{text}} {{aufgabe}}</h3>
-<p> {{ anmerkung }} </p>
-
-<form action="{% url 'main' kategorie.slug %}" method="post">
-    {% csrf_token %}
-    <fieldset>
-        {{ form.eingabe.label_tag }}
-        {{ form.eingabe }}
-        <input class="button-primary" type="submit" value="Prüfen">
-    </fieldset>
-</form>
-{% endautoescape %}
-
-{% comment %} <p> {{grafik.name}} </p> {% endcomment %}
-{% if grafik.name %}
-    {% include "svg/zahlenstrahl.svg" %} 
-    {% comment %} {% include {{grafik.name|urlencode}} %}     {% endcomment %}
-{% endif %}
-
-<nav>
-    <a href="{% url 'loesung' zaehler_id %}">Lösung anzeigen</a>
-    {% if hilfe  %}
-        <a href="{% url 'hilfe' zaehler_id protokoll_id %}"> Hilfe anzeigen</a>
+    <h2> {{titel }}</h2>
+    {% if messages %}
+    <p>
+        {% for message in messages %}
+            {% if 'leider' in message.message %}
+                <li style="background-color:rgba(255,0, 0,0.6);">{{ message }}</li>
+            {% elif 'richtig!' in message.message %}
+                <li style="background-color:rgba(0, 255, 0,0.6);">{{ message }}</li>                
+            {% else %}
+                <li style="background-color:rgba(255, 255,0.6);">{{ message }}</li>
+            {% endif%}
+        {% endfor %}
+    </p>
     {% endif %}
-    <a href="{% url 'abbrechen' zaehler_id %}">Abbrechen</a>
-</nav>
+    <h3>Aufg. Nr. {{aufgnr}}/10 </h3> 
+
+    <h3>{{text}} {{aufgabe}}</h3>
+    <p> {{ anmerkung }} </p>
+
+    <form action="{% url 'main' kategorie.slug %}" method="post">
+        {% csrf_token %}
+        <fieldset>
+            {{ form.eingabe.label_tag }}
+            {{ form.eingabe }}
+            <input class="button-primary" type="submit" value="Prüfen">
+        </fieldset>
+    </form>
+    {% endautoescape %}
+
+    {% if grafik.name %}
+        {% if "zahlenstrahl" in grafik.name %}
+            {% include "svg/zahlenstrahl.svg" %} 
+        {% elif "parallele" in grafik.name %}
+            {% include "svg/parallele.svg" %}       
+        {% endif %}
+    {% endif %}
+
+    <nav>
+        <a href="{% url 'loesung' zaehler_id %}">Lösung anzeigen</a>
+        {% if hilfe  %}
+            <a href="{% url 'hilfe' zaehler_id protokoll_id %}"> Hilfe anzeigen</a>
+        {% endif %}
+        <a href="{% url 'abbrechen' zaehler_id %}">Abbrechen</a>
+    </nav>
 </ul>
 {% endblock %}

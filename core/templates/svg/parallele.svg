@@ -1,0 +1,24 @@
+{% load mathfilters %}
+<svg xmlns="http://www.w3.org/2000/svg"
+    version=1.1"
+
+    <svg viewbox="0 0 600 600">
+
+    <rect x="0" y="0" width=400 height="400" fill="white"></rect>	
+
+    <text x=15 y={{grafik.g11|add:115}} style="url(#text)">g1</text>
+    <text x=15 y={{grafik.g21|add:215}} style="url(#text)">g2</text>
+    <text x=15 y={{grafik.g21|add:315}} style="url(#text)">g3</text>
+
+    <line y1={{grafik.g11|add:100}} x2=400 y2={{grafik.g12|add:100}}  style="stroke:black;stroke-width:1;" />	
+    <line y1={{grafik.g21|add:200}} x2=400 y2={{grafik.g22|add:200}}  style="stroke:black;stroke-width:1;" />	
+    <line y1={{grafik.g31|add:300}} x2=400 y2={{grafik.g32|add:300}}  style="stroke:black;stroke-width:1;" />
+
+    <text x={{grafik.h11|add:115}} y=20 style="url(#text)">h1</text>
+    <text x={{grafik.h21|add:215}} y=20 style="url(#text)">h2</text>
+    <text x={{grafik.h31|add:315}} y=20 style="url(#text)">h3</text>
+
+    <line x1={{grafik.h11|add:100}} y2=400 x2={{grafik.h12|add:100}}  style="stroke:black;stroke-width:1;" />	
+    <line x1={{grafik.h21|add:200}} y2=400 x2={{grafik.h22|add:200}}  style="stroke:black;stroke-width:1;" />	
+    <line x1={{grafik.h31|add:300}} y2=400 x2={{grafik.h32|add:300}}  style="stroke:black;stroke-width:1;" />
+</svg>
